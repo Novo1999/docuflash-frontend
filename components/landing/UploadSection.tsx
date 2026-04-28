@@ -1,9 +1,10 @@
 'use client'
 
+import { ACCESS_TYPES } from '@/app/constants/accessTypes'
 import { useUploadThing } from '@/app/utils/generateReactHelpers'
 import { Button } from '@/components/ui/button'
 import { FileUploadDropzone, FileUploadList, FileUploadRoot } from '@/components/ui/file-upload'
-import { Box, HStack, Icon, IconButton, Text, VStack } from '@chakra-ui/react'
+import { Box, HStack, Icon, IconButton, Portal, Select, Text, VStack } from '@chakra-ui/react'
 import { useState } from 'react'
 import { LuCopy, LuShare2, LuShield } from 'react-icons/lu'
 
@@ -55,15 +56,15 @@ export function UploadSection() {
   return (
     <>
       {/* Heading */}
-      <Text as="h1" fontSize={{ base: '4xl', md: '5xl' }} lineHeight="1.1" color="#0f1c2e" letterSpacing="-0.5px" fontFamily="var(--font-instrument-serif)">
+      <Text as="h1" fontSize={{ base: '4xl', md: '5xl' }} lineHeight="1.1" color="ink.900" letterSpacing="-0.5px" fontFamily="var(--font-instrument-serif)">
         Share any document/zip,{' '}
-        <Text as="em" color="#c8a96e" fontStyle="italic" fontFamily="var(--font-instrument-serif)">
+        <Text as="em" color="brand.400" fontStyle="italic" fontFamily="var(--font-instrument-serif)">
           instantly
         </Text>
       </Text>
 
       {/* Subtitle */}
-      <Text fontSize="md" color="#5a6a7e" fontWeight="300" lineHeight="1.7" maxW="460px" fontFamily="var(--font-dm-sans)">
+      <Text fontSize="md" color="ink.600" fontWeight="300" lineHeight="1.7" maxW="460px" fontFamily="var(--font-dm-sans)">
         Upload a PDF, Word doc, Excel sheet, or ZIP — get a shareable link in seconds. No account needed.
       </Text>
 
@@ -92,11 +93,12 @@ export function UploadSection() {
                 description="PDF, DOCX, XLSX, ZIP — up to 10 MB"
                 borderWidth="1.5px"
                 borderStyle="dashed"
-                borderColor="rgba(200,169,110,0.5)"
+                borderColor="brandAlpha.50"
                 borderRadius="xl"
-                bg="rgba(200,169,110,0.04)"
+                bg="brandAlpha.4"
                 cursor="pointer"
-                _hover={{ bg: 'rgba(200,169,110,0.08)', borderColor: '#c8a96e' }}
+                _hover={{ bg: 'brandAlpha.8', borderColor: 'brand.400' }}
+                className='text-black'
               />
               <FileUploadList />
             </FileUploadRoot>
@@ -112,8 +114,8 @@ export function UploadSection() {
                   px={2.5}
                   py={1}
                   borderRadius="md"
-                  bg="#ede7d9"
-                  color="#5a6a7e"
+                  bg="brand.100"
+                  color="ink.600"
                   borderWidth="1px"
                   borderColor="blackAlpha.100"
                   fontFamily="var(--font-dm-sans)"
@@ -121,6 +123,30 @@ export function UploadSection() {
                   {label}
                 </Box>
               ))}
+              <Select.Root collection={ACCESS_TYPES} size="sm">
+                <Select.HiddenSelect />
+                <Select.Label className="text-left text-black">Select Access Type</Select.Label>
+                <Select.Control>
+                  <Select.Trigger bg="brandAlpha.4">
+                    <Select.ValueText className='text-black' placeholder="Access Type" />
+                  </Select.Trigger>
+                  <Select.IndicatorGroup>
+                    <Select.Indicator />
+                  </Select.IndicatorGroup>
+                </Select.Control>
+                <Portal>
+                  <Select.Positioner>
+                    <Select.Content>
+                      {ACCESS_TYPES.items.map((type) => (
+                        <Select.Item bg="brandAlpha.4" className="text-black" item={type} key={type.value}>
+                          {type.label}
+                          <Select.ItemIndicator />
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Positioner>
+                </Portal>
+              </Select.Root>
             </HStack>
 
             {/* Upload button */}
@@ -130,13 +156,13 @@ export function UploadSection() {
               loading={isUploading}
               loadingText="Uploading..."
               onClick={handleStartUpload}
-              bg="#0f1c2e"
-              color="#f5f0e8"
+              bg="ink.900"
+              color="brand.50"
               borderRadius="xl"
               fontSize="md"
               fontWeight="500"
               py={6}
-              _hover={{ bg: '#1a2d45' }}
+              _hover={{ bg: 'ink.800' }}
               _disabled={{ opacity: 0.4, cursor: 'not-allowed' }}
             >
               Upload & get link
@@ -151,8 +177,8 @@ export function UploadSection() {
             )}
 
             <HStack justify="center" gap={1}>
-              <Icon as={LuShield} color="#5a6a7e" boxSize={3} />
-              <Text fontSize="xs" color="#5a6a7e" fontFamily="var(--font-dm-sans)">
+              <Icon as={LuShield} color="ink.600" boxSize={3} />
+              <Text fontSize="xs" color="ink.600" fontFamily="var(--font-dm-sans)">
                 Files under 5 MB require no registration
               </Text>
             </HStack>
@@ -161,32 +187,32 @@ export function UploadSection() {
           /* Success state — share link */
           <VStack gap={5} alignItems="stretch">
             <VStack gap={2}>
-              <Box w="48px" h="48px" bg="rgba(200,169,110,0.12)" borderRadius="full" display="flex" alignItems="center" justifyContent="center" mx="auto">
-                <Icon as={LuShare2} color="#c8a96e" boxSize={5} />
+              <Box w="48px" h="48px" bg="brandAlpha.12" borderRadius="full" display="flex" alignItems="center" justifyContent="center" mx="auto">
+                <Icon as={LuShare2} color="brand.400" boxSize={5} />
               </Box>
-              <Text fontSize="lg" fontWeight="500" color="#0f1c2e" fontFamily="var(--font-instrument-serif)">
+              <Text fontSize="lg" fontWeight="500" color="ink.900" fontFamily="var(--font-instrument-serif)">
                 Your file is ready to share
               </Text>
-              <Text fontSize="sm" color="#5a6a7e" fontFamily="var(--font-dm-sans)">
+              <Text fontSize="sm" color="ink.600" fontFamily="var(--font-dm-sans)">
                 Anyone with this link can download the file
               </Text>
             </VStack>
 
             {/* Link box */}
-            <HStack bg="#f5f0e8" borderWidth="1px" borderColor="blackAlpha.200" borderRadius="xl" px={4} py={3} justify="space-between" gap={3}>
-              <Text fontSize="sm" color="#0f1c2e" fontFamily="var(--font-dm-sans)" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap" flex={1}>
+            <HStack bg="brand.50" borderWidth="1px" borderColor="blackAlpha.200" borderRadius="xl" px={4} py={3} justify="space-between" gap={3}>
+              <Text fontSize="sm" color="ink.900" fontFamily="var(--font-dm-sans)" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap" flex={1}>
                 {shareLink}
               </Text>
-              <IconButton aria-label="Copy link" size="sm" variant="ghost" color={copied ? '#c8a96e' : '#5a6a7e'} onClick={handleCopy} _hover={{ bg: 'blackAlpha.50' }}>
+              <IconButton aria-label="Copy link" size="sm" variant="ghost" color={copied ? 'brand.400' : 'ink.600'} onClick={handleCopy} _hover={{ bg: 'blackAlpha.50' }}>
                 <LuCopy />
               </IconButton>
             </HStack>
 
-            <Button w="full" onClick={handleCopy} bg="#0f1c2e" color="#f5f0e8" borderRadius="xl" fontSize="md" fontWeight="500" py={6} _hover={{ bg: '#1a2d45' }}>
+            <Button w="full" onClick={handleCopy} bg="ink.900" color="brand.50" borderRadius="xl" fontSize="md" fontWeight="500" py={6} _hover={{ bg: 'ink.800' }}>
               {copied ? '✓ Copied!' : 'Copy link'}
             </Button>
 
-            <Button w="full" variant="ghost" onClick={handleReset} color="#5a6a7e" fontSize="sm" _hover={{ color: '#0f1c2e', bg: 'blackAlpha.50' }}>
+            <Button w="full" variant="ghost" onClick={handleReset} color="ink.600" fontSize="sm" _hover={{ color: 'ink.900', bg: 'blackAlpha.50' }}>
               Upload another file
             </Button>
           </VStack>

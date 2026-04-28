@@ -11,7 +11,7 @@ export default function Navbar() {
       position="sticky"
       top={0}
       zIndex={10}
-      bg="#f5f0e8"
+      bg="brand.50"
       borderBottomWidth="1px"
       borderColor="blackAlpha.200"
       px={10}
@@ -24,27 +24,27 @@ export default function Navbar() {
         <Box
           w="32px"
           h="32px"
-          bg="#0f1c2e"
+          bg="ink.900"
           borderRadius="lg"
           display="flex"
           alignItems="center"
           justifyContent="center"
         >
-          <Icon as={LuFileText} color="#c8a96e" fontSize="sm" />
+          <Icon as={LuFileText} color="brand.400" fontSize="sm" />
         </Box>
-        <Text fontSize="17px" fontWeight="500" color="#0f1c2e" letterSpacing="tight" fontFamily="var(--font-dm-sans)">
+        <Text fontSize="17px" fontWeight="500" color="ink.900" letterSpacing="tight" fontFamily="var(--font-dm-sans)">
           Docuflash
         </Text>
       </HStack>
 
       <HStack gap={8}>
-        <Link href="#" fontSize="sm" color="#5a6a7e" textDecoration="none" _hover={{ color: '#0f1c2e' }}>How it works</Link>
-        <Link href="#" fontSize="sm" color="#5a6a7e" textDecoration="none" _hover={{ color: '#0f1c2e' }}>Pricing</Link>
+        <Link href="#" fontSize="sm" color="ink.600" textDecoration="none" _hover={{ color: 'ink.900' }}>How it works</Link>
+        <Link href="#" fontSize="sm" color="ink.600" textDecoration="none" _hover={{ color: 'ink.900' }}>Pricing</Link>
       </HStack>
 
-      <HStack gap={1} bg="rgba(200,169,110,0.12)" border="1px solid" borderColor="rgba(200,169,110,0.3)" px={3} py={1.5} borderRadius="full">
-        <Icon as={LuShield} color="#c8a96e" boxSize={3} />
-        <Text fontSize="xs" fontWeight="500" color="#c8a96e">No sign-up required</Text>
+      <HStack gap={1} bg="brandAlpha.12" border="1px solid" borderColor="brandAlpha.30" px={3} py={1.5} borderRadius="full">
+        <Icon as={LuShield} color="brand.400" boxSize={3} />
+        <Text fontSize="xs" fontWeight="500" color="brand.400">No sign-up required</Text>
       </HStack>
     </Box>
   )

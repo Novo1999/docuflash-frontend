@@ -11,13 +11,13 @@ export default function HowItWorks() {
       ].map((s, i) => (
         <HStack key={s.step} gap={0} flex={1} alignItems="flex-start">
           <VStack gap={1} textAlign="center" flex={1} px={2}>
-            <Text fontSize="xs" fontWeight="500" color="#c8a96e" letterSpacing="widest" fontFamily="var(--font-dm-sans)">
+            <Text fontSize="xs" fontWeight="500" color="brand.400" letterSpacing="widest" fontFamily="var(--font-dm-sans)">
               {s.step}
             </Text>
-            <Text fontSize="sm" fontWeight="500" color="#0f1c2e" fontFamily="var(--font-dm-sans)">
+            <Text fontSize="sm" fontWeight="500" color="ink.900" fontFamily="var(--font-dm-sans)">
               {s.label}
             </Text>
-            <Text fontSize="xs" color="#5a6a7e" fontFamily="var(--font-dm-sans)">
+            <Text fontSize="xs" color="ink.600" fontFamily="var(--font-dm-sans)">
               {s.desc}
             </Text>
           </VStack>

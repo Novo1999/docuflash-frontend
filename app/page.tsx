@@ -6,7 +6,7 @@ import { Box, VStack } from '@chakra-ui/react'
 
 export default function LandingPage() {
   return (
-    <Box minH="100vh" bg="#f5f0e8">
+    <Box minH="100vh" bg="brand.50">
       <Navbar />
       <Box maxW="680px" mx="auto" pt="72px" pb="64px" px={4} textAlign="center">
         <VStack gap={5}>
