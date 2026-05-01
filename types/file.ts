@@ -55,4 +55,6 @@ export type FileRecord = {
   fileSize: number
   accessType: FileAccessType
   expireAt: string
+  downloadCount: number
+  uploadDate: string
 }

@@ -25,6 +25,19 @@ export async function deleteFile(id: string): Promise<void> {
   })
 }
 
+export async function verifyFilePassword(token: string, password: string): Promise<{ fileUrl: string }> {
+  const response = await apiClient<{ fileUrl: string }>(`/api/files/${token}/verify`, {
+    method: 'POST',
+    body: { password },
+  })
+  return response.data
+}
+
+export async function getFileDownloadUrl(token: string): Promise<{ fileUrl: string }> {
+  const response = await apiClient<{ fileUrl: string }>(`/api/files/${token}/download`)
+  return response.data
+}
+
 export async function deleteUploadedStorageFile(storageKey: string): Promise<void> {
   const response = await fetch(buildApiUrl('/api/uploadthing'), {
     method: 'DELETE',
