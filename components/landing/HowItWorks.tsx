@@ -1,33 +1,30 @@
 'use client'
-import { HStack, Text, VStack } from '@chakra-ui/react'
 
 export default function HowItWorks() {
   return (
-    <HStack gap={0} justify="center" w="full" borderTopWidth="1px" borderColor="blackAlpha.100" pt={8} mt={2} alignItems="flex-start">
+    <div className="flex justify-center w-full border-t border-black/5 pt-8 mt-2 items-start">
       {[
         { step: '01', label: 'Upload', desc: 'Drop your file into the box' },
         { step: '02', label: 'Get link', desc: 'Receive a unique shareable URL' },
         { step: '03', label: 'Share', desc: 'Send the link to anyone' },
       ].map((s, i) => (
-        <HStack key={s.step} gap={0} flex={1} alignItems="flex-start">
-          <VStack gap={1} textAlign="center" flex={1} px={2}>
-            <Text fontSize="xs" fontWeight="500" color="brand.400" letterSpacing="widest" fontFamily="var(--font-dm-sans)">
+        <div key={s.step} className="flex flex-1 items-start gap-0">
+          <div className="flex flex-col gap-1 text-center flex-1 px-2">
+            <span className="text-xs font-medium text-[var(--brand-400)] tracking-widest font-[var(--font-dm-sans)]">
               {s.step}
-            </Text>
-            <Text fontSize="sm" fontWeight="500" color="ink.900" fontFamily="var(--font-dm-sans)">
+            </span>
+            <span className="text-sm font-medium text-[var(--ink-900)] font-[var(--font-dm-sans)]">
               {s.label}
-            </Text>
-            <Text fontSize="xs" color="ink.600" fontFamily="var(--font-dm-sans)">
+            </span>
+            <span className="text-xs text-[var(--ink-600)] font-[var(--font-dm-sans)]">
               {s.desc}
-            </Text>
-          </VStack>
+            </span>
+          </div>
           {i < 2 && (
-            <Text color="blackAlpha.200" fontSize="lg" mt={2}>
-              →
-            </Text>
+            <span className="text-black/20 text-lg mt-2">→</span>
           )}
-        </HStack>
+        </div>
       ))}
-    </HStack>
+    </div>
   )
 }

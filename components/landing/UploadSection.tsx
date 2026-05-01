@@ -6,10 +6,9 @@ import { deleteUploadedStorageFile, uploadFile } from '@/app/lib/api/files'
 import { useUploadThing } from '@/app/utils/generateReactHelpers'
 import { getClientId, getDeviceInfo, getShareLink, resolveFileType } from '@/app/utils/upload'
 import { uploadSchema, type UploadFormValues } from '@/app/zod/uploadSchema'
-import { Button } from '@/components/ui/button'
-import { FileUploadDropzone, FileUploadList, FileUploadRoot } from '@/components/ui/file-upload'
+import { FileUpload } from '@/components/file/FileUpload'
 import { FileAccessType } from '@/types/file'
-import { Box, Field, HStack, Icon, IconButton, Input, Portal, Select, Text, VStack } from '@chakra-ui/react'
+import { Button, FieldError, Input, Label, ListBox, Select, TextField } from '@heroui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -133,98 +132,65 @@ export function UploadSection() {
   return (
     <>
       {/* Heading */}
-      <Text as="h1" fontSize={{ base: '4xl', md: '5xl' }} lineHeight="1.1" color="ink.900" letterSpacing="-0.5px" fontFamily="var(--font-instrument-serif)">
-        Share any document/zip,{' '}
-        <Text as="em" color="brand.400" fontStyle="italic" fontFamily="var(--font-instrument-serif)">
-          instantly
-        </Text>
-      </Text>
+      <h1 className="text-4xl md:text-5xl leading-tight text-foreground font-serif tracking-tight">
+        Share any document/zip, <em className="text-primary italic">instantly</em>
+      </h1>
 
-      {/* Subtitle */}
-      <Text fontSize="md" color="ink.600" fontWeight="300" lineHeight="1.7" maxW="460px" fontFamily="var(--font-dm-sans)">
-        Upload a PDF, Word doc, Excel sheet, or ZIP — get a shareable link in seconds. No account needed.
-      </Text>
+      <p className="text-default-500 max-w-[460px]">Upload a PDF, Word doc, Excel sheet, or ZIP — get a shareable link in seconds. No account needed.</p>
 
       {/* Upload Card */}
-      <Box w="full" bg="white" borderWidth="1px" borderColor="blackAlpha.100" borderRadius="2xl" p={8} boxShadow="0 4px 40px rgba(15,28,46,0.07)" mt={2}>
+      <div className="w-full bg-white border border-black/[0.06] rounded-2xl p-8 shadow-[0_4px_40px_rgba(15,28,46,0.07)] mt-2">
         {!shareLinks ? (
-          <VStack gap={5} alignItems="stretch" as="form" onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
             {/* File dropzone */}
             <Controller
               name="files"
               control={control}
               render={({ field }) => (
-                <Field.Root invalid={!!errors.files}>
-                  <FileUploadRoot
+                <div className="flex flex-col gap-1">
+                  <FileUpload
                     maxFiles={1}
                     accept={ACCEPTED_UPLOAD_MIME_TYPES}
-                    onFileChange={(details) => {
+                    onFilesChange={(files) => {
                       clearErrors('root')
-                      field.onChange(details.acceptedFiles)
+                      field.onChange(files)
                     }}
-                    alignItems="stretch"
                   >
-                    <FileUploadDropzone
-                      label="Drop your file here"
-                      description="PDF, DOCX, XLSX, ZIP — up to 10 MB"
-                      borderWidth="1.5px"
-                      borderStyle="dashed"
-                      borderColor={errors.files ? 'red.400' : 'brandAlpha.50'}
-                      borderRadius="xl"
-                      bg="brandAlpha.4"
-                      cursor="pointer"
-                      _hover={{ bg: 'brandAlpha.8', borderColor: 'brand.400' }}
-                      className="text-black"
-                    />
-                    <FileUploadList />
-                  </FileUploadRoot>
-                  {errors.files && <Field.ErrorText>{errors.files.message}</Field.ErrorText>}
-                </Field.Root>
+                    <FileUpload.Dropzone label="Drop your file here" description="PDF, DOCX, XLSX, ZIP — up to 10 MB" className={errors.files ? 'border-red-400' : undefined} />
+                    <FileUpload.List />
+                  </FileUpload>
+                  {errors.files && <p className="text-sm text-red-500">{errors.files.message}</p>}
+                </div>
               )}
             />
 
             {/* Format badges + file size */}
-            <HStack gap={2} justify="center" flexWrap="wrap">
+            <div className="flex flex-wrap gap-2 justify-center">
               {SUPPORTED_UPLOAD_FORMATS.map((label) => (
-                <Box
-                  key={label}
-                  fontSize="xs"
-                  fontWeight="500"
-                  letterSpacing="wide"
-                  px={2.5}
-                  py={1}
-                  borderRadius="md"
-                  bg="brand.100"
-                  color="ink.600"
-                  borderWidth="1px"
-                  borderColor="blackAlpha.100"
-                  fontFamily="var(--font-dm-sans)"
-                >
+                <span key={label} className="text-xs font-medium tracking-wide px-2.5 py-1 rounded-md bg-primary-100 text-ink-600 border border-black/[0.06] font-[var(--font-dm-sans)]">
                   {label}
-                </Box>
+                </span>
               ))}
               {fileSizeMB && (
-                <HStack gap={1} px={2.5} py={1} borderRadius="md" bg="brandAlpha.8" borderWidth="1px" borderColor="blackAlpha.100">
-                  <Icon as={LuFile} boxSize={3} color="ink.600" />
-                  <Text fontSize="xs" fontWeight="500" color="ink.600" fontFamily="var(--font-dm-sans)">
-                    {fileSizeMB} MB
-                  </Text>
-                </HStack>
+                <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary/[0.08] border border-black/[0.06]">
+                  <LuFile className="w-3 h-3 text-ink-600" />
+                  <span className="text-xs font-medium text-ink-600 font-[var(--font-dm-sans)]">{fileSizeMB} MB</span>
+                </span>
               )}
-            </HStack>
+            </div>
 
             {/* Access Type */}
             <Controller
               name="accessType"
               control={control}
               render={({ field }) => (
-                <Field.Root>
-                  <Select.Root
-                    collection={ACCESS_TYPES}
-                    size="sm"
-                    value={[field.value]}
-                    onValueChange={(e) => {
-                      const val = e.value[0] as 'public' | 'protected'
+                <div className="flex flex-col gap-1">
+                  <Select
+                    className="w-full"
+                    placeholder="Access Type"
+                    selectedKey={field.value}
+                    onSelectionChange={(key) => {
+                      const val = key as 'public' | 'protected'
                       field.onChange(val)
                       if (val !== 'protected') {
                         setValue('password', '')
@@ -234,30 +200,23 @@ export function UploadSection() {
                       }
                     }}
                   >
-                    <Select.HiddenSelect />
-                    <Select.Label className="text-left text-black">Access Type</Select.Label>
-                    <Select.Control>
-                      <Select.Trigger bg="brandAlpha.4">
-                        <Select.ValueText className="text-black" placeholder="Access Type" />
-                      </Select.Trigger>
-                      <Select.IndicatorGroup>
-                        <Select.Indicator />
-                      </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                      <Select.Positioner>
-                        <Select.Content>
-                          {ACCESS_TYPES.items.map((type) => (
-                            <Select.Item bg="brandAlpha.4" className="text-black" item={type} key={type.value}>
-                              {type.label}
-                              <Select.ItemIndicator />
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Portal>
-                  </Select.Root>
-                </Field.Root>
+                    <Label className="text-left text-black">Access Type</Label>
+                    <Select.Trigger className="bg-primary/[0.04]">
+                      <Select.Value />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox>
+                        {ACCESS_TYPES.map((type) => (
+                          <ListBox.Item key={type.value} id={type.value} textValue={type.label} className="bg-primary/[0.04] text-black">
+                            <Label>{type.label}</Label>
+                            <ListBox.ItemIndicator />
+                          </ListBox.Item>
+                        ))}
+                      </ListBox>
+                    </Select.Popover>
+                  </Select>
+                </div>
               )}
             />
 
@@ -267,51 +226,33 @@ export function UploadSection() {
                 name="password"
                 control={control}
                 render={({ field }) => (
-                  <Field.Root invalid={!!errors.password}>
-                    <Field.Label className="text-left text-black">
-                      <HStack gap={1}>
-                        <Icon as={LuLock} boxSize={4} />
-                        <Text>Password</Text>
-                      </HStack>
-                    </Field.Label>
-                    <Box position="relative" w="full">
+                  <TextField className="w-full" isInvalid={!!errors.password} validationBehavior="aria">
+                    <Label className="text-left text-black flex items-center gap-1">
+                      <LuLock className="w-4 h-4" />
+                      <span>Password</span>
+                    </Label>
+                    <div className="relative w-full">
                       <Input
                         {...field}
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Set a password for this file"
-                        bg="brand.50"
-                        borderWidth="1px"
-                        borderColor={errors.password ? 'red.400' : 'blackAlpha.200'}
-                        borderRadius="xl"
-                        px={4}
-                        py={3}
-                        pr={12}
-                        fontSize="md"
-                        color="ink.900"
-                        _placeholder={{ color: 'ink.400' }}
-                        _focus={{
-                          borderColor: 'brand.400',
-                          boxShadow: '0 0 0 3px rgba(200,169,110,0.1)',
-                        }}
+                        className={[
+                          'w-full bg-primary-50 border rounded-xl px-4 py-3 pr-12 text-base text-ink-900',
+                          'placeholder:text-ink-400 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10 outline-none transition-colors',
+                          errors.password ? 'border-red-400' : 'border-black/20',
+                        ].join(' ')}
                       />
-                      <IconButton
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      <button
                         type="button"
-                        size="sm"
-                        variant="ghost"
-                        color="ink.600"
-                        position="absolute"
-                        top="50%"
-                        right={2}
-                        transform="translateY(-50%)"
-                        onClick={() => setShowPassword((current) => !current)}
-                        _hover={{ bg: 'blackAlpha.50' }}
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        onClick={() => setShowPassword((curr) => !curr)}
+                        className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-ink-600 hover:bg-black/5 transition-colors"
                       >
-                        {showPassword ? <LuEyeOff /> : <LuEye />}
-                      </IconButton>
-                    </Box>
-                    {errors.password && <Field.ErrorText>{errors.password.message}</Field.ErrorText>}
-                  </Field.Root>
+                        {showPassword ? <LuEyeOff className="w-4 h-4" /> : <LuEye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {errors.password && <FieldError className="text-sm text-red-500">{errors.password.message}</FieldError>}
+                  </TextField>
                 )}
               />
             )}
@@ -321,100 +262,76 @@ export function UploadSection() {
               name="expireAt"
               control={control}
               render={({ field }) => (
-                <Field.Root invalid={!!errors.expireAt}>
-                  <Field.Label className="text-left text-black">
-                    <HStack gap={1}>
-                      <Icon as={LuClock} boxSize={4} />
-                      <Text>Expires At</Text>
-                    </HStack>
-                  </Field.Label>
+                <TextField className="w-full" isInvalid={!!errors.expireAt} validationBehavior="aria">
+                  <Label className="text-left text-black flex items-center gap-1">
+                    <LuClock className="w-4 h-4" />
+                    <span>Expires At</span>
+                  </Label>
                   <Input
                     {...field}
                     type="datetime-local"
-                    bg="brand.50"
-                    borderWidth="1px"
-                    borderColor={errors.expireAt ? 'red.400' : 'blackAlpha.200'}
-                    borderRadius="xl"
-                    px={4}
-                    py={3}
-                    fontSize="md"
                     min={new Date().toISOString().slice(0, 16)}
-                    color="ink.900"
-                    _focus={{
-                      borderColor: 'brand.400',
-                      boxShadow: '0 0 0 3px rgba(200,169,110,0.1)',
-                    }}
+                    className={[
+                      'w-full bg-primary-50 border rounded-xl px-4 py-3 text-base text-ink-900',
+                      'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10 outline-none transition-colors',
+                      errors.expireAt ? 'border-red-400' : 'border-black/20',
+                    ].join(' ')}
                   />
-                  {errors.expireAt && <Field.ErrorText>{errors.expireAt.message}</Field.ErrorText>}
-                </Field.Root>
+                  {errors.expireAt && <FieldError className="text-sm text-red-500">{errors.expireAt.message}</FieldError>}
+                </TextField>
               )}
             />
 
-            {errors.root && (
-              <Text fontSize="sm" color="red.500" fontFamily="var(--font-dm-sans)" textAlign="center">
-                {errors.root.message}
-              </Text>
-            )}
+            {errors.root && <p className="text-sm text-red-500 font-[var(--font-dm-sans)] text-center">{errors.root.message}</p>}
 
             <Button
               type="submit"
-              w="full"
-              disabled={isSubmitting || files.length === 0}
-              loading={isSubmitting}
-              loadingText="Uploading..."
-              bg="ink.900"
-              color="brand.50"
-              borderRadius="xl"
-              fontSize="md"
-              fontWeight="500"
-              py={6}
-              _hover={{ bg: 'ink.800' }}
-              _disabled={{ opacity: 0.4, cursor: 'not-allowed' }}
+              fullWidth
+              isDisabled={isSubmitting || files.length === 0}
+              isPending={isSubmitting}
+              className="bg-ink-900 text-primary-50 rounded-xl text-base font-medium py-6 hover:bg-ink-800 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Upload & get link
+              {isSubmitting ? 'Uploading...' : 'Upload & get link'}
             </Button>
 
-            <HStack justify="center" gap={1}>
-              <Icon as={LuShield} color="ink.600" boxSize={3} />
-              <Text fontSize="xs" color="ink.600" fontFamily="var(--font-dm-sans)">
-                Files under 5 MB require no registration
-              </Text>
-            </HStack>
-          </VStack>
+            <div className="flex items-center justify-center gap-1">
+              <LuShield className="w-3 h-3 text-ink-600" />
+              <span className="text-xs text-ink-600 font-[var(--font-dm-sans)]">Files under 5 MB require no registration</span>
+            </div>
+          </form>
         ) : (
           /* Success state */
-          <VStack gap={5} alignItems="stretch">
-            <VStack gap={2}>
-              <Box w="48px" h="48px" bg="brandAlpha.12" borderRadius="full" display="flex" alignItems="center" justifyContent="center" mx="auto">
-                <Icon as={LuShare2} color="brand.400" boxSize={5} />
-              </Box>
-              <Text fontSize="lg" fontWeight="500" color="ink.900" fontFamily="var(--font-instrument-serif)">
-                Your file is ready to share
-              </Text>
-              <Text fontSize="sm" color="ink.600" fontFamily="var(--font-dm-sans)">
-                Anyone with this link can download the file
-              </Text>
-            </VStack>
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 bg-primary/[0.12] rounded-full flex items-center justify-center mx-auto">
+                <LuShare2 className="w-5 h-5 text-primary-400" />
+              </div>
+              <p className="text-lg font-medium text-ink-900 font-[var(--font-instrument-serif)]">Your file is ready to share</p>
+              <p className="text-sm text-ink-600 font-[var(--font-dm-sans)]">Anyone with this link can download the file</p>
+            </div>
 
-            <HStack bg="brand.50" borderWidth="1px" borderColor="blackAlpha.200" borderRadius="xl" px={4} py={3} justify="space-between" gap={3}>
-              <Text fontSize="sm" color="ink.900" fontFamily="var(--font-dm-sans)" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap" flex={1}>
-                {shareLinks}
-              </Text>
-              <IconButton aria-label="Copy link" size="sm" variant="ghost" color={copied ? 'brand.400' : 'ink.600'} onClick={handleCopy} _hover={{ bg: 'blackAlpha.50' }}>
-                <LuCopy />
-              </IconButton>
-            </HStack>
+            <div className="flex items-center justify-between gap-3 bg-primary-50 border border-black/20 rounded-xl px-4 py-3">
+              <span className="text-sm text-ink-900 font-[var(--font-dm-sans)] overflow-hidden text-ellipsis whitespace-nowrap flex-1">{shareLinks}</span>
+              <button
+                type="button"
+                aria-label="Copy link"
+                onClick={handleCopy}
+                className={['shrink-0 p-1.5 rounded-md transition-colors hover:bg-black/5', copied ? 'text-primary-400' : 'text-ink-600'].join(' ')}
+              >
+                <LuCopy className="w-4 h-4" />
+              </button>
+            </div>
 
-            <Button w="full" onClick={handleCopy} bg="ink.900" color="brand.50" borderRadius="xl" fontSize="md" fontWeight="500" py={6} _hover={{ bg: 'ink.800' }}>
+            <Button fullWidth onPress={handleCopy} className="bg-ink-900 text-primary-50 rounded-xl text-base font-medium py-6 hover:bg-ink-800">
               {copied ? '✓ Copied!' : 'Copy link'}
             </Button>
 
-            <Button w="full" variant="ghost" onClick={handleReset} color="ink.600" fontSize="sm" _hover={{ color: 'ink.900', bg: 'blackAlpha.50' }}>
+            <Button fullWidth variant="ghost" onPress={handleReset} className="text-ink-600 text-sm hover:text-ink-900 hover:bg-black/5">
               Upload another file
             </Button>
-          </VStack>
+          </div>
         )}
-      </Box>
+      </div>
     </>
   )
 }
