@@ -12,6 +12,7 @@ const SUPPORTED_UPLOAD_FORMATS = ['PDF', 'DOCX', 'XLSX', 'ZIP']
 
 const MIME_TO_FILE_TYPE: Record<string, FileType> = {
   'application/pdf': FileType.PDF,
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': FileType.DOCX,
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': FileType.XLS,
   'application/vnd.ms-excel': FileType.XLS,
   'application/zip': FileType.ZIP,

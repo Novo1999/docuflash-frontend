@@ -4,7 +4,7 @@ export enum FileType {
   XLS = 'xls',
   ZIP = 'zip',
   OTHER = 'other',
-  TXT = 'txt'
+  TXT = 'txt',
 }
 
 export enum FileAccessType {
@@ -29,4 +29,30 @@ export interface FileDetails {
   uploadDate: string
   expireAt: string
   deviceInfo: DeviceInfo
+}
+
+export type UploadFilePayload = {
+  fileName: string
+  fileType: FileType
+  fileSize: number
+  storageKey: string
+  clientId: string
+  accessType: FileAccessType
+  expireAt: string
+  password?: string
+  downloadCount?: number
+  deviceInfo?: {
+    userAgent?: string
+    platform?: string
+    [key: string]: unknown
+  }
+}
+
+export type FileRecord = {
+  shareToken: string
+  fileName: string
+  fileType: FileType
+  fileSize: number
+  accessType: FileAccessType
+  expireAt: string
 }

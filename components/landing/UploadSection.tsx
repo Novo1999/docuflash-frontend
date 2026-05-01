@@ -2,8 +2,9 @@
 
 import { ACCESS_TYPES } from '@/app/constants/accessTypes'
 import { ACCEPTED_UPLOAD_MIME_TYPES, SUPPORTED_UPLOAD_FORMATS } from '@/app/constants/upload'
+import { deleteUploadedStorageFile, uploadFile } from '@/app/lib/api/files'
 import { useUploadThing } from '@/app/utils/generateReactHelpers'
-import { getDeviceInfo, getShareLink, resolveFileType } from '@/app/utils/upload'
+import { getClientId, getDeviceInfo, getShareLink, resolveFileType } from '@/app/utils/upload'
 import { uploadSchema, type UploadFormValues } from '@/app/zod/uploadSchema'
 import { Button } from '@/components/ui/button'
 import { FileUploadDropzone, FileUploadList, FileUploadRoot } from '@/components/ui/file-upload'
@@ -22,6 +23,8 @@ export function UploadSection() {
     setValue,
     reset,
     setFocus,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<UploadFormValues>({
     resolver: zodResolver(uploadSchema),
@@ -43,12 +46,8 @@ export function UploadSection() {
   const fileSizeMB = files?.[0] ? (files[0].size / (1024 * 1024)).toFixed(2) : null
 
   const { startUpload } = useUploadThing('fileUploader', {
-    onClientUploadComplete: (res) => {
-      setShareLinks(getShareLink(res[0].key))
-      setShowPassword(false)
-      reset()
-    },
     onUploadError: (error) => {
+      setError('root', { message: 'Upload failed. Please try again.' })
       console.error('Upload error:', error)
     },
   })
@@ -57,14 +56,64 @@ export function UploadSection() {
     const file = data.files[0]
     const fileType = resolveFileType(file)
     const deviceInfo = getDeviceInfo()
+    const fileAccessType = data.accessType as FileAccessType
 
-    await startUpload(data.files, {
-      accessType: data.accessType as FileAccessType,
-      password: data.accessType === 'protected' ? data.password : undefined,
-      expireAt: data.expireAt,
-      fileType,
-      deviceInfo: JSON.stringify(deviceInfo),
-    })
+    setShareLinks(null)
+    setCopied(false)
+    clearErrors('root')
+
+    if (!fileType) {
+      setError('root', { message: 'This file type is not supported.' })
+      return
+    }
+
+    try {
+      const uploadResult = await startUpload(data.files, {
+        accessType: fileAccessType,
+        password: data.accessType === 'protected' ? data.password : undefined,
+        expireAt: data.expireAt,
+        fileType,
+        deviceInfo: JSON.stringify(deviceInfo),
+      })
+
+      const uploadedFile = uploadResult?.[0]
+
+      if (!uploadedFile) {
+        throw new Error('Upload did not return a storage key')
+      }
+
+      try {
+        const fileRecord = await uploadFile({
+          fileName: uploadedFile.name,
+          fileType,
+          fileSize: uploadedFile.size,
+          storageKey: uploadedFile.key,
+          clientId: getClientId(),
+          accessType: fileAccessType,
+          expireAt: data.expireAt,
+          password: data.accessType === 'protected' ? data.password : undefined,
+          deviceInfo,
+        })
+
+        setShareLinks(getShareLink(fileRecord.shareToken))
+        setShowPassword(false)
+        reset()
+      } catch (metadataError) {
+        try {
+          await deleteUploadedStorageFile(uploadedFile.key)
+        } catch (cleanupError) {
+          console.error('Upload cleanup failed:', {
+            storageKey: uploadedFile.key,
+            error: cleanupError,
+          })
+        }
+
+        throw metadataError
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      setError('root', { message: 'Upload failed. Please try again.' })
+    }
   }
 
   const handleCopy = () => {
@@ -77,6 +126,7 @@ export function UploadSection() {
   const handleReset = () => {
     setShareLinks(null)
     setShowPassword(false)
+    clearErrors('root')
     reset()
   }
 
@@ -109,6 +159,7 @@ export function UploadSection() {
                     maxFiles={1}
                     accept={ACCEPTED_UPLOAD_MIME_TYPES}
                     onFileChange={(details) => {
+                      clearErrors('root')
                       field.onChange(details.acceptedFiles)
                     }}
                     alignItems="stretch"
@@ -223,7 +274,7 @@ export function UploadSection() {
                         <Text>Password</Text>
                       </HStack>
                     </Field.Label>
-                    <Box position="relative">
+                    <Box position="relative" w="full">
                       <Input
                         {...field}
                         type={showPassword ? 'text' : 'password'}
@@ -299,7 +350,12 @@ export function UploadSection() {
               )}
             />
 
-            {/* Submit */}
+            {errors.root && (
+              <Text fontSize="sm" color="red.500" fontFamily="var(--font-dm-sans)" textAlign="center">
+                {errors.root.message}
+              </Text>
+            )}
+
             <Button
               type="submit"
               w="full"
