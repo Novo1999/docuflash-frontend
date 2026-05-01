@@ -1,56 +1,83 @@
 'use client'
 
 import { ACCESS_TYPES } from '@/app/constants/accessTypes'
+import { ACCEPTED_UPLOAD_MIME_TYPES, SUPPORTED_UPLOAD_FORMATS } from '@/app/constants/upload'
 import { useUploadThing } from '@/app/utils/generateReactHelpers'
+import { getDeviceInfo, getShareLink, resolveFileType } from '@/app/utils/upload'
+import { uploadSchema, type UploadFormValues } from '@/app/zod/uploadSchema'
 import { Button } from '@/components/ui/button'
 import { FileUploadDropzone, FileUploadList, FileUploadRoot } from '@/components/ui/file-upload'
-import { Box, HStack, Icon, IconButton, Portal, Select, Text, VStack } from '@chakra-ui/react'
+import { FileAccessType } from '@/types/file'
+import { Box, Field, HStack, Icon, IconButton, Input, Portal, Select, Text, VStack } from '@chakra-ui/react'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { LuCopy, LuShare2, LuShield } from 'react-icons/lu'
+import { Controller, useForm } from 'react-hook-form'
+import { LuClock, LuCopy, LuEye, LuEyeOff, LuFile, LuLock, LuShare2, LuShield } from 'react-icons/lu'
 
 export function UploadSection() {
-  const [files, setFiles] = useState<File[]>([])
-  const [isUploading, setIsUploading] = useState(false)
-  const [uploadError, setUploadError] = useState<string | null>(null)
-  const [shareLink, setShareLink] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
-
-  const { startUpload } = useUploadThing('fileUploader', {
-    onClientUploadComplete: (res) => {
-      console.log('Files uploaded:', res)
-      setIsUploading(false)
-      setShareLink(`${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://docuflash.vercel.app'}/share/${res[0].key}`)
-      setFiles([])
-    },
-    onUploadError: (error) => {
-      console.error('Upload error:', error)
-      setIsUploading(false)
-      setUploadError(error.message || 'Upload failed')
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    setFocus,
+    formState: { errors, isSubmitting },
+  } = useForm<UploadFormValues>({
+    resolver: zodResolver(uploadSchema),
+    defaultValues: {
+      files: [],
+      accessType: 'public',
+      password: '',
+      expireAt: '',
     },
   })
 
-  const handleStartUpload = async () => {
-    if (files.length === 0) {
-      setUploadError('Please select files to upload')
-      return
-    }
-    setIsUploading(true)
-    setUploadError(null)
-    setShareLink(null)
-    await startUpload(files)
+  const files = watch('files')
+  const accessType = watch('accessType')
+
+  const [shareLinks, setShareLinks] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+
+  const fileSizeMB = files?.[0] ? (files[0].size / (1024 * 1024)).toFixed(2) : null
+
+  const { startUpload } = useUploadThing('fileUploader', {
+    onClientUploadComplete: (res) => {
+      setShareLinks(getShareLink(res[0].key))
+      setShowPassword(false)
+      reset()
+    },
+    onUploadError: (error) => {
+      console.error('Upload error:', error)
+    },
+  })
+
+  const onSubmit = async (data: UploadFormValues) => {
+    const file = data.files[0]
+    const fileType = resolveFileType(file)
+    const deviceInfo = getDeviceInfo()
+
+    await startUpload(data.files, {
+      accessType: data.accessType as FileAccessType,
+      password: data.accessType === 'protected' ? data.password : undefined,
+      expireAt: data.expireAt,
+      fileType,
+      deviceInfo: JSON.stringify(deviceInfo),
+    })
   }
 
   const handleCopy = () => {
-    if (!shareLink) return
-    navigator.clipboard.writeText(shareLink)
+    if (!shareLinks) return
+    navigator.clipboard.writeText(shareLinks)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   const handleReset = () => {
-    setShareLink(null)
-    setFiles([])
-    setUploadError(null)
+    setShareLinks(null)
+    setShowPassword(false)
+    reset()
   }
 
   return (
@@ -70,42 +97,44 @@ export function UploadSection() {
 
       {/* Upload Card */}
       <Box w="full" bg="white" borderWidth="1px" borderColor="blackAlpha.100" borderRadius="2xl" p={8} boxShadow="0 4px 40px rgba(15,28,46,0.07)" mt={2}>
-        {!shareLink ? (
-          <VStack gap={5} alignItems="stretch">
-            <FileUploadRoot
-              maxFiles={1}
-              accept={[
-                'application/pdf',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/zip',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'application/vnd.ms-excel',
-              ]}
-              onFileChange={(details) => {
-                console.log('Files:', details.acceptedFiles)
-                setFiles(details.acceptedFiles)
-                setUploadError(null)
-              }}
-              alignItems="stretch"
-            >
-              <FileUploadDropzone
-                label="Drop your file here"
-                description="PDF, DOCX, XLSX, ZIP — up to 10 MB"
-                borderWidth="1.5px"
-                borderStyle="dashed"
-                borderColor="brandAlpha.50"
-                borderRadius="xl"
-                bg="brandAlpha.4"
-                cursor="pointer"
-                _hover={{ bg: 'brandAlpha.8', borderColor: 'brand.400' }}
-                className='text-black'
-              />
-              <FileUploadList />
-            </FileUploadRoot>
+        {!shareLinks ? (
+          <VStack gap={5} alignItems="stretch" as="form" onSubmit={handleSubmit(onSubmit)}>
+            {/* File dropzone */}
+            <Controller
+              name="files"
+              control={control}
+              render={({ field }) => (
+                <Field.Root invalid={!!errors.files}>
+                  <FileUploadRoot
+                    maxFiles={1}
+                    accept={ACCEPTED_UPLOAD_MIME_TYPES}
+                    onFileChange={(details) => {
+                      field.onChange(details.acceptedFiles)
+                    }}
+                    alignItems="stretch"
+                  >
+                    <FileUploadDropzone
+                      label="Drop your file here"
+                      description="PDF, DOCX, XLSX, ZIP — up to 10 MB"
+                      borderWidth="1.5px"
+                      borderStyle="dashed"
+                      borderColor={errors.files ? 'red.400' : 'brandAlpha.50'}
+                      borderRadius="xl"
+                      bg="brandAlpha.4"
+                      cursor="pointer"
+                      _hover={{ bg: 'brandAlpha.8', borderColor: 'brand.400' }}
+                      className="text-black"
+                    />
+                    <FileUploadList />
+                  </FileUploadRoot>
+                  {errors.files && <Field.ErrorText>{errors.files.message}</Field.ErrorText>}
+                </Field.Root>
+              )}
+            />
 
-            {/* Format badges */}
+            {/* Format badges + file size */}
             <HStack gap={2} justify="center" flexWrap="wrap">
-              {['PDF', 'DOCX', 'XLSX', 'ZIP'].map((label) => (
+              {SUPPORTED_UPLOAD_FORMATS.map((label) => (
                 <Box
                   key={label}
                   fontSize="xs"
@@ -123,39 +152,160 @@ export function UploadSection() {
                   {label}
                 </Box>
               ))}
-              <Select.Root collection={ACCESS_TYPES} size="sm">
-                <Select.HiddenSelect />
-                <Select.Label className="text-left text-black">Select Access Type</Select.Label>
-                <Select.Control>
-                  <Select.Trigger bg="brandAlpha.4">
-                    <Select.ValueText className='text-black' placeholder="Access Type" />
-                  </Select.Trigger>
-                  <Select.IndicatorGroup>
-                    <Select.Indicator />
-                  </Select.IndicatorGroup>
-                </Select.Control>
-                <Portal>
-                  <Select.Positioner>
-                    <Select.Content>
-                      {ACCESS_TYPES.items.map((type) => (
-                        <Select.Item bg="brandAlpha.4" className="text-black" item={type} key={type.value}>
-                          {type.label}
-                          <Select.ItemIndicator />
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Positioner>
-                </Portal>
-              </Select.Root>
+              {fileSizeMB && (
+                <HStack gap={1} px={2.5} py={1} borderRadius="md" bg="brandAlpha.8" borderWidth="1px" borderColor="blackAlpha.100">
+                  <Icon as={LuFile} boxSize={3} color="ink.600" />
+                  <Text fontSize="xs" fontWeight="500" color="ink.600" fontFamily="var(--font-dm-sans)">
+                    {fileSizeMB} MB
+                  </Text>
+                </HStack>
+              )}
             </HStack>
 
-            {/* Upload button */}
+            {/* Access Type */}
+            <Controller
+              name="accessType"
+              control={control}
+              render={({ field }) => (
+                <Field.Root>
+                  <Select.Root
+                    collection={ACCESS_TYPES}
+                    size="sm"
+                    value={[field.value]}
+                    onValueChange={(e) => {
+                      const val = e.value[0] as 'public' | 'protected'
+                      field.onChange(val)
+                      if (val !== 'protected') {
+                        setValue('password', '')
+                        setShowPassword(false)
+                      } else {
+                        setTimeout(() => setFocus('password'), 0)
+                      }
+                    }}
+                  >
+                    <Select.HiddenSelect />
+                    <Select.Label className="text-left text-black">Access Type</Select.Label>
+                    <Select.Control>
+                      <Select.Trigger bg="brandAlpha.4">
+                        <Select.ValueText className="text-black" placeholder="Access Type" />
+                      </Select.Trigger>
+                      <Select.IndicatorGroup>
+                        <Select.Indicator />
+                      </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Portal>
+                      <Select.Positioner>
+                        <Select.Content>
+                          {ACCESS_TYPES.items.map((type) => (
+                            <Select.Item bg="brandAlpha.4" className="text-black" item={type} key={type.value}>
+                              {type.label}
+                              <Select.ItemIndicator />
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select.Positioner>
+                    </Portal>
+                  </Select.Root>
+                </Field.Root>
+              )}
+            />
+
+            {/* Password — only when protected */}
+            {accessType === 'protected' && (
+              <Controller
+                name="password"
+                control={control}
+                render={({ field }) => (
+                  <Field.Root invalid={!!errors.password}>
+                    <Field.Label className="text-left text-black">
+                      <HStack gap={1}>
+                        <Icon as={LuLock} boxSize={4} />
+                        <Text>Password</Text>
+                      </HStack>
+                    </Field.Label>
+                    <Box position="relative">
+                      <Input
+                        {...field}
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Set a password for this file"
+                        bg="brand.50"
+                        borderWidth="1px"
+                        borderColor={errors.password ? 'red.400' : 'blackAlpha.200'}
+                        borderRadius="xl"
+                        px={4}
+                        py={3}
+                        pr={12}
+                        fontSize="md"
+                        color="ink.900"
+                        _placeholder={{ color: 'ink.400' }}
+                        _focus={{
+                          borderColor: 'brand.400',
+                          boxShadow: '0 0 0 3px rgba(200,169,110,0.1)',
+                        }}
+                      />
+                      <IconButton
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        color="ink.600"
+                        position="absolute"
+                        top="50%"
+                        right={2}
+                        transform="translateY(-50%)"
+                        onClick={() => setShowPassword((current) => !current)}
+                        _hover={{ bg: 'blackAlpha.50' }}
+                      >
+                        {showPassword ? <LuEyeOff /> : <LuEye />}
+                      </IconButton>
+                    </Box>
+                    {errors.password && <Field.ErrorText>{errors.password.message}</Field.ErrorText>}
+                  </Field.Root>
+                )}
+              />
+            )}
+
+            {/* Expiration */}
+            <Controller
+              name="expireAt"
+              control={control}
+              render={({ field }) => (
+                <Field.Root invalid={!!errors.expireAt}>
+                  <Field.Label className="text-left text-black">
+                    <HStack gap={1}>
+                      <Icon as={LuClock} boxSize={4} />
+                      <Text>Expires At</Text>
+                    </HStack>
+                  </Field.Label>
+                  <Input
+                    {...field}
+                    type="datetime-local"
+                    bg="brand.50"
+                    borderWidth="1px"
+                    borderColor={errors.expireAt ? 'red.400' : 'blackAlpha.200'}
+                    borderRadius="xl"
+                    px={4}
+                    py={3}
+                    fontSize="md"
+                    min={new Date().toISOString().slice(0, 16)}
+                    color="ink.900"
+                    _focus={{
+                      borderColor: 'brand.400',
+                      boxShadow: '0 0 0 3px rgba(200,169,110,0.1)',
+                    }}
+                  />
+                  {errors.expireAt && <Field.ErrorText>{errors.expireAt.message}</Field.ErrorText>}
+                </Field.Root>
+              )}
+            />
+
+            {/* Submit */}
             <Button
+              type="submit"
               w="full"
-              disabled={isUploading || files.length === 0}
-              loading={isUploading}
+              disabled={isSubmitting || files.length === 0}
+              loading={isSubmitting}
               loadingText="Uploading..."
-              onClick={handleStartUpload}
               bg="ink.900"
               color="brand.50"
               borderRadius="xl"
@@ -168,14 +318,6 @@ export function UploadSection() {
               Upload & get link
             </Button>
 
-            {uploadError && (
-              <Box bg="red.50" borderWidth="1px" borderColor="red.200" borderRadius="lg" px={4} py={3}>
-                <Text fontSize="sm" color="red.700">
-                  {uploadError}
-                </Text>
-              </Box>
-            )}
-
             <HStack justify="center" gap={1}>
               <Icon as={LuShield} color="ink.600" boxSize={3} />
               <Text fontSize="xs" color="ink.600" fontFamily="var(--font-dm-sans)">
@@ -184,7 +326,7 @@ export function UploadSection() {
             </HStack>
           </VStack>
         ) : (
-          /* Success state — share link */
+          /* Success state */
           <VStack gap={5} alignItems="stretch">
             <VStack gap={2}>
               <Box w="48px" h="48px" bg="brandAlpha.12" borderRadius="full" display="flex" alignItems="center" justifyContent="center" mx="auto">
@@ -198,10 +340,9 @@ export function UploadSection() {
               </Text>
             </VStack>
 
-            {/* Link box */}
             <HStack bg="brand.50" borderWidth="1px" borderColor="blackAlpha.200" borderRadius="xl" px={4} py={3} justify="space-between" gap={3}>
               <Text fontSize="sm" color="ink.900" fontFamily="var(--font-dm-sans)" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap" flex={1}>
-                {shareLink}
+                {shareLinks}
               </Text>
               <IconButton aria-label="Copy link" size="sm" variant="ghost" color={copied ? 'brand.400' : 'ink.600'} onClick={handleCopy} _hover={{ bg: 'blackAlpha.50' }}>
                 <LuCopy />
