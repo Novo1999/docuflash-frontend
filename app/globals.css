@@ -1,3 +1,26 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 @import "uploadthing/tw/v4";
+
+@theme inline {
+  --font-sans: var(--font-dm-sans);
+  --font-serif: var(--font-instrument-serif);
+}
+:root {
+  /* Brand */
+  --brand-50: #f5f0e8;
+  --brand-100: #ede7d9;
+  --brand-400: #c8a96e;
+
+  /* Brand Alpha */
+  --brand-alpha-4: rgba(200, 169, 110, 0.04);
+  --brand-alpha-8: rgba(200, 169, 110, 0.08);
+  --brand-alpha-12: rgba(200, 169, 110, 0.12);
+  --brand-alpha-30: rgba(200, 169, 110, 0.3);
+  --brand-alpha-50: rgba(200, 169, 110, 0.5);
+
+  /* Ink */
+  --ink-600: #5a6a7e;
+  --ink-800: #1a2d45;
+  --ink-900: #0f1c2e;
+}

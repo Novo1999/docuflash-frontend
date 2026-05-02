@@ -6,8 +6,6 @@ import { DropZone, FileTrigger } from 'react-aria-components'
 import { FiUploadCloud } from 'react-icons/fi'
 import { LuFile, LuX } from 'react-icons/lu'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface FileUploadContextValue {
   files: File[]
   isDragOver: boolean
@@ -24,13 +22,9 @@ interface FileUploadContextValue {
 
 interface FileUploadRootProps {
   children: ReactNode
-  /** Accepted MIME types, e.g. ['application/pdf', 'image/png'] */
   accept?: string[]
-  /** Maximum number of files. Default: 1 */
   maxFiles?: number
-  /** Maximum file size in MB */
   maxSizeMB?: number
-  /** Called whenever the file list changes */
   onFilesChange?: (files: File[]) => void
   className?: string
 }
@@ -45,8 +39,6 @@ interface FileUploadListProps {
   className?: string
 }
 
-// ─── Context ──────────────────────────────────────────────────────────────────
-
 const FileUploadContext = createContext<FileUploadContextValue | null>(null)
 
 function useFileUpload() {
@@ -54,8 +46,6 @@ function useFileUpload() {
   if (!ctx) throw new Error('FileUpload subcomponents must be used inside <FileUpload>')
   return ctx
 }
-
-// ─── Root ─────────────────────────────────────────────────────────────────────
 
 function FileUploadRoot({ children, accept, maxFiles = 1, maxSizeMB, onFilesChange, className }: FileUploadRootProps) {
   const [files, setFiles] = useState<File[]>([])
@@ -141,7 +131,6 @@ function FileUploadRoot({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
         setIsDragOver,
       }}
     >
-      {/* Hidden FileTrigger for programmatic open */}
       <FileTrigger
         ref={fileTriggerRef}
         acceptedFileTypes={accept}
@@ -150,7 +139,6 @@ function FileUploadRoot({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
           if (fileList) addFiles(Array.from(fileList))
         }}
       >
-        {/* Render nothing — triggered imperatively */}
         <span className="sr-only" />
       </FileTrigger>
 
@@ -158,8 +146,6 @@ function FileUploadRoot({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
     </FileUploadContext.Provider>
   )
 }
-
-// ─── Dropzone ─────────────────────────────────────────────────────────────────
 
 function FileUploadDropzone({ label = 'Drop your file here', description, className }: FileUploadDropzoneProps) {
   const { addFiles, openFilePicker, isDragOver, setIsDragOver, isInvalid } = useFileUpload()
@@ -180,12 +166,9 @@ function FileUploadDropzone({ label = 'Drop your file here', description, classN
         addFiles(dropped)
       }}
       className={[
-        // Base
         'w-full flex flex-col items-center justify-center gap-3 px-6 py-10',
         'border-[1.5px] border-dashed rounded-xl cursor-pointer transition-all duration-200 outline-none',
-        // States
         isDragOver ? 'border-primary bg-primary/[0.08] scale-[1.01]' : isInvalid ? 'border-red-400 bg-red-50/50' : 'border-border bg-surface-secondary hover:border-primary/60 hover:bg-primary/[0.04]',
-        // Focus-visible ring (keyboard nav)
         'focus-visible:ring-2 focus-visible:ring-primary/30',
         className,
       ]
@@ -193,26 +176,21 @@ function FileUploadDropzone({ label = 'Drop your file here', description, classN
         .join(' ')}
       onClick={openFilePicker}
     >
-      {/* Icon */}
       <div className={['w-12 h-12 rounded-full flex items-center justify-center transition-colors', isDragOver ? 'bg-primary/20' : 'bg-surface'].join(' ')}>
         <FiUploadCloud className={['w-6 h-6 transition-colors', isDragOver ? 'text-primary' : 'text-muted'].join(' ')} />
       </div>
 
-      {/* Text */}
       <div className="flex flex-col items-center gap-1 text-center">
         <span className="text-sm font-medium text-foreground">{label}</span>
         {description && <span className="text-xs text-muted">{description}</span>}
       </div>
 
-      {/* CTA */}
       <Button size="sm" variant="outline" type="button" onPress={openFilePicker} className="mt-1">
         Browse files
       </Button>
     </DropZone>
   )
 }
-
-// ─── List ─────────────────────────────────────────────────────────────────────
 
 function FileUploadList({ className }: FileUploadListProps) {
   const { files, removeFile, errorMessage } = useFileUpload()
@@ -225,18 +203,15 @@ function FileUploadList({ className }: FileUploadListProps) {
         const sizeMB = (file.size / (1024 * 1024)).toFixed(2)
         return (
           <div key={file.name} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-surface">
-            {/* File icon */}
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
               <LuFile className="w-4 h-4 text-primary" />
             </div>
 
-            {/* Name + size */}
             <div className="flex flex-col min-w-0 flex-1">
               <span className="text-sm font-medium text-foreground truncate">{file.name}</span>
               <span className="text-xs text-muted">{sizeMB} MB</span>
             </div>
 
-            {/* Remove */}
             <button
               type="button"
               aria-label={`Remove ${file.name}`}
@@ -249,13 +224,10 @@ function FileUploadList({ className }: FileUploadListProps) {
         )
       })}
 
-      {/* Validation error */}
       {errorMessage && <p className="text-sm text-danger px-1">{errorMessage}</p>}
     </div>
   )
 }
-
-// ─── Compound export ──────────────────────────────────────────────────────────
 
 export const FileUpload = Object.assign(FileUploadRoot, {
   Dropzone: FileUploadDropzone,

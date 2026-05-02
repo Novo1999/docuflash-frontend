@@ -7,8 +7,9 @@ import { useUploadThing } from '@/app/utils/generateReactHelpers'
 import { getClientId, getDeviceInfo, getShareLink, resolveFileType } from '@/app/utils/upload'
 import { uploadSchema, type UploadFormValues } from '@/app/zod/uploadSchema'
 import { FileUpload } from '@/components/file/FileUpload'
+import { DateTimeField } from '@/components/shared/DateTimeField'
 import { FileAccessType } from '@/types/file'
-import { Button, FieldError, Input, Label, ListBox, Select, TextField } from '@heroui/react'
+import { Button, Card, FieldError, Input, Label, ListBox, Select, TextField } from '@heroui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -136,10 +137,10 @@ export function UploadSection() {
         Share any document/zip, <em className="text-primary italic">instantly</em>
       </h1>
 
-      <p className="text-default-500 max-w-[460px]">Upload a PDF, Word doc, Excel sheet, or ZIP — get a shareable link in seconds. No account needed.</p>
+      <p className="text-default-500 text-center font-sans">Upload a PDF, Word doc, Excel sheet, or ZIP — get a shareable link in seconds. No account needed.</p>
 
       {/* Upload Card */}
-      <div className="w-full bg-white border border-black/[0.06] rounded-2xl p-8 shadow-[0_4px_40px_rgba(15,28,46,0.07)] mt-2">
+      <Card className="w-full bg-white border border-black/[0.06] rounded-2xl p-8 shadow-[0_4px_40px_rgba(15,28,46,0.07)] mt-2 font-sans">
         {!shareLinks ? (
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
             {/* File dropzone */}
@@ -159,7 +160,7 @@ export function UploadSection() {
                     <FileUpload.Dropzone label="Drop your file here" description="PDF, DOCX, XLSX, ZIP — up to 10 MB" className={errors.files ? 'border-red-400' : undefined} />
                     <FileUpload.List />
                   </FileUpload>
-                  {errors.files && <p className="text-sm text-red-500">{errors.files.message}</p>}
+                  {errors.files && <p className="text-sm text-red-500 font-sans">{errors.files.message}</p>}
                 </div>
               )}
             />
@@ -167,14 +168,14 @@ export function UploadSection() {
             {/* Format badges + file size */}
             <div className="flex flex-wrap gap-2 justify-center">
               {SUPPORTED_UPLOAD_FORMATS.map((label) => (
-                <span key={label} className="text-xs font-medium tracking-wide px-2.5 py-1 rounded-md bg-primary-100 text-ink-600 border border-black/[0.06] font-[var(--font-dm-sans)]">
+                <span key={label} className="text-xs font-medium tracking-wide px-2.5 py-1 rounded-md bg-primary-100 text-ink-600 border border-black/[0.06] font-sans">
                   {label}
                 </span>
               ))}
               {fileSizeMB && (
                 <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary/[0.08] border border-black/[0.06]">
                   <LuFile className="w-3 h-3 text-ink-600" />
-                  <span className="text-xs font-medium text-ink-600 font-[var(--font-dm-sans)]">{fileSizeMB} MB</span>
+                  <span className="text-xs font-medium text-ink-600 font-sans">{fileSizeMB} MB</span>
                 </span>
               )}
             </div>
@@ -200,7 +201,7 @@ export function UploadSection() {
                       }
                     }}
                   >
-                    <Label className="text-left text-black">Access Type</Label>
+                    <Label className="text-left text-black font-sans">Access Type</Label>
                     <Select.Trigger className="bg-primary/[0.04]">
                       <Select.Value />
                       <Select.Indicator />
@@ -208,7 +209,7 @@ export function UploadSection() {
                     <Select.Popover>
                       <ListBox>
                         {ACCESS_TYPES.map((type) => (
-                          <ListBox.Item key={type.value} id={type.value} textValue={type.label} className="bg-primary/[0.04] text-black">
+                          <ListBox.Item key={type.value} id={type.value} textValue={type.label} className="bg-primary/[0.04] text-black font-sans">
                             <Label>{type.label}</Label>
                             <ListBox.ItemIndicator />
                           </ListBox.Item>
@@ -227,7 +228,7 @@ export function UploadSection() {
                 control={control}
                 render={({ field }) => (
                   <TextField className="w-full" isInvalid={!!errors.password} validationBehavior="aria">
-                    <Label className="text-left text-black flex items-center gap-1">
+                    <Label className="text-left text-black flex items-center gap-1 font-sans">
                       <LuLock className="w-4 h-4" />
                       <span>Password</span>
                     </Label>
@@ -237,7 +238,7 @@ export function UploadSection() {
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Set a password for this file"
                         className={[
-                          'w-full bg-primary-50 border rounded-xl px-4 py-3 pr-12 text-base text-ink-900',
+                          'w-full bg-primary-50 border rounded-xl px-4 py-3 pr-12 text-base text-ink-900 font-sans',
                           'placeholder:text-ink-400 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10 outline-none transition-colors',
                           errors.password ? 'border-red-400' : 'border-black/20',
                         ].join(' ')}
@@ -251,7 +252,7 @@ export function UploadSection() {
                         {showPassword ? <LuEyeOff className="w-4 h-4" /> : <LuEye className="w-4 h-4" />}
                       </button>
                     </div>
-                    {errors.password && <FieldError className="text-sm text-red-500">{errors.password.message}</FieldError>}
+                    {errors.password && <FieldError className="text-sm text-red-500 font-sans">{errors.password.message}</FieldError>}
                   </TextField>
                 )}
               />
@@ -262,41 +263,32 @@ export function UploadSection() {
               name="expireAt"
               control={control}
               render={({ field }) => (
-                <TextField className="w-full" isInvalid={!!errors.expireAt} validationBehavior="aria">
-                  <Label className="text-left text-black flex items-center gap-1">
+                <div className="flex flex-col gap-1">
+                  <label className="text-left text-black flex items-center gap-1 font-sans text-sm font-medium">
                     <LuClock className="w-4 h-4" />
                     <span>Expires At</span>
-                  </Label>
-                  <Input
-                    {...field}
-                    type="datetime-local"
-                    min={new Date().toISOString().slice(0, 16)}
-                    className={[
-                      'w-full bg-primary-50 border rounded-xl px-4 py-3 text-base text-ink-900',
-                      'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10 outline-none transition-colors',
-                      errors.expireAt ? 'border-red-400' : 'border-black/20',
-                    ].join(' ')}
-                  />
-                  {errors.expireAt && <FieldError className="text-sm text-red-500">{errors.expireAt.message}</FieldError>}
-                </TextField>
+                  </label>
+                  <DateTimeField value={field.value} onChange={field.onChange} isInvalid={!!errors.expireAt} />
+                  {errors.expireAt && <p className="text-sm text-red-500 font-sans">{errors.expireAt.message}</p>}
+                </div>
               )}
             />
 
-            {errors.root && <p className="text-sm text-red-500 font-[var(--font-dm-sans)] text-center">{errors.root.message}</p>}
+            {errors.root && <p className="text-sm text-red-500 font-sans text-center">{errors.root.message}</p>}
 
             <Button
               type="submit"
               fullWidth
               isDisabled={isSubmitting || files.length === 0}
               isPending={isSubmitting}
-              className="bg-ink-900 text-primary-50 rounded-xl text-base font-medium py-6 hover:bg-ink-800 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="bg-ink-900 text-primary-50 rounded-xl text-base font-medium py-6 hover:bg-ink-800 disabled:opacity-40 disabled:cursor-not-allowed font-sans"
             >
               {isSubmitting ? 'Uploading...' : 'Upload & get link'}
             </Button>
 
             <div className="flex items-center justify-center gap-1">
               <LuShield className="w-3 h-3 text-ink-600" />
-              <span className="text-xs text-ink-600 font-[var(--font-dm-sans)]">Files under 5 MB require no registration</span>
+              <span className="text-xs text-ink-600 font-sans">Files under 5 MB require no registration</span>
             </div>
           </form>
         ) : (
@@ -306,12 +298,12 @@ export function UploadSection() {
               <div className="w-12 h-12 bg-primary/[0.12] rounded-full flex items-center justify-center mx-auto">
                 <LuShare2 className="w-5 h-5 text-primary-400" />
               </div>
-              <p className="text-lg font-medium text-ink-900 font-[var(--font-instrument-serif)]">Your file is ready to share</p>
-              <p className="text-sm text-ink-600 font-[var(--font-dm-sans)]">Anyone with this link can download the file</p>
+              <p className="text-lg font-medium text-ink-900 font-serif">Your file is ready to share</p>
+              <p className="text-sm text-ink-600 font-sans">Anyone with this link can download the file</p>
             </div>
 
             <div className="flex items-center justify-between gap-3 bg-primary-50 border border-black/20 rounded-xl px-4 py-3">
-              <span className="text-sm text-ink-900 font-[var(--font-dm-sans)] overflow-hidden text-ellipsis whitespace-nowrap flex-1">{shareLinks}</span>
+              <span className="text-sm text-ink-900 font-sans overflow-hidden text-ellipsis whitespace-nowrap flex-1">{shareLinks}</span>
               <button
                 type="button"
                 aria-label="Copy link"
@@ -322,16 +314,16 @@ export function UploadSection() {
               </button>
             </div>
 
-            <Button fullWidth onPress={handleCopy} className="bg-ink-900 text-primary-50 rounded-xl text-base font-medium py-6 hover:bg-ink-800">
+            <Button fullWidth onPress={handleCopy} className="bg-ink-900 text-primary-50 rounded-xl text-base font-medium py-6 hover:bg-ink-800 font-sans">
               {copied ? '✓ Copied!' : 'Copy link'}
             </Button>
 
-            <Button fullWidth variant="ghost" onPress={handleReset} className="text-ink-600 text-sm hover:text-ink-900 hover:bg-black/5">
+            <Button fullWidth variant="ghost" onPress={handleReset} className="text-ink-600 text-sm hover:text-ink-900 hover:bg-black/5 font-sans">
               Upload another file
             </Button>
           </div>
         )}
-      </div>
+      </Card>
     </>
   )
 }
