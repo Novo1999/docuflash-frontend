@@ -23,7 +23,7 @@ export function PricingTooltip({ className }: PricingTooltipProps) {
       >
         <Popover.Arrow className="fill-white" />
         <Popover.Dialog className="px-4 py-3 text-xs text-[var(--ink-900)] font-sans whitespace-normal break-words text-center">
-          Docuflash is completely free to use, make sure you don't fill up my free storage please :)
+          Docuflash is completely free to use, make sure you don&apos;t fill up my free storage please :)
         </Popover.Dialog>
       </Popover.Content>
     </Popover>

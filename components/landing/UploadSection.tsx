@@ -7,13 +7,21 @@ import { useUploadThing } from '@/app/utils/generateReactHelpers'
 import { getClientId, getDeviceInfo, getShareLink, resolveFileType } from '@/app/utils/upload'
 import { uploadSchema, type UploadFormValues } from '@/app/zod/uploadSchema'
 import { FileUpload } from '@/components/file/FileUpload'
-import { DateTimeField } from '@/components/shared/DateTimeField'
 import { FileAccessType } from '@/types/file'
-import { Button, Card, FieldError, Input, Label, ListBox, Select, TextField } from '@heroui/react'
+import { Button, Card, FieldError, Input, Label, ListBox, Select, Spinner, TextField } from '@heroui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import dynamic from 'next/dynamic'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { LuClock, LuCopy, LuEye, LuEyeOff, LuFile, LuLock, LuShare2, LuShield } from 'react-icons/lu'
+const DynamicDateTimeField = dynamic(() => import('../shared/DateTimeField').then((mod) => mod.DateTimeField), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center gap-4">
+      <Spinner className='text-black mx-auto' />
+    </div>
+  ),
+})
 
 export function UploadSection() {
   const {
@@ -268,7 +276,7 @@ export function UploadSection() {
                     <LuClock className="w-4 h-4" />
                     <span>Expires At</span>
                   </label>
-                  <DateTimeField value={field.value} onChange={field.onChange} isInvalid={!!errors.expireAt} />
+                  <DynamicDateTimeField value={field.value} onChange={field.onChange} isInvalid={!!errors.expireAt} />
                   {errors.expireAt && <p className="text-sm text-red-500 font-sans">{errors.expireAt.message}</p>}
                 </div>
               )}
