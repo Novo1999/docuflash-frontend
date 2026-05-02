@@ -48,7 +48,7 @@ export function DateTimeField({ value, onChange, isInvalid }: DateTimeFieldProps
         onChange(date.toISOString())
       } else {
         // Fallback for other DateValue types
-        onChange(val.toString())
+        onChange(val)
       }
     } catch (e) {
       console.error("DateTimeField: Error in handleChange:", e)
@@ -64,7 +64,6 @@ export function DateTimeField({ value, onChange, isInvalid }: DateTimeFieldProps
       hideTimeZone
       shouldForceLeadingZeros
       isInvalid={isInvalid}
-      variant="flat"
     >
       {({ state }) => (
         <>
