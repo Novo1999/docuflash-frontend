@@ -1,33 +1,46 @@
 # GEMINI.md - Docuflash-Frontend
 
-## Tech Stack Overview
-- **Next.js:** 16.2.4 (Note: Breaking changes from training data).
-- **React:** 19.2.4 (React 19 APIs).
-- **Tailwind CSS:** v4 (Note: Configuration and syntax changes).
-- **TypeScript:** v5.
+## Project Overview
+**Docuflash-Frontend** is a modern, high-performance web application designed for instant file sharing. It allows users to upload documents (PDF, DOCX, XLSX, ZIP) and generate shareable links in seconds without requiring registration.
 
-## 🚨 Critical Directives (MANDATORY)
-- **Consult Local Docs First:** This version of Next.js has breaking changes. Before implementing or modifying routing, data fetching, or core components, you MUST read the local documentation in `node_modules/next/dist/docs/`.
-- **Heed Deprecation Notices:** Do not use APIs or patterns marked as deprecated in the local docs.
+### Key Features
+- **Instant Upload:** Powered by UploadThing for reliable file handling.
+- **Access Control:** Supports public and password-protected sharing.
+- **Auto-Expiration:** Integrated expiration logic for shared files.
+- **Modern UI:** Built with HeroUI and Tailwind CSS v4 for a polished, responsive experience.
+- **Privacy First:** No account needed for files under 5 MB.
 
-## Subagent-Driven Development Protocol
-This project follows a subagent-driven development workflow to optimize token usage and ensure high-quality, focused changes.
+## Tech Stack
+- **Framework:** [Next.js 16.2.4](https://nextjs.org/) (App Router)
+- **Library:** [React 19.2.4](https://react.dev/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) (Experimental/v4 syntax)
+- **UI Components:** [HeroUI](https://heroui.com/) (formerly NextUI)
+- **File Handling:** [UploadThing](https://uploadthing.com/)
+- **Validation:** [Zod](https://zod.dev/) & React Hook Form
+- **Language:** TypeScript 5.x
 
-### Subagent Delegation Strategy
-- **`codebase_investigator`**:
-    - **Usage:** Architectural mapping, system-wide analysis, cross-cutting feature planning, and understanding deep dependencies.
-    - **When:** At the start of a feature or complex bug fix.
-- **`generalist`**:
-    - **Usage:** Multi-file refactoring, bulk processing (e.g., adding license headers), and high-volume data processing.
-    - **When:** Once a clear strategy is defined but involves many repetitive or boilerplate changes.
+## 🚨 Critical Directives
+- **Next.js 16/React 19:** This project uses cutting-edge versions of Next.js and React. Always check `node_modules/next/dist/docs/` for breaking changes or API updates not yet in standard training data.
+- **Tailwind CSS v4:** Adhere to v4 specific configuration and utility patterns. Do not use legacy v3 configurations.
+- **Server Components:** Default to React Server Components (RSC). Use `"use client"` strictly for interactive components or hooks.
+- **Strict Typing:** No `any`. Use the central types in `types/` and Zod schemas in `app/zod/`.
 
-### Standard Workflow
-1. **Research & Strategy:** Map the task. Create a detailed plan (using Plan Mode for complex tasks).
-2. **Delegation:** Invoke the appropriate subagent (`codebase_investigator` or `generalist`) to handle the bulk or specialized work.
-3. **Synthesis & Verification:** Integrate subagent outputs, verify changes, and run project-specific validation (lint, build, tests).
+## Project Structure
+- `app/`: Next.js App Router, constants, and core logic.
+- `components/`:
+    - `landing/`: Core landing page sections (Navbar, Footer, UploadSection).
+    - `file/`: File-specific components (FileUpload).
+    - `shared/`: Reusable UI components.
+- `lib/api/`: API client and service definitions.
+- `public/`: Static assets.
+- `types/`: Global TypeScript definitions.
+- `utils/`: Shared utility functions.
 
-## Coding Standards
-- **TypeScript:** Enforce strict typing. No `any`.
-- **Server Components:** Default to React Server Components (RSC). Use `"use client"` only for client-side interactivity or hooks (e.g., `useState`, `useEffect`).
-- **Styling:** Use Tailwind CSS v4 exclusively. Follow v4 specific patterns for configuration and utility usage.
-- **Validation:** Always run `npm run lint` and `npm run build` (if applicable) before final submission.
+## Development Workflow
+1. **Research:** Use `codebase_investigator` for architectural insights.
+2. **Strategy:** Plan changes in Plan Mode for complex features.
+3. **Execution:** Use `generalist` for batch tasks or repetitive refactoring.
+4. **Validation:** Always run `npm run lint` and `npm run build` to ensure integrity.
+
+---
+*Note: This file is the primary guide for Gemini CLI. Follow these standards strictly.*
