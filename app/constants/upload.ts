@@ -20,11 +20,12 @@ const MIME_TO_FILE_TYPE: Record<string, FileType> = {
 }
 
 const SHARE_BASE_URL =
-  process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://docuflash.vercel.app'
+  process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://docuflash-frontend.vercel.app'
 
 export {
   ACCEPTED_UPLOAD_MIME_TYPES,
   MIME_TO_FILE_TYPE,
   SHARE_BASE_URL,
-  SUPPORTED_UPLOAD_FORMATS,
+  SUPPORTED_UPLOAD_FORMATS
 }
+
