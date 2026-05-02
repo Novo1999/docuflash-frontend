@@ -32,7 +32,7 @@ export function UploadSection() {
       files: [],
       accessType: 'public',
       password: '',
-      expireAt: '',
+      expireAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     },
   })
 

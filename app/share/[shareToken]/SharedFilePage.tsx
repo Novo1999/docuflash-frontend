@@ -2,7 +2,7 @@
 
 import { getFileDownloadUrl, verifyFilePassword } from '@/app/lib/api/files'
 import { FileAccessType, FileRecord, FileType } from '@/types/file'
-import { Badge, Box, Button, Heading, HStack, Icon, Input, Text, VStack } from '@chakra-ui/react'
+import { Button, Card, CardContent, Chip, cn, Input } from '@heroui/react'
 import { useState } from 'react'
 import { LuCalendar, LuClock, LuDownload, LuFile, LuHardDrive, LuLock, LuShield } from 'react-icons/lu'
 
@@ -13,15 +13,15 @@ interface SharedFilePageProps {
 const getFileTypeInfo = (fileType: FileType) => {
   switch (fileType) {
     case FileType.PDF:
-      return { color: 'red.500', label: 'PDF' }
+      return { color: 'text-red-500', bg: 'bg-red-50', label: 'PDF' }
     case FileType.DOCX:
-      return { color: 'blue.500', label: 'Word' }
+      return { color: 'text-blue-500', bg: 'bg-blue-50', label: 'Word' }
     case FileType.XLS:
-      return { color: 'green.500', label: 'Excel' }
+      return { color: 'text-green-500', bg: 'bg-green-50', label: 'Excel' }
     case FileType.ZIP:
-      return { color: 'orange.500', label: 'ZIP' }
+      return { color: 'text-orange-500', bg: 'bg-orange-50', label: 'ZIP' }
     default:
-      return { color: 'gray.500', label: 'File' }
+      return { color: 'text-gray-500', bg: 'bg-gray-50', label: 'File' }
   }
 }
 
@@ -75,21 +75,19 @@ export default function SharedFilePage({ file }: SharedFilePageProps) {
   // ---- Expired state ----
   if (isExpired) {
     return (
-      <Box minH="100vh" bg="brand.50" display="flex" alignItems="center" justifyContent="center" p={4}>
-        <VStack bg="white" p={10} borderRadius="2xl" borderWidth="1px" borderColor="blackAlpha.100" boxShadow="0 4px 40px rgba(15,28,46,0.07)" textAlign="center" gap={6} maxW="480px" w="full">
-          <Box w="64px" h="64px" bg="red.50" borderRadius="full" display="flex" alignItems="center" justifyContent="center">
-            <Icon as={LuClock} color="red.500" boxSize={7} />
-          </Box>
-          <VStack gap={2}>
-            <Heading size="lg" fontFamily="var(--font-instrument-serif)" color="ink.900">
-              This link has expired
-            </Heading>
-            <Text color="ink.600" fontFamily="var(--font-dm-sans)">
-              The shared file is no longer available for download.
-            </Text>
-          </VStack>
-        </VStack>
-      </Box>
+      <div className="min-h-screen bg-[var(--brand-50)] flex items-center justify-center p-4">
+        <Card className="max-w-[480px] w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
+          <CardContent className="p-10 flex flex-col items-center text-center gap-6">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center">
+              <LuClock className="text-red-500 w-7 h-7" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <h1 className="text-2xl font-serif text-[var(--ink-900)]">This link has expired</h1>
+              <p className="text-[var(--ink-600)] font-sans">The shared file is no longer available for download.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     )
   }
 
@@ -124,173 +122,126 @@ export default function SharedFilePage({ file }: SharedFilePageProps) {
   }
 
   return (
-    <Box minH="100vh" bg="brand.50">
-      <Box maxW="720px" mx="auto" pt="72px" pb={10} px={4}>
-        <VStack gap={6}>
+    <div className="min-h-screen bg-[var(--brand-50)]">
+      <div className="max-w-[720px] mx-auto pt-[72px] pb-10 px-4">
+        <div className="flex flex-col gap-6">
           {/* Header Card */}
-          <Box w="full" bg="white" borderWidth="1px" borderColor="blackAlpha.100" borderRadius="2xl" p={8} boxShadow="0 4px 40px rgba(15,28,46,0.07)">
-            <VStack gap={6}>
-              <HStack gap={4} align="flex-start">
-                <Box w="64px" h="64px" bg={`${fileTypeInfo.color}.50`} borderRadius="xl" display="flex" alignItems="center" justifyContent="center" flexShrink={0}>
-                  <Icon as={LuFile} color={fileTypeInfo.color} boxSize={8} />
-                </Box>
-                <VStack gap={1} align="flex-start" flex={1}>
-                  <Heading size="md" fontFamily="var(--font-instrument-serif)" color="ink.900" wordBreak="break-word">
-                    {file.fileName}
-                  </Heading>
-                  <HStack gap={2}>
-                    <Badge fontSize="xs" fontWeight="500" px={2} py={1} borderRadius="md">
+          <Card className="w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
+            <CardContent className="p-8 flex flex-col gap-6">
+              <div className="flex flex-row gap-4 items-start">
+                <div className={`w-16 h-16 ${fileTypeInfo.bg} rounded-xl flex items-center justify-center shrink-0`}>
+                  <LuFile className={`${fileTypeInfo.color} w-8 h-8`} />
+                </div>
+                <div className="flex flex-col gap-1 flex-1">
+                  <h2 className="text-xl font-serif text-[var(--ink-900)] break-words">{file.fileName}</h2>
+                  <div className="flex flex-row gap-2 flex-wrap">
+                    <Chip size="sm" variant="secondary" className="font-medium px-2">
                       {fileTypeInfo.label}
-                    </Badge>
-                    <Badge colorScheme="gray" fontSize="xs" fontWeight="500" px={2} py={1} borderRadius="md">
+                    </Chip>
+                    <Chip size="sm" variant="secondary" className="font-medium px-2">
                       {formatFileSize(file.fileSize)}
-                    </Badge>
+                    </Chip>
                     {!isProtected ? (
-                      <HStack gap={1}>
-                        <Icon as={LuShield} boxSize={3} color="green.500" />
-                        <Text fontSize="xs" color="green.600" fontWeight="500">
-                          Public
-                        </Text>
-                      </HStack>
+                      <div className="flex flex-row items-center gap-1">
+                        <LuShield className="w-3 h-3 text-green-500" />
+                        <span className="text-xs text-green-600 font-medium">Public</span>
+                      </div>
                     ) : (
-                      <HStack gap={1}>
-                        <Icon as={LuLock} boxSize={3} color="amber.500" />
-                        <Text fontSize="xs" color="amber.600" fontWeight="500">
-                          Protected
-                        </Text>
-                      </HStack>
+                      <div className="flex flex-row items-center gap-1">
+                        <LuLock className="w-3 h-3 text-orange-500" />
+                        <span className="text-xs text-orange-600 font-medium">Protected</span>
+                      </div>
                     )}
-                  </HStack>
-                </VStack>
-              </HStack>
+                  </div>
+                </div>
+              </div>
 
               {/* Password gate */}
               {isLocked && (
-                <VStack gap={3} w="full">
-                  <HStack gap={2} w="full">
+                <div className="flex flex-col gap-3 w-full">
+                  <div className="flex flex-row gap-2 w-full">
                     <Input
                       type="password"
                       placeholder="Enter password to unlock download"
                       value={password}
                       onChange={(e) => {
-                        setPassword(e.target.value)
+                        const val = e.target.value
+                        setPassword(val)
                         setError(null)
                       }}
                       onKeyDown={(e) => e.key === 'Enter' && handleVerifyPassword()}
-                      bg="brand.50"
-                      borderWidth="1px"
-                      borderColor={error ? 'red.400' : 'blackAlpha.200'}
-                      borderRadius="xl"
-                      px={4}
-                      fontSize="md"
-                      color="ink.900"
-                      _placeholder={{ color: 'ink.400' }}
-                      _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 3px rgba(200,169,110,0.1)' }}
+                      className={cn(
+                        'bg-[var(--brand-50)]',
+                        'border-1',
+                        error ? 'border-red-400' : 'border-black/10',
+                        'rounded-xl',
+                        'px-4',
+                        'h-12',
+                        'group-data-[focus=true]:border-[var(--brand-400)]',
+                        'group-data-[focus=true]:ring-3',
+                        'group-data-[focus=true]:ring-[var(--brand-400)]/10',
+                        'text-md text-[var(--ink-900)] placeholder:text-[var(--ink-400)]',
+                      )}
                     />
-                    <Button
-                      onClick={handleVerifyPassword}
-                      loading={isVerifying}
-                      loadingText="Verifying..."
-                      bg="ink.900"
-                      color="brand.50"
-                      borderRadius="xl"
-                      fontWeight="500"
-                      px={6}
-                      flexShrink={0}
-                      _hover={{ bg: 'ink.800' }}
-                    >
+                    <Button onClick={handleVerifyPassword} isPending={isVerifying} className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl font-medium px-6 h-12 shrink-0">
                       Unlock
                     </Button>
-                  </HStack>
-                  {error && (
-                    <Text fontSize="sm" color="red.500" fontFamily="var(--font-dm-sans)" alignSelf="flex-start">
-                      {error}
-                    </Text>
-                  )}
-                </VStack>
+                  </div>
+                  {error && <p className="text-sm text-red-500 font-sans self-start">{error}</p>}
+                </div>
               )}
 
               {/* Download button — shown when public or after unlock */}
               {!isLocked && (
-                <Button
-                  w="full"
-                  onClick={handleDownload}
-                  loading={isDownloading}
-                  loadingText="Preparing..."
-                  bg="ink.900"
-                  color="brand.50"
-                  borderRadius="xl"
-                  fontSize="md"
-                  fontWeight="500"
-                  py={6}
-                  _hover={{ bg: 'ink.800' }}
-                >
-                  <Icon as={LuDownload} mr={2} />
+                <Button className="w-full bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-md font-medium h-14" onClick={handleDownload} isPending={isDownloading}>
+                  <LuDownload className="w-5 h-5" />
                   Download File
                 </Button>
               )}
-            </VStack>
-          </Box>
+            </CardContent>
+          </Card>
 
           {/* File Details Card */}
-          <Box w="full" bg="white" borderWidth="1px" borderColor="blackAlpha.100" borderRadius="2xl" p={8} boxShadow="0 4px 40px rgba(15,28,46,0.07)">
-            <VStack gap={5} align="stretch">
-              <Heading size="md" fontFamily="var(--font-instrument-serif)" color="ink.900">
-                File Details
-              </Heading>
-              <VStack gap={4}>
-                <HStack justify="space-between" w="full">
-                  <HStack gap={3}>
-                    <Icon as={LuCalendar} boxSize={4} color="ink.600" />
-                    <Text fontSize="sm" color="ink.600" fontFamily="var(--font-dm-sans)">
-                      Uploaded
-                    </Text>
-                  </HStack>
-                  <Text fontSize="sm" color="ink.900" fontWeight="500" fontFamily="var(--font-dm-sans)">
-                    {formatDate(file.uploadDate)}
-                  </Text>
-                </HStack>
+          <Card className="w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
+            <CardContent className="p-8 flex flex-col gap-5">
+              <h2 className="text-xl font-serif text-[var(--ink-900)]">File Details</h2>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-row justify-between w-full">
+                  <div className="flex flex-row items-center gap-3">
+                    <LuCalendar className="w-4 h-4 text-[var(--ink-600)]" />
+                    <span className="text-sm text-[var(--ink-600)] font-sans">Uploaded</span>
+                  </div>
+                  <span className="text-sm text-[var(--ink-900)] font-medium font-sans">{formatDate(file.uploadDate)}</span>
+                </div>
 
-                <HStack justify="space-between" w="full">
-                  <HStack gap={3}>
-                    <Icon as={LuClock} boxSize={4} color="ink.600" />
-                    <Text fontSize="sm" color="ink.600" fontFamily="var(--font-dm-sans)">
-                      Expires
-                    </Text>
-                  </HStack>
-                  <Text fontSize="sm" fontWeight="500" fontFamily="var(--font-dm-sans)" color={getRelativeTime(file.expireAt) === 'Expired' ? 'red.600' : 'ink.900'}>
-                    {formatDate(file.expireAt)}
-                  </Text>
-                </HStack>
+                <div className="flex flex-row justify-between w-full">
+                  <div className="flex flex-row items-center gap-3">
+                    <LuClock className="w-4 h-4 text-[var(--ink-600)]" />
+                    <span className="text-sm text-[var(--ink-600)] font-sans">Expires</span>
+                  </div>
+                  <span className={`text-sm font-medium font-sans ${getRelativeTime(file.expireAt) === 'Expired' ? 'text-red-600' : 'text-[var(--ink-900)]'}`}>{formatDate(file.expireAt)}</span>
+                </div>
 
-                <HStack justify="space-between" w="full">
-                  <HStack gap={3}>
-                    <Icon as={LuDownload} boxSize={4} color="ink.600" />
-                    <Text fontSize="sm" color="ink.600" fontFamily="var(--font-dm-sans)">
-                      Downloads
-                    </Text>
-                  </HStack>
-                  <Text fontSize="sm" color="ink.900" fontWeight="500" fontFamily="var(--font-dm-sans)">
-                    {file.downloadCount}
-                  </Text>
-                </HStack>
+                <div className="flex flex-row justify-between w-full">
+                  <div className="flex flex-row items-center gap-3">
+                    <LuDownload className="w-4 h-4 text-[var(--ink-600)]" />
+                    <span className="text-sm text-[var(--ink-600)] font-sans">Downloads</span>
+                  </div>
+                  <span className="text-sm text-[var(--ink-900)] font-medium font-sans">{file.downloadCount}</span>
+                </div>
 
-                <HStack justify="space-between" w="full">
-                  <HStack gap={3}>
-                    <Icon as={LuHardDrive} boxSize={4} color="ink.600" />
-                    <Text fontSize="sm" color="ink.600" fontFamily="var(--font-dm-sans)">
-                      File Size
-                    </Text>
-                  </HStack>
-                  <Text fontSize="sm" color="ink.900" fontWeight="500" fontFamily="var(--font-dm-sans)">
-                    {formatFileSize(file.fileSize)}
-                  </Text>
-                </HStack>
-              </VStack>
-            </VStack>
-          </Box>
-        </VStack>
-      </Box>
-    </Box>
+                <div className="flex flex-row justify-between w-full">
+                  <div className="flex flex-row items-center gap-3">
+                    <LuHardDrive className="w-4 h-4 text-[var(--ink-600)]" />
+                    <span className="text-sm text-[var(--ink-600)] font-sans">File Size</span>
+                  </div>
+                  <span className="text-sm text-[var(--ink-900)] font-medium font-sans">{formatFileSize(file.fileSize)}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
   )
 }
