@@ -2,6 +2,7 @@
 
 import { Button, Drawer, Link } from '@heroui/react'
 import { LuFileText, LuMenu } from 'react-icons/lu'
+import { PricingTooltip } from '../landing/PricingTooltip'
 
 export function NavbarDrawer() {
   return (
@@ -25,12 +26,10 @@ export function NavbarDrawer() {
             </Drawer.Header>
 
             <Drawer.Body className="px-6 py-4 flex flex-col gap-1">
-              <Link href="#" className="text-base text-[var(--ink-700)] no-underline hover:text-[var(--ink-900)] py-3 border-b border-black/[0.06] font-sans">
+              <Link href="#how-it-works" className="text-base text-[var(--ink-700)] no-underline hover:text-[var(--ink-900)] py-3 border-b border-black/[0.06] font-sans">
                 How it works
               </Link>
-              <Link href="#" className="text-base text-[var(--ink-700)] no-underline hover:text-[var(--ink-900)] py-3 font-sans">
-                Pricing
-              </Link>
+              <PricingTooltip className="text-base text-[var(--ink-700)] py-3 font-sans cursor-pointer hover:text-[var(--ink-900)] select-none block" />
             </Drawer.Body>
           </Drawer.Dialog>
         </Drawer.Content>

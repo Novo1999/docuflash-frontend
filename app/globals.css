@@ -21,6 +21,7 @@
   --color-primary-400: var(--brand-400);
 }
 :root {
+  scroll-behavior: smooth;
   /* Brand */
   --brand-50: #f5f0e8;
   --brand-100: #ede7d9;
