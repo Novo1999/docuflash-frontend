@@ -37,6 +37,7 @@ interface FileUploadDropzoneProps {
 
 interface FileUploadListProps {
   className?: string
+  isSubmitting: boolean
 }
 
 const FileUploadContext = createContext<FileUploadContextValue | null>(null)
@@ -192,7 +193,7 @@ function FileUploadDropzone({ label = 'Drop your file here', description, classN
   )
 }
 
-function FileUploadList({ className }: FileUploadListProps) {
+function FileUploadList({ className, isSubmitting }: FileUploadListProps) {
   const { files, removeFile, errorMessage } = useFileUpload()
 
   if (files.length === 0 && !errorMessage) return null
@@ -213,6 +214,7 @@ function FileUploadList({ className }: FileUploadListProps) {
             </div>
 
             <button
+              disabled={isSubmitting}
               type="button"
               aria-label={`Remove ${file.name}`}
               onClick={() => removeFile(file.name)}

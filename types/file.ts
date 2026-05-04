@@ -58,3 +58,15 @@ export type FileRecord = {
   downloadCount: number
   uploadDate: string
 }
+
+export interface StoredUpload {
+  fileName: string
+  fileSize: number
+  fileType: FileType
+  shareToken: string
+  storageKey: string
+  expireAt: string
+  accessType: FileAccessType
+  copied: boolean
+  uploadDate: string
+}

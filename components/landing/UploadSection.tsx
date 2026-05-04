@@ -4,6 +4,7 @@ import { ACCESS_TYPES } from '@/app/constants/accessTypes'
 import { ACCEPTED_UPLOAD_MIME_TYPES, SUPPORTED_UPLOAD_FORMATS } from '@/app/constants/upload'
 import { deleteUploadedStorageFile, uploadFile } from '@/app/lib/api/files'
 import { useUploadThing } from '@/app/utils/generateReactHelpers'
+import { addRecentUpload, markAsCopied } from '@/app/utils/sessionStorage'
 import { getClientId, getDeviceInfo, getShareLink, resolveFileType } from '@/app/utils/upload'
 import { uploadSchema, type UploadFormValues } from '@/app/zod/uploadSchema'
 import { FileUpload } from '@/components/file/FileUpload'
@@ -48,6 +49,7 @@ export function UploadSection() {
   const accessType = watch('accessType')
 
   const [shareLinks, setShareLinks] = useState<string | null>(null)
+  const [lastShareToken, setLastShareToken] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
@@ -104,6 +106,18 @@ export function UploadSection() {
         })
 
         setShareLinks(getShareLink(fileRecord.shareToken))
+        setLastShareToken(fileRecord.shareToken)
+        addRecentUpload({
+          fileName: uploadedFile.name,
+          fileSize: uploadedFile.size,
+          fileType,
+          shareToken: fileRecord.shareToken,
+          storageKey: uploadedFile.key,
+          expireAt: data.expireAt,
+          accessType: fileAccessType,
+          copied: false,
+          uploadDate: new Date().toISOString(),
+        })
         setShowPassword(false)
         reset()
       } catch (metadataError) {
@@ -127,12 +141,16 @@ export function UploadSection() {
   const handleCopy = () => {
     if (!shareLinks) return
     navigator.clipboard.writeText(shareLinks)
+    if (lastShareToken) {
+      markAsCopied(lastShareToken)
+    }
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   const handleReset = () => {
     setShareLinks(null)
+    setLastShareToken(null)
     setShowPassword(false)
     clearErrors('root')
     reset()
@@ -166,7 +184,7 @@ export function UploadSection() {
                     }}
                   >
                     <FileUpload.Dropzone label="Drop your file here" description="PDF, DOCX, XLSX, ZIP — up to 10 MB" className={errors.files ? 'border-red-400' : undefined} />
-                    <FileUpload.List />
+                    <FileUpload.List isSubmitting={isSubmitting} />
                   </FileUpload>
                   {errors.files && <p className="text-sm text-red-500 font-sans">{errors.files.message}</p>}
                 </div>

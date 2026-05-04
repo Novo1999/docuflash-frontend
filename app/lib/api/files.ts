@@ -25,6 +25,12 @@ export async function deleteFile(id: string): Promise<void> {
   })
 }
 
+export async function deleteFileByShareToken(token: string): Promise<void> {
+  await apiClient<null>(`/api/files/token/${token}`, {
+    method: 'DELETE',
+  })
+}
+
 export async function verifyFilePassword(token: string, password: string): Promise<{ fileUrl: string }> {
   const response = await apiClient<{ fileUrl: string }>(`/api/files/${token}/verify`, {
     method: 'POST',
