@@ -1,4 +1,4 @@
-import { getFileByShareToken } from '@/app/lib/api/files'
+import { deleteFileByShareToken, getFileByShareToken } from '@/app/lib/api/files'
 import SharedFilePage from '@/app/share/[shareToken]/SharedFilePage'
 import { Card, CardContent } from '@heroui/react'
 import Link from 'next/link'
@@ -10,7 +10,7 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const shareToken = (await params).shareToken
-  
+
   let file = null
   try {
     file = await getFileByShareToken(shareToken)
@@ -28,20 +28,27 @@ export default async function Page({ params }: PageProps) {
             </div>
             <div className="flex flex-col gap-2">
               <h1 className="text-2xl font-serif text-[var(--ink-900)]">File not found</h1>
-              <p className="text-[var(--ink-600)] font-sans">
-                The file you&apos;re looking for might have been deleted, or the link is incorrect.
-              </p>
+              <p className="text-[var(--ink-600)] font-sans">The file you&apos;re looking for might have been deleted, or the link is incorrect.</p>
             </div>
-            <Link
-              href="/"
-              className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl font-medium px-8 h-12 inline-flex items-center justify-center transition-colors hover:bg-[var(--ink-800)]"
-            >
+            <Link href="/" className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl font-medium px-8 h-12 inline-flex items-center justify-center transition-colors hover:bg-[var(--ink-800)]">
               Back to Home
             </Link>
           </CardContent>
         </Card>
       </div>
     )
+  }
+
+  const isExpired = new Date(file.expireAt) <= new Date()
+  if (isExpired) {
+    const triggerBackgroundCleanup = async () => {
+      try {
+        await deleteFileByShareToken(shareToken)
+      } catch (err) {
+        console.error('Failed to delete expired file on server:', err)
+      }
+    }
+    triggerBackgroundCleanup()
   }
 
   return <SharedFilePage file={file} />
