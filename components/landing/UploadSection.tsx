@@ -1,6 +1,5 @@
 'use client'
 
-import { ACCESS_TYPES } from '@/app/constants/accessTypes'
 import { ACCEPTED_UPLOAD_MIME_TYPES, SUPPORTED_UPLOAD_FORMATS } from '@/app/constants/upload'
 import { deleteUploadedStorageFile, uploadFile } from '@/app/lib/api/files'
 import { useUploadThing } from '@/app/utils/generateReactHelpers'
@@ -9,18 +8,18 @@ import { getClientId, getDeviceInfo, getShareLink, resolveFileType } from '@/app
 import { uploadSchema, type UploadFormValues } from '@/app/zod/uploadSchema'
 import { FileUpload } from '@/components/file/FileUpload'
 import { FileAccessType } from '@/types/file'
-import { Button, Card, FieldError, Input, Label, ListBox, Select, Spinner, TextField } from '@heroui/react'
+import { Button, Card, FieldError, Input, Label, Spinner, TextField } from '@heroui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { LuClock, LuCopy, LuEye, LuEyeOff, LuFile, LuLock, LuShare2, LuShield } from 'react-icons/lu'
+import { LuCheck, LuCopy, LuEye, LuEyeOff, LuFile, LuGlobe, LuLock, LuShare2, LuShield, LuSparkles } from 'react-icons/lu'
 
-const DynamicDateTimeField = dynamic(() => import('../shared/DateTimeField').then((mod) => mod.DateTimeField), {
+const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector').then((mod) => mod.ExpirySelector), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center gap-4">
-      <Spinner className="text-black mx-auto" />
+    <div className="flex items-center gap-4 h-[120px] justify-center">
+      <Spinner className="text-black" />
     </div>
   ),
 })
@@ -160,14 +159,22 @@ export function UploadSection() {
   return (
     <>
       {/* Heading */}
-      <h1 className="text-4xl md:text-5xl leading-tight text-foreground font-serif tracking-tight">
-        Share any document/zip, <em className="text-primary italic">instantly</em>
+      <div className="flex items-center justify-center gap-2 mb-3">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--brand-alpha-12)] border border-[var(--brand-alpha-30)] text-[11px] font-medium tracking-wide text-[var(--brand-400)] font-sans">
+          <LuSparkles className="w-3 h-3" />
+          Free • No tracking • Encrypted
+        </span>
+      </div>
+      <h1 className="text-4xl md:text-[52px] leading-[1.05] text-foreground font-serif tracking-tight">
+        Share any document, <em className="text-[var(--brand-400)] italic">instantly</em>.
       </h1>
 
-      <p className="text-default-500 text-center font-sans">Upload a PDF, Word doc, Excel sheet, or ZIP — get a shareable link in seconds. No account needed.</p>
+      <p className="text-default-500 text-center font-sans text-[15px] max-w-[520px] mx-auto leading-relaxed">
+        Upload a PDF, Word doc, Excel sheet, or ZIP and get a shareable link in seconds. Set an expiry, lock it with a password — no account needed.
+      </p>
 
       {/* Upload Card */}
-      <Card className="w-full bg-white border border-black/[0.06] rounded-2xl p-8 shadow-[0_4px_40px_rgba(15,28,46,0.07)] mt-2 font-sans">
+      <Card className="w-full bg-white dark:bg-[var(--surface)] border border-black/[0.06] dark:border-white/[0.08] rounded-2xl p-7 md:p-8 shadow-[0_4px_40px_rgba(15,28,46,0.07)] mt-2 font-sans">
         {!shareLinks ? (
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
             {/* File dropzone */}
@@ -193,57 +200,67 @@ export function UploadSection() {
             />
 
             {/* Format badges + file size */}
-            <div className="flex flex-wrap gap-2 justify-center">
+            <div className="flex flex-wrap gap-1.5 justify-center">
               {SUPPORTED_UPLOAD_FORMATS.map((label) => (
-                <span key={label} className="text-xs font-medium tracking-wide px-2.5 py-1 rounded-md bg-primary-100 text-ink-600 border border-black/[0.06] font-sans">
+                <span key={label} className="text-[10px] font-medium tracking-[0.06em] uppercase px-2 py-1 rounded-md bg-black/[0.03] text-[var(--ink-600)] border border-black/[0.05] font-sans">
                   {label}
                 </span>
               ))}
               {fileSizeMB && (
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary/[0.08] border border-black/[0.06]">
-                  <LuFile className="w-3 h-3 text-ink-600" />
-                  <span className="text-xs font-medium text-ink-600 font-sans">{fileSizeMB} MB</span>
+                <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--brand-alpha-12)] border border-[var(--brand-alpha-30)]">
+                  <LuFile className="w-3 h-3 text-[var(--brand-400)]" />
+                  <span className="text-[10px] font-medium text-[var(--brand-400)] font-sans tracking-tight">{fileSizeMB} MB</span>
                 </span>
               )}
             </div>
 
-            {/* Access Type */}
+            {/* Access Type — segmented control */}
             <Controller
               name="accessType"
               control={control}
               render={({ field }) => (
-                <div className="flex flex-col gap-1">
-                  <Select
-                    className="w-full"
-                    placeholder="Access Type"
-                    selectedKey={field.value}
-                    onChange={(key) => {
-                      const val = key as 'public' | 'protected'
-                      field.onChange(val)
-                      if (val !== 'protected') {
-                        setValue('password', '')
-                        setShowPassword(false)
-                      } else {
-                        setTimeout(() => setFocus('password'), 0)
-                      }
-                    }}
-                  >
-                    <Label className="text-left text-black font-sans">Access Type</Label>
-                    <Select.Trigger className="bg-primary/[0.04]">
-                      <Select.Value />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                    <Select.Popover>
-                      <ListBox>
-                        {ACCESS_TYPES.map((type) => (
-                          <ListBox.Item key={type.value} id={type.value} textValue={type.label} className="bg-primary/[0.04] text-black font-sans">
-                            <Label>{type.label}</Label>
-                            <ListBox.ItemIndicator />
-                          </ListBox.Item>
-                        ))}
-                      </ListBox>
-                    </Select.Popover>
-                  </Select>
+                <div className="flex flex-col gap-2">
+                  <span className="text-left text-sm font-medium text-[var(--ink-900)] font-sans">Who can access this file?</span>
+                  <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-black/[0.06]">
+                    {[
+                      { val: 'public', label: 'Public', desc: 'Anyone with the link', Icon: LuGlobe },
+                      { val: 'protected', label: 'Protected', desc: 'Password-locked', Icon: LuLock },
+                    ].map(({ val, label, desc, Icon }) => {
+                      const selected = field.value === val
+                      return (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => {
+                            field.onChange(val)
+                            if (val !== 'protected') {
+                              setValue('password', '')
+                              setShowPassword(false)
+                            } else {
+                              setTimeout(() => setFocus('password'), 0)
+                            }
+                          }}
+                          className={[
+                            'flex items-start gap-2.5 px-3 py-3 rounded-lg text-left transition-all',
+                            selected ? 'bg-white shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-black/[0.08]' : 'border border-transparent hover:bg-white/60',
+                          ].join(' ')}
+                        >
+                          <div
+                            className={[
+                              'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
+                              selected ? 'bg-[var(--brand-alpha-12)] text-[var(--brand-400)]' : 'bg-black/[0.04] text-[var(--ink-600)]',
+                            ].join(' ')}
+                          >
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <div className="flex flex-col gap-0.5">
+                            <span className={['text-sm font-medium font-sans', selected ? 'text-[var(--ink-900)]' : 'text-[var(--ink-800)]'].join(' ')}>{label}</span>
+                            <span className="text-[11px] text-[var(--ink-600)] font-sans leading-tight">{desc}</span>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
               )}
             />
@@ -255,26 +272,26 @@ export function UploadSection() {
                 control={control}
                 render={({ field }) => (
                   <TextField className="w-full" isInvalid={!!errors.password} validationBehavior="aria">
-                    <Label className="text-left text-black flex items-center gap-1 font-sans">
+                    <Label className="text-left text-[var(--ink-900)] flex items-center gap-1.5 font-sans text-sm font-medium">
                       <LuLock className="w-4 h-4" />
                       <span>Password</span>
                     </Label>
-                    <div className="relative w-full">
+                    <div className="relative w-full mt-1.5">
                       <Input
                         {...field}
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Set a password for this file"
                         className={[
-                          'w-full bg-primary-50 border rounded-xl px-4 py-3 pr-12 text-base text-ink-900 font-sans',
-                          'placeholder:text-ink-400 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10 outline-none transition-colors',
-                          errors.password ? 'border-red-400' : 'border-black/20',
+                          'w-full bg-[var(--brand-alpha-4)] border rounded-xl px-4 h-12 pr-12 text-[15px] text-[var(--ink-900)] font-sans',
+                          'placeholder:text-[var(--ink-600)]/60 focus-visible:border-[var(--brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--brand-400)]/10 outline-none transition-colors',
+                          errors.password ? 'border-red-400' : 'border-black/10',
                         ].join(' ')}
                       />
                       <button
                         type="button"
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                         onClick={() => setShowPassword((curr) => !curr)}
-                        className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-ink-600 hover:bg-black/5 transition-colors"
+                        className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-[var(--ink-600)] hover:bg-black/5 transition-colors"
                       >
                         {showPassword ? <LuEyeOff className="w-4 h-4" /> : <LuEye className="w-4 h-4" />}
                       </button>
@@ -291,11 +308,7 @@ export function UploadSection() {
               control={control}
               render={({ field }) => (
                 <div className="flex flex-col gap-1">
-                  <label className="text-left text-black flex items-center gap-1 font-sans text-sm font-medium">
-                    <LuClock className="w-4 h-4" />
-                    <span>Expires At</span>
-                  </label>
-                  <DynamicDateTimeField value={field.value} onChange={field.onChange} isInvalid={!!errors.expireAt} />
+                  <DynamicExpirySelector value={field.value} onChange={field.onChange} isInvalid={!!errors.expireAt} />
                   {errors.expireAt && <p className="text-sm text-red-500 font-sans">{errors.expireAt.message}</p>}
                 </div>
               )}
@@ -308,50 +321,49 @@ export function UploadSection() {
               fullWidth
               isDisabled={isSubmitting || files.length === 0}
               isPending={isSubmitting}
-              className="bg-ink-900 text-primary-50 rounded-xl text-base font-medium py-6 hover:bg-ink-800 disabled:opacity-40 disabled:cursor-not-allowed font-sans"
+              className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] disabled:opacity-40 disabled:cursor-not-allowed font-sans"
             >
-              {isSubmitting ? (
-                <div className="flex items-center gap-4">
-                  <Spinner className="text-white" />
-                </div>
-              ) : (
-                'Upload & get link'
-              )}
+              {isSubmitting ? 'Uploading…' : 'Upload & get link'}
             </Button>
 
-            <div className="flex items-center justify-center gap-1">
-              <LuShield className="w-3 h-3 text-ink-600" />
-              <span className="text-xs text-ink-600 font-sans">Files under 5 MB require no registration</span>
+            <div className="flex items-center justify-center gap-1.5">
+              <LuShield className="w-3 h-3 text-[var(--ink-600)]" />
+              <span className="text-xs text-[var(--ink-600)] font-sans">End-to-end encrypted • Auto-deletes on expiry</span>
             </div>
           </form>
         ) : (
           /* Success state */
           <div className="flex flex-col gap-5">
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 bg-primary/[0.12] rounded-full flex items-center justify-center mx-auto">
-                <LuShare2 className="w-5 h-5 text-primary-400" />
+            <div className="flex flex-col items-center gap-3">
+              <div className="relative">
+                <div className="w-14 h-14 bg-[var(--brand-alpha-12)] rounded-full flex items-center justify-center mx-auto">
+                  <LuShare2 className="w-6 h-6 text-[var(--brand-400)]" />
+                </div>
+                <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-4 ring-white">
+                  <LuCheck className="w-3.5 h-3.5" />
+                </span>
               </div>
-              <p className="text-lg font-medium text-ink-900 font-serif">Your file is ready to share</p>
-              <p className="text-sm text-ink-600 font-sans">Anyone with this link can download the file</p>
+              <p className="text-xl font-serif text-[var(--ink-900)]">Your file is ready to share</p>
+              <p className="text-sm text-[var(--ink-600)] font-sans text-center">Anyone with this link can download the file. We don&apos;t track who.</p>
             </div>
 
-            <div className="flex items-center justify-between gap-3 bg-primary-50 border border-black/20 rounded-xl px-4 py-3">
-              <span className="text-sm text-ink-900 font-sans overflow-hidden text-ellipsis whitespace-nowrap flex-1">{shareLinks}</span>
+            <div className="flex items-center justify-between gap-3 bg-[var(--brand-alpha-4)] border border-black/10 rounded-xl px-4 py-3">
+              <span className="text-sm text-[var(--ink-900)] font-sans overflow-hidden text-ellipsis whitespace-nowrap flex-1 text-left">{shareLinks}</span>
               <button
                 type="button"
                 aria-label="Copy link"
                 onClick={handleCopy}
-                className={['shrink-0 p-1.5 rounded-md transition-colors hover:bg-black/5', copied ? 'text-primary-400' : 'text-ink-600'].join(' ')}
+                className={['shrink-0 p-1.5 rounded-md transition-colors hover:bg-black/5', copied ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]'].join(' ')}
               >
                 <LuCopy className="w-4 h-4" />
               </button>
             </div>
 
-            <Button fullWidth onPress={handleCopy} className="bg-ink-900 text-primary-50 rounded-xl text-base font-medium py-6 hover:bg-ink-800 font-sans">
-              {copied ? '✓ Copied!' : 'Copy link'}
+            <Button fullWidth onPress={handleCopy} className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans">
+              {copied ? '✓ Link copied to clipboard' : 'Copy link'}
             </Button>
 
-            <Button fullWidth variant="ghost" onPress={handleReset} className="text-ink-600 text-sm hover:text-ink-900 hover:bg-black/5 font-sans">
+            <Button fullWidth variant="ghost" onPress={handleReset} className="text-[var(--ink-600)] text-sm hover:text-[var(--ink-900)] hover:bg-black/5 font-sans">
               Upload another file
             </Button>
           </div>
