@@ -73,19 +73,22 @@ export function RecentUploads() {
 
   return (
     <div className="flex flex-col gap-4 mt-8 w-full">
-      <h2 className="text-xl font-serif text-foreground text-left px-1">Currently uploaded</h2>
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-xl font-serif text-[var(--ink-900)] text-left">Currently uploaded</h2>
+        <span className="text-xs text-[var(--ink-600)] font-sans">{uploads.length} {uploads.length === 1 ? 'file' : 'files'}</span>
+      </div>
       <div className="flex flex-col gap-3">
         {uploads.map((upload) => (
-          <Card key={upload.storageKey} className="bg-white border border-black/[0.06] rounded-2xl p-4 shadow-[0_2px_20px_rgba(15,28,46,0.04)] font-sans">
+          <Card key={upload.storageKey} className="bg-[var(--surface)] border border-[var(--border-soft)] rounded-2xl p-4 shadow-[0_2px_20px_rgba(15,28,46,0.04)] font-sans">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-primary/[0.08] flex items-center justify-center shrink-0">
-                <LuFile className="w-5 h-5 text-primary-400" />
+              <div className="w-10 h-10 rounded-xl bg-[var(--brand-alpha-12)] flex items-center justify-center shrink-0">
+                <LuFile className="w-5 h-5 text-[var(--brand-400)]" />
               </div>
               
               <div className="flex flex-col min-w-0 flex-1 text-left">
-                <span className="text-sm font-medium text-ink-900 truncate">{upload.fileName}</span>
-                <div className="flex items-center gap-3 text-xs text-ink-500">
-                  <span>{(upload.fileSize / (1024 * 1024)).toFixed(2)} MB</span>
+                <span className="text-sm font-medium text-[var(--ink-900)] truncate">{upload.fileName}</span>
+                <div className="flex items-center gap-3 text-xs text-[var(--ink-600)]">
+                  <span className="tabular-nums">{(upload.fileSize / (1024 * 1024)).toFixed(2)} MB</span>
                   <span className="flex items-center gap-1">
                     <LuClock className="w-3 h-3" />
                     {new Date(upload.expireAt).toLocaleDateString()}
@@ -99,17 +102,17 @@ export function RecentUploads() {
                   size="sm"
                   variant="ghost"
                   onPress={() => handleCopy(upload.shareToken)}
-                  className={copiedToken === upload.shareToken ? 'text-primary-400' : 'text-ink-600'}
+                  className={copiedToken === upload.shareToken ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]'}
                 >
                   <LuCopy className="w-4 h-4" />
                 </Button>
-                
+
                 <Button
                   isIconOnly
                   size="sm"
                   variant="ghost"
                   onPress={() => window.open(getShareLink(upload.shareToken), '_blank')}
-                  className="text-ink-600"
+                  className="text-[var(--ink-600)]"
                 >
                   <LuExternalLink className="w-4 h-4" />
                 </Button>
@@ -119,7 +122,7 @@ export function RecentUploads() {
                   size="sm"
                   variant="ghost"
                   onPress={() => handleDeleteClick(upload)}
-                  className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                  className="text-red-400 hover:text-red-600 hover:bg-red-500/10"
                 >
                   <LuTrash2 className="w-4 h-4" />
                 </Button>
@@ -140,15 +143,15 @@ export function RecentUploads() {
               <Modal.Heading>Delete file</Modal.Heading>
             </Modal.Header>
             <Modal.Body>
-              <p className="text-sm text-ink-600">
-                Are you sure you want to delete <span className="font-semibold text-ink-900">{fileToDelete?.fileName}</span>? This action cannot be undone.
+              <p className="text-sm text-[var(--ink-600)]">
+                Are you sure you want to delete <span className="font-semibold text-[var(--ink-900)]">{fileToDelete?.fileName}</span>? This action cannot be undone.
               </p>
             </Modal.Body>
             <Modal.Footer>
               <Button
                 variant="ghost"
                 onPress={deleteModal.close}
-                className="flex-1 text-ink-600"
+                className="flex-1 text-[var(--ink-600)]"
                 isDisabled={isDeleting}
               >
                 Cancel

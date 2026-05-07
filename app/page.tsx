@@ -6,10 +6,10 @@ import { UploadSection } from '@/components/landing/UploadSection'
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[var(--brand-50,#f9fafb)]">
+    <div className="min-h-screen bg-[var(--page)]">
       <Navbar />
 
-      <div className="max-w-[680px] mx-auto pt-[72px] pb-[64px] px-4 text-center">
+      <div className="max-w-[680px] mx-auto pt-16 md:pt-[72px] pb-16 px-4 text-center">
         <div className="flex flex-col gap-5">
           <UploadSection />
           <RecentUploads />
