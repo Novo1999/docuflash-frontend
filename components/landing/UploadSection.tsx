@@ -15,11 +15,12 @@ import dynamic from 'next/dynamic'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { LuClock, LuCopy, LuEye, LuEyeOff, LuFile, LuLock, LuShare2, LuShield } from 'react-icons/lu'
+
 const DynamicDateTimeField = dynamic(() => import('../shared/DateTimeField').then((mod) => mod.DateTimeField), {
   ssr: false,
   loading: () => (
     <div className="flex items-center gap-4">
-      <Spinner className='text-black mx-auto' />
+      <Spinner className="text-black mx-auto" />
     </div>
   ),
 })
@@ -216,7 +217,7 @@ export function UploadSection() {
                     className="w-full"
                     placeholder="Access Type"
                     selectedKey={field.value}
-                    onSelectionChange={(key) => {
+                    onChange={(key) => {
                       const val = key as 'public' | 'protected'
                       field.onChange(val)
                       if (val !== 'protected') {
@@ -309,7 +310,13 @@ export function UploadSection() {
               isPending={isSubmitting}
               className="bg-ink-900 text-primary-50 rounded-xl text-base font-medium py-6 hover:bg-ink-800 disabled:opacity-40 disabled:cursor-not-allowed font-sans"
             >
-              {isSubmitting ? 'Uploading...' : 'Upload & get link'}
+              {isSubmitting ? (
+                <div className="flex items-center gap-4">
+                  <Spinner className="text-white" />
+                </div>
+              ) : (
+                'Upload & get link'
+              )}
             </Button>
 
             <div className="flex items-center justify-center gap-1">
