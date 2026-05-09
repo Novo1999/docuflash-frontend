@@ -8,12 +8,13 @@ import { getClientId, getDeviceInfo, getShareLink, resolveFileType } from '@/app
 import { uploadSchema, type UploadFormValues } from '@/app/zod/uploadSchema'
 import { FileUpload } from '@/components/file/FileUpload'
 import { FileAccessType } from '@/types/file'
-import { Button, Card, FieldError, Input, Label, Spinner, TextField } from '@heroui/react'
+import { Button, Card, cn, FieldError, Input, Label, Spinner, TextField } from '@heroui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { LuCheck, LuCopy, LuEye, LuEyeOff, LuFile, LuGlobe, LuLock, LuShare2, LuShield, LuSparkles } from 'react-icons/lu'
+import { LuCheck, LuCopy, LuDownload, LuEye, LuEyeOff, LuFile, LuGlobe, LuLink, LuLock, LuQrCode, LuShare2, LuShield, LuSparkles } from 'react-icons/lu'
+import QRCode from 'react-qr-code'
 
 const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector').then((mod) => mod.ExpirySelector), {
   ssr: false,
@@ -47,7 +48,7 @@ export function UploadSection() {
 
   const files = watch('files')
   const accessType = watch('accessType')
-
+  const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link')
   const [shareLinks, setShareLinks] = useState<string | null>(null)
   const [lastShareToken, setLastShareToken] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -138,6 +139,29 @@ export function UploadSection() {
     }
   }
 
+  const handleQrDownload = () => {
+    const svg = document.getElementById('share-qr-code')
+    if (!svg) return
+    const svgData = new XMLSerializer().serializeToString(svg)
+    const canvas = document.createElement('canvas')
+    canvas.width = 240
+    canvas.height = 240
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    const img = new Image()
+    img.onload = () => {
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, 240, 240)
+      ctx.drawImage(img, 0, 0, 240, 240)
+      const a = document.createElement('a')
+      const uploadedFileName = files?.[0]?.name?.replace(/\.[^/.]+$/, '') ?? 'file'
+      a.download = `docuflash-qr-${uploadedFileName}.png`
+      a.href = canvas.toDataURL('image/png')
+      a.click()
+    }
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)))
+  }
+
   const handleCopy = () => {
     if (!shareLinks) return
     navigator.clipboard.writeText(shareLinks)
@@ -152,6 +176,7 @@ export function UploadSection() {
     setShareLinks(null)
     setLastShareToken(null)
     setShowPassword(false)
+    setActiveTab('link')
     clearErrors('root')
     reset()
   }
@@ -347,21 +372,66 @@ export function UploadSection() {
               <p className="text-sm text-[var(--ink-600)] font-sans text-center">Anyone with this link can download the file. We don&apos;t track who.</p>
             </div>
 
-            <div className="flex items-center justify-between gap-3 bg-[var(--brand-alpha-4)] border border-black/10 rounded-xl px-4 py-3">
-              <span className="text-sm text-[var(--ink-900)] font-sans overflow-hidden text-ellipsis whitespace-nowrap flex-1 text-left">{shareLinks}</span>
-              <button
-                type="button"
-                aria-label="Copy link"
-                onClick={handleCopy}
-                className={['shrink-0 p-1.5 rounded-md transition-colors hover:bg-black/5', copied ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]'].join(' ')}
-              >
-                <LuCopy className="w-4 h-4" />
-              </button>
+            {/* Tab segmented control */}
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-black/[0.06]">
+              {[
+                { val: 'link', label: 'Link', Icon: LuLink },
+                { val: 'qr', label: 'QR Code', Icon: LuQrCode },
+              ].map(({ val, label, Icon }) => {
+                const selected = activeTab === val
+                return (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setActiveTab(val as 'link' | 'qr')}
+                    className={[
+                      'flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium font-sans transition-all',
+                      selected
+                        ? 'bg-white shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-black/[0.08] text-[var(--ink-900)]'
+                        : 'border border-transparent text-[var(--ink-600)] hover:bg-white/60',
+                    ].join(' ')}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {label}
+                  </button>
+                )
+              })}
             </div>
 
-            <Button fullWidth onPress={handleCopy} className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans">
-              {copied ? '✓ Link copied to clipboard' : 'Copy link'}
-            </Button>
+            {/* Link tab */}
+            <div className={cn(activeTab === 'link' ? 'flex flex-col gap-4' : 'hidden')}>
+              <div className="flex items-center justify-between gap-3 bg-[var(--brand-alpha-4)] border border-black/10 rounded-xl px-4 py-3">
+                <span className="text-sm text-[var(--ink-900)] font-sans overflow-hidden text-ellipsis whitespace-nowrap flex-1 text-left">{shareLinks}</span>
+                <button
+                  type="button"
+                  aria-label="Copy link"
+                  onClick={handleCopy}
+                  className={['shrink-0 p-1.5 rounded-md transition-colors hover:bg-black/5', copied ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]'].join(' ')}
+                >
+                  <LuCopy className="w-4 h-4" />
+                </button>
+              </div>
+
+              <Button fullWidth onPress={handleCopy} className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans">
+                {copied ? '✓ Link copied to clipboard' : 'Copy link'}
+              </Button>
+            </div>
+
+            {/* QR tab */}
+            <div className={activeTab === 'qr' ? 'flex flex-col items-center gap-4' : 'hidden'}>
+              <div className="p-4 bg-white rounded-2xl border border-black/[0.06] shadow-[0_2px_12px_rgba(15,28,46,0.06)]">
+                <QRCode id="share-qr-code" value={shareLinks!} size={240} level="M" bgColor="#ffffff" fgColor="#0f1c2e" />
+              </div>
+
+              <Button
+                fullWidth
+                onPress={handleQrDownload}
+                className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans flex items-center justify-center gap-2"
+              >
+                <LuDownload className="w-4 h-4" />
+                Download QR
+              </Button>
+            </div>
 
             <Button fullWidth variant="ghost" onPress={handleReset} className="text-[var(--ink-600)] text-sm hover:text-[var(--ink-900)] hover:bg-black/5 font-sans">
               Upload another file
