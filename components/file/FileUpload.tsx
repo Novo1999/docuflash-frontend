@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@heroui/react'
+import { Button, cn } from '@heroui/react'
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react'
 import { DropZone, FileTrigger } from 'react-aria-components'
 import { FiUploadCloud } from 'react-icons/fi'
@@ -107,10 +107,10 @@ function FileUploadRoot({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
         onFilesChange?.(next)
         return next
       })
+      if (fileTriggerRef.current) fileTriggerRef.current.value = ''
     },
     [onFilesChange],
   )
-
   const openFilePicker = useCallback(() => {
     console.log('Opening file picker...')
     fileTriggerRef.current?.click()
@@ -137,7 +137,9 @@ function FileUploadRoot({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
         acceptedFileTypes={accept}
         allowsMultiple={maxFiles > 1}
         onSelect={(fileList) => {
+          console.log('🚀 ~ FileUploadRoot ~ fileList:', fileList)
           if (fileList) addFiles(Array.from(fileList))
+          if (fileTriggerRef.current) fileTriggerRef.current.value = ''
         }}
       >
         <span className="sr-only" />
@@ -166,15 +168,13 @@ function FileUploadDropzone({ label = 'Drop your file here', description, classN
         }
         addFiles(dropped)
       }}
-      className={[
+      className={cn(
         'w-full flex flex-col items-center justify-center gap-3 px-6 py-10',
         'border-[1.5px] border-dashed rounded-xl cursor-pointer transition-all duration-200 outline-none',
         isDragOver ? 'border-primary bg-primary/[0.08] scale-[1.01]' : isInvalid ? 'border-red-400 bg-red-50/50' : 'border-border bg-surface-secondary hover:border-primary/60 hover:bg-primary/[0.04]',
         'focus-visible:ring-2 focus-visible:ring-primary/30',
         className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+      )}
       onClick={openFilePicker}
     >
       <div className={['w-12 h-12 rounded-full flex items-center justify-center transition-colors', isDragOver ? 'bg-primary/20' : 'bg-surface'].join(' ')}>
