@@ -1,7 +1,7 @@
 'use client'
 
 import { getFileDownloadUrl, verifyFilePassword } from '@/app/lib/api/files'
-import { triggerDownload } from '@/app/share/[shareToken]/shareFileUtil'
+import { triggerDownload } from '@/app/utils/shareFileUtil'
 import { Button, Input, cn } from '@heroui/react'
 import { useState } from 'react'
 import { LuDownload } from 'react-icons/lu'
