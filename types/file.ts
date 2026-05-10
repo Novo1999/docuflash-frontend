@@ -19,7 +19,7 @@ export interface DeviceInfo {
   ip: string
 }
 
-export interface FileDetails {
+export type FileDetails = {
   id: string
   fileName: string
   fileType: FileType
@@ -59,7 +59,7 @@ export type FileRecord = {
   uploadDate: string
 }
 
-export interface StoredUpload {
+export type StoredUpload = {
   fileName: string
   fileSize: number
   fileType: FileType
@@ -69,4 +69,10 @@ export interface StoredUpload {
   accessType: FileAccessType
   copied: boolean
   uploadDate: string
+}
+
+export type Preset = {
+  key: string
+  label: string
+  hours: number
 }

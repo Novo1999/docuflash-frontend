@@ -1,7 +1,10 @@
 'use client'
 
+import { PRESETS } from '@/app/constants/expiry'
+import { formatCountdown, formatExact, matchPreset } from '@/app/utils/expirySelector'
+import { Preset } from '@/types/file'
 import { Calendar, DateField, DatePicker, Label, TimeField, type TimeValue } from '@heroui/react'
-import { getLocalTimeZone, parseAbsoluteToLocal, ZonedDateTime, type DateValue } from '@internationalized/date'
+import { parseAbsoluteToLocal, ZonedDateTime, type DateValue } from '@internationalized/date'
 import { useEffect, useMemo, useState } from 'react'
 import { LuCalendar, LuClock } from 'react-icons/lu'
 
@@ -9,64 +12,6 @@ interface ExpirySelectorProps {
   value?: string
   onChange?: (value: string) => void
   isInvalid?: boolean
-}
-
-interface Preset {
-  key: string
-  label: string
-  hours: number
-}
-
-const PRESETS: Preset[] = [
-  { key: '1h', label: '1 hour', hours: 1 },
-  { key: '6h', label: '6 hours', hours: 6 },
-  { key: '24h', label: '24 hours', hours: 24 },
-  { key: '3d', label: '3 days', hours: 72 },
-  { key: '7d', label: '7 days', hours: 168 },
-]
-
-const PRESET_TOLERANCE_MS = 60_000
-
-function diffParts(target: number, now: number) {
-  const ms = Math.max(0, target - now)
-  const totalMin = Math.floor(ms / 60_000)
-  const days = Math.floor(totalMin / 1440)
-  const hours = Math.floor((totalMin % 1440) / 60)
-  const mins = totalMin % 60
-  return { days, hours, mins, ms }
-}
-
-function formatCountdown(target: number, now: number): string {
-  const { days, hours, mins, ms } = diffParts(target, now)
-  if (ms <= 0) return 'Already expired — pick a future time'
-  if (days > 0) return `Expires in ${days}d ${hours}h ${mins}m`
-  if (hours > 0) return `Expires in ${hours}h ${mins}m`
-  return `Expires in ${mins}m`
-}
-
-function formatExact(value: string): string {
-  try {
-    return new Date(value).toLocaleString(undefined, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    })
-  } catch {
-    return ''
-  }
-}
-
-function matchPreset(value: string): string | null {
-  if (!value) return null
-  const target = new Date(value).getTime()
-  const now = Date.now()
-  for (const p of PRESETS) {
-    const expected = now + p.hours * 60 * 60 * 1000
-    if (Math.abs(target - expected) < PRESET_TOLERANCE_MS) return p.key
-  }
-  return null
 }
 
 export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorProps) {
@@ -92,9 +37,6 @@ export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorPro
   const isExpired = !!value && targetMs <= now
   const countdown = value ? formatCountdown(targetMs, now) : 'Pick when this link should expire'
   const exact = value ? formatExact(value) : ''
-
-  const localTimeZone = getLocalTimeZone()
-  void localTimeZone
 
   const handlePreset = (p: Preset) => {
     const next = new Date(now + p.hours * 60 * 60 * 1000)
@@ -163,9 +105,7 @@ export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorPro
           onClick={() => setPickerOpen((v) => !v)}
           className={[
             'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium tracking-tight transition-all font-sans border',
-            !activePreset && value
-              ? 'bg-[var(--ink-900)] text-[var(--brand-50)] border-[var(--ink-900)]'
-              : 'bg-white text-[var(--ink-700)] border-black/[0.08] hover:border-black/20',
+            !activePreset && value ? 'bg-[var(--ink-900)] text-[var(--brand-50)] border-[var(--ink-900)]' : 'bg-white text-[var(--ink-700)] border-black/[0.08] hover:border-black/20',
           ].join(' ')}
         >
           <LuCalendar className="w-3 h-3" />
@@ -174,28 +114,12 @@ export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorPro
       </div>
 
       {pickerOpen && (
-        <DatePicker
-          className="w-full"
-          value={parsedValue}
-          onChange={handlePickerChange}
-          granularity="minute"
-          hideTimeZone
-          shouldForceLeadingZeros
-          isInvalid={isInvalid}
-        >
+        <DatePicker className="w-full" value={parsedValue} onChange={handlePickerChange} granularity="minute" hideTimeZone shouldForceLeadingZeros isInvalid={isInvalid}>
           {({ state }) => (
             <>
-              <DateField.Group
-                fullWidth
-                className="bg-[var(--brand-alpha-4)] border border-black/10 rounded-xl h-12 px-4 group-data-[focus=true]:border-[var(--brand-400)] transition-colors"
-              >
+              <DateField.Group fullWidth className="bg-[var(--brand-alpha-4)] border border-black/10 rounded-xl h-12 px-4 group-data-[focus=true]:border-[var(--brand-400)] transition-colors">
                 <DateField.Input className="font-sans text-[var(--ink-900)] flex-1">
-                  {(segment) => (
-                    <DateField.Segment
-                      segment={segment}
-                      className="px-0.5 focus:bg-[var(--brand-400)]/20 focus:text-[var(--ink-900)] rounded-sm outline-none"
-                    />
-                  )}
+                  {(segment) => <DateField.Segment segment={segment} className="px-0.5 focus:bg-[var(--brand-400)]/20 focus:text-[var(--ink-900)] rounded-sm outline-none" />}
                 </DateField.Input>
                 <DateField.Suffix className="ml-2">
                   <DatePicker.Trigger className="p-1 hover:bg-black/5 rounded-md transition-colors">
@@ -216,11 +140,7 @@ export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorPro
                     </div>
                   </Calendar.Header>
                   <Calendar.Grid className="font-sans">
-                    <Calendar.GridHeader>
-                      {(day) => (
-                        <Calendar.HeaderCell className="text-[var(--ink-400)] font-medium text-xs pb-2">{day}</Calendar.HeaderCell>
-                      )}
-                    </Calendar.GridHeader>
+                    <Calendar.GridHeader>{(day) => <Calendar.HeaderCell className="text-[var(--ink-400)] font-medium text-xs pb-2">{day}</Calendar.HeaderCell>}</Calendar.GridHeader>
                     <Calendar.GridBody>
                       {(date) => (
                         <Calendar.Cell
@@ -236,33 +156,16 @@ export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorPro
                   </Calendar.Grid>
                   <Calendar.YearPickerGrid>
                     <Calendar.YearPickerGridBody>
-                      {({ year }) => (
-                        <Calendar.YearPickerCell
-                          year={year}
-                          className="px-2 py-1 rounded-md hover:bg-black/5 data-[selected=true]:bg-[var(--ink-900)] data-[selected=true]:text-white"
-                        />
-                      )}
+                      {({ year }) => <Calendar.YearPickerCell year={year} className="px-2 py-1 rounded-md hover:bg-black/5 data-[selected=true]:bg-[var(--ink-900)] data-[selected=true]:text-white" />}
                     </Calendar.YearPickerGridBody>
                   </Calendar.YearPickerGrid>
                 </Calendar>
                 <div className="flex items-center justify-between pt-4 border-t border-black/5 font-sans">
                   <Label className="text-sm font-semibold text-[var(--ink-900)]">Time</Label>
-                  <TimeField
-                    aria-label="Time"
-                    granularity="minute"
-                    hideTimeZone
-                    shouldForceLeadingZeros
-                    value={state.timeValue}
-                    onChange={(v) => state.setTimeValue(v as TimeValue)}
-                  >
+                  <TimeField aria-label="Time" granularity="minute" hideTimeZone shouldForceLeadingZeros value={state.timeValue} onChange={(v) => state.setTimeValue(v as TimeValue)}>
                     <TimeField.Group variant="secondary" className="bg-black/5 rounded-xl px-3 py-2 flex gap-1 items-center border-none">
                       <TimeField.Input className="text-sm font-medium text-[var(--ink-900)]">
-                        {(segment) => (
-                          <TimeField.Segment
-                            segment={segment}
-                            className="focus:bg-[var(--brand-400)]/20 rounded-sm outline-none px-0.5"
-                          />
-                        )}
+                        {(segment) => <TimeField.Segment segment={segment} className="focus:bg-[var(--brand-400)]/20 rounded-sm outline-none px-0.5" />}
                       </TimeField.Input>
                     </TimeField.Group>
                   </TimeField>
@@ -273,9 +176,7 @@ export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorPro
         </DatePicker>
       )}
 
-      {value && !pickerOpen && (
-        <span className="text-[11px] text-[var(--ink-600)] font-sans tabular-nums">{exact}</span>
-      )}
+      {value && !pickerOpen && <span className="text-[11px] text-[var(--ink-600)] font-sans tabular-nums">{exact}</span>}
     </div>
   )
 }
