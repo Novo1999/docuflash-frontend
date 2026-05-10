@@ -119,21 +119,21 @@ export function UploadSection() {
                             setTimeout(() => setFocus('password'), 0)
                           }
                         }}
-                        className={[
+                        className={cn(
                           'flex items-start gap-2.5 px-3 py-3 rounded-lg text-left transition-all',
                           selected ? 'bg-white shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-black/[0.08]' : 'border border-transparent hover:bg-white/60',
-                        ].join(' ')}
+                        )}
                       >
                         <div
-                          className={[
+                          className={cn(
                             'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
                             selected ? 'bg-[var(--brand-alpha-12)] text-[var(--brand-400)]' : 'bg-black/[0.04] text-[var(--ink-600)]',
-                          ].join(' ')}
+                          )}
                         >
                           <Icon className="w-4 h-4" />
                         </div>
                         <div className="flex flex-col gap-0.5">
-                          <span className={['text-sm font-medium font-sans', selected ? 'text-[var(--ink-900)]' : 'text-[var(--ink-800)]'].join(' ')}>{label}</span>
+                          <span className={cn('text-sm font-medium font-sans', selected ? 'text-[var(--ink-900)]' : 'text-[var(--ink-800)]')}>{label}</span>
                           <span className="text-[11px] text-[var(--ink-600)] font-sans leading-tight">{desc}</span>
                         </div>
                       </button>
@@ -160,11 +160,11 @@ export function UploadSection() {
                       {...field}
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Set a password for this file"
-                      className={[
+                      className={cn(
                         'w-full bg-[var(--brand-alpha-4)] border rounded-xl px-4 h-12 pr-12 text-[15px] text-[var(--ink-900)] font-sans',
                         'placeholder:text-[var(--ink-600)]/60 focus-visible:border-[var(--brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--brand-400)]/10 outline-none transition-colors',
                         errors.password ? 'border-red-400' : 'border-black/10',
-                      ].join(' ')}
+                      )}
                     />
                     <button
                       type="button"
@@ -238,10 +238,10 @@ export function UploadSection() {
                   key={val}
                   type="button"
                   onClick={() => setActiveTab(val as 'link' | 'qr')}
-                  className={[
+                  className={cn(
                     'flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium font-sans transition-all',
                     selected ? 'bg-white shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-black/[0.08] text-[var(--ink-900)]' : 'border border-transparent text-[var(--ink-600)] hover:bg-white/60',
-                  ].join(' ')}
+                  )}
                 >
                   <Icon className="w-4 h-4" />
                   {label}
@@ -258,7 +258,7 @@ export function UploadSection() {
                 type="button"
                 aria-label="Copy link"
                 onClick={handleCopy}
-                className={['shrink-0 p-1.5 rounded-md transition-colors hover:bg-black/5', copied ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]'].join(' ')}
+                className={cn('shrink-0 p-1.5 rounded-md transition-colors hover:bg-black/5', copied ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]')}
               >
                 <LuCopy className="w-4 h-4" />
               </button>

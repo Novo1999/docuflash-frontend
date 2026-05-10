@@ -1,6 +1,8 @@
+import docuflashLogo from '@/assets/docuflash.png'
 import { NavbarDrawer } from '@/components/shared/NavbarDrawer'
 import { Link } from '@heroui/react'
-import { LuFileText, LuShield } from 'react-icons/lu'
+import Image from 'next/image'
+import { LuShield } from 'react-icons/lu'
 import { PricingTooltip } from './PricingTooltip'
 
 export default function Navbar() {
@@ -8,13 +10,8 @@ export default function Navbar() {
     <nav className="sticky top-0 z-10 bg-white border-b border-black/10 px-6 md:px-10 h-16 flex items-center justify-between font-sans">
 
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-2 no-underline">
-        <div className="w-8 h-8 bg-[var(--ink-900)] rounded-lg flex items-center justify-center">
-          <LuFileText className="text-[var(--brand-400)] text-sm" />
-        </div>
-        <span className="text-[17px] font-medium text-[var(--ink-900)] tracking-tight">
-          Docuflash
-        </span>
+      <Link href="/" className="flex items-center no-underline">
+        <Image src={docuflashLogo} alt="Docuflash" className="h-10 w-auto" priority />
       </Link>
 
       {/* Nav Links — desktop only */}

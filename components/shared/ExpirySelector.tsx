@@ -3,7 +3,7 @@
 import { PRESETS } from '@/app/constants/expiry'
 import { formatCountdown, formatExact, matchPreset } from '@/app/utils/expirySelector'
 import { Preset } from '@/types/file'
-import { Calendar, DateField, DatePicker, Label, TimeField, type TimeValue } from '@heroui/react'
+import { Calendar, cn, DateField, DatePicker, Label, TimeField, type TimeValue } from '@heroui/react'
 import { parseAbsoluteToLocal, ZonedDateTime, type DateValue } from '@internationalized/date'
 import { useEffect, useMemo, useState } from 'react'
 import { LuCalendar, LuClock } from 'react-icons/lu'
@@ -71,10 +71,10 @@ export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorPro
         </label>
         {value && (
           <span
-            className={[
+            className={cn(
               'text-[11px] font-medium tabular-nums tracking-tight px-2 py-0.5 rounded-full font-sans',
               isExpired ? 'bg-red-500/10 text-red-600' : 'bg-[var(--brand-alpha-12)] text-[var(--brand-400)]',
-            ].join(' ')}
+            )}
           >
             {countdown}
           </span>
@@ -89,12 +89,12 @@ export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorPro
               key={p.key}
               type="button"
               onClick={() => handlePreset(p)}
-              className={[
+              className={cn(
                 'px-3 py-1.5 rounded-full text-xs font-medium tracking-tight transition-all font-sans border',
                 selected
                   ? 'bg-[var(--ink-900)] text-[var(--brand-50)] border-[var(--ink-900)] shadow-[0_1px_2px_rgba(15,28,46,0.18)]'
                   : 'bg-white text-[var(--ink-700)] border-black/[0.08] hover:border-black/20 hover:bg-black/[0.02]',
-              ].join(' ')}
+              )}
             >
               {p.label}
             </button>
@@ -103,10 +103,10 @@ export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorPro
         <button
           type="button"
           onClick={() => setPickerOpen((v) => !v)}
-          className={[
+          className={cn(
             'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium tracking-tight transition-all font-sans border',
             !activePreset && value ? 'bg-[var(--ink-900)] text-[var(--brand-50)] border-[var(--ink-900)]' : 'bg-white text-[var(--ink-700)] border-black/[0.08] hover:border-black/20',
-          ].join(' ')}
+          )}
         >
           <LuCalendar className="w-3 h-3" />
           Custom…
