@@ -67,7 +67,7 @@ export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorPro
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <label className="text-left text-sm font-medium text-[var(--ink-900)] flex items-center gap-1.5 font-sans">
           <LuClock className="w-4 h-4" />
-          When should this link expire?
+          When should this file expire?
         </label>
         {value && (
           <span

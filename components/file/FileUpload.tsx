@@ -111,6 +111,7 @@ function FileUploadRoot({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
     },
     [onFilesChange],
   )
+
   const openFilePicker = useCallback(() => {
     console.log('Opening file picker...')
     fileTriggerRef.current?.click()
@@ -177,8 +178,8 @@ function FileUploadDropzone({ label = 'Drop your file here', description, classN
       )}
       onClick={openFilePicker}
     >
-      <div className={['w-12 h-12 rounded-full flex items-center justify-center transition-colors', isDragOver ? 'bg-primary/20' : 'bg-surface'].join(' ')}>
-        <FiUploadCloud className={['w-6 h-6 transition-colors', isDragOver ? 'text-primary' : 'text-muted'].join(' ')} />
+      <div className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-colors', isDragOver ? 'bg-primary/20' : 'bg-surface')}>
+        <FiUploadCloud className={cn('w-6 h-6 transition-colors', isDragOver ? 'text-primary' : 'text-muted')} />
       </div>
 
       <div className="flex flex-col items-center gap-1 text-center">
@@ -199,7 +200,7 @@ function FileUploadList({ className, isSubmitting }: FileUploadListProps) {
   if (files.length === 0 && !errorMessage) return null
 
   return (
-    <div className={['flex flex-col gap-2 mt-3', className].filter(Boolean).join(' ')}>
+    <div className={cn('flex flex-col gap-2 mt-3', className)}>
       {files.map((file) => {
         const sizeMB = (file.size / (1024 * 1024)).toFixed(2)
         return (
