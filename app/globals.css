@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 @import "uploadthing/tw/v4";
+@import "react-pdf/dist/Page/AnnotationLayer.css";
+@import "react-pdf/dist/Page/TextLayer.css";
 
 @theme inline {
   --font-sans: var(--font-dm-sans);

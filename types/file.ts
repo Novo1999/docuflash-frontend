@@ -7,6 +7,10 @@ export enum FileType {
   TXT = 'txt',
 }
 
+export const PREVIEWABLE_FILE_TYPES = [FileType.PDF, FileType.DOCX, FileType.TXT] as const
+
+export const isPreviewableFileType = (fileType: FileType) => PREVIEWABLE_FILE_TYPES.includes(fileType as (typeof PREVIEWABLE_FILE_TYPES)[number])
+
 export enum FileAccessType {
   PUBLIC = 'public',
   PROTECTED = 'protected',
@@ -58,6 +62,31 @@ export type FileRecord = {
   downloadCount: number
   uploadDate: string
 }
+
+export type FileAccessTokenResponse = {
+  accessToken: string
+}
+
+export type FileDownloadResponse = {
+  fileUrl: string
+}
+
+export type PdfPreviewResponse = {
+  kind: 'pdf'
+  url: string
+}
+
+export type TextPreviewResponse = {
+  kind: 'text'
+  text: string
+}
+
+export type HtmlPreviewResponse = {
+  kind: 'html'
+  html: string
+}
+
+export type FilePreviewResponse = PdfPreviewResponse | TextPreviewResponse | HtmlPreviewResponse
 
 export type StoredUpload = {
   fileName: string

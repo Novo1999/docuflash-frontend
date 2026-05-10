@@ -16,41 +16,35 @@ export const SharedFile = ({ file }: SharedFileProps) => {
     <div className="min-h-screen bg-[var(--brand-50)]">
       <div className="max-w-[720px] mx-auto pt-[72px] pb-10 px-4">
         <div className="flex flex-col gap-6">
-          {/* Header Card */}
-          <Card className="w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
-            <CardContent className="p-8 flex flex-col gap-6">
-              <div className="flex flex-row gap-4 items-start">
-                <div className={`w-16 h-16 ${fileTypeInfo.bg} rounded-xl flex items-center justify-center shrink-0`}>
-                  <LuFile className={`${fileTypeInfo.color} w-8 h-8`} />
-                </div>
-                <div className="flex flex-col gap-1 flex-1">
-                  <h2 className="text-xl font-serif text-[var(--ink-900)] break-words">{file.fileName}</h2>
-                  <div className="flex flex-row gap-2 flex-wrap">
-                    <Chip size="sm" variant="secondary" className="font-medium px-2">
-                      {fileTypeInfo.label}
-                    </Chip>
-                    <Chip size="sm" variant="secondary" className="font-medium px-2">
-                      {formatFileSize(file.fileSize)}
-                    </Chip>
-                    {!isProtected ? (
-                      <div className="flex flex-row items-center gap-1">
-                        <LuShield className="w-3 h-3 text-green-500" />
-                        <span className="text-xs text-green-600 font-medium">Public</span>
-                      </div>
-                    ) : (
-                      <div className="flex flex-row items-center gap-1">
-                        <LuLock className="w-3 h-3 text-orange-500" />
-                        <span className="text-xs text-orange-600 font-medium">Protected</span>
-                      </div>
-                    )}
-                  </div>
+          <FileActions shareToken={file.shareToken} isProtected={isProtected} fileName={file.fileName} fileType={file.fileType}>
+            <div className="flex flex-row gap-4 items-start">
+              <div className={`w-16 h-16 ${fileTypeInfo.bg} rounded-xl flex items-center justify-center shrink-0`}>
+                <LuFile className={`${fileTypeInfo.color} w-8 h-8`} />
+              </div>
+              <div className="flex flex-col gap-1 flex-1">
+                <h2 className="text-xl font-serif text-[var(--ink-900)] break-words">{file.fileName}</h2>
+                <div className="flex flex-row gap-2 flex-wrap">
+                  <Chip size="sm" variant="secondary" className="font-medium px-2">
+                    {fileTypeInfo.label}
+                  </Chip>
+                  <Chip size="sm" variant="secondary" className="font-medium px-2">
+                    {formatFileSize(file.fileSize)}
+                  </Chip>
+                  {!isProtected ? (
+                    <div className="flex flex-row items-center gap-1">
+                      <LuShield className="w-3 h-3 text-green-500" />
+                      <span className="text-xs text-green-600 font-medium">Public</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-row items-center gap-1">
+                      <LuLock className="w-3 h-3 text-orange-500" />
+                      <span className="text-xs text-orange-600 font-medium">Protected</span>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {/* Only the interactive part is client-side */}
-              <FileActions shareToken={file.shareToken} isProtected={isProtected} fileName={file.fileName} />
-            </CardContent>
-          </Card>
+            </div>
+          </FileActions>
 
           {/* File Details Card */}
           <Card className="w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">

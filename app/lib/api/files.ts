@@ -1,5 +1,7 @@
-import { FileRecord, UploadFilePayload } from '@/types/file'
+import { FileAccessTokenResponse, FileDownloadResponse, FilePreviewResponse, FileRecord, UploadFilePayload } from '@/types/file'
 import { ApiError, apiClient, buildApiUrl } from './client'
+
+const buildAccessBody = (accessToken?: string) => (accessToken ? { accessToken } : {})
 
 export async function uploadFile(payload: UploadFilePayload): Promise<FileRecord> {
   if (payload.accessType === 'protected' && !payload.password) {
@@ -31,16 +33,27 @@ export async function deleteFileByShareToken(token: string): Promise<void> {
   })
 }
 
-export async function verifyFilePassword(token: string, password: string): Promise<{ fileUrl: string }> {
-  const response = await apiClient<{ fileUrl: string }>(`/api/files/${token}/verify`, {
+export async function verifyFilePassword(token: string, password: string): Promise<FileAccessTokenResponse> {
+  const response = await apiClient<FileAccessTokenResponse>(`/api/files/${token}/verify`, {
     method: 'POST',
     body: { password },
   })
   return response.data
 }
 
-export async function getFileDownloadUrl(token: string): Promise<{ fileUrl: string }> {
-  const response = await apiClient<{ fileUrl: string }>(`/api/files/${token}/download`)
+export async function getFilePreview(token: string, accessToken?: string): Promise<FilePreviewResponse> {
+  const response = await apiClient<FilePreviewResponse>(`/api/files/${token}/preview`, {
+    method: 'POST',
+    body: buildAccessBody(accessToken),
+  })
+  return response.data
+}
+
+export async function getFileDownloadUrl(token: string, accessToken?: string): Promise<FileDownloadResponse> {
+  const response = await apiClient<FileDownloadResponse>(`/api/files/${token}/download`, {
+    method: 'POST',
+    body: buildAccessBody(accessToken),
+  })
   return response.data
 }
 
