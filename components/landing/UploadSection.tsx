@@ -1,18 +1,16 @@
 'use client'
 
 import { ACCEPTED_UPLOAD_MIME_TYPES, SUPPORTED_UPLOAD_FORMATS } from '@/app/constants/upload'
-import { deleteUploadedStorageFile, uploadFile } from '@/app/lib/api/files'
-import { useUploadThing } from '@/app/utils/generateReactHelpers'
-import { addRecentUpload, markAsCopied } from '@/app/utils/sessionStorage'
-import { getClientId, getDeviceInfo, getShareLink, resolveFileType } from '@/app/utils/upload'
-import { uploadSchema, type UploadFormValues } from '@/app/zod/uploadSchema'
+import useFileUploadForm from '@/app/hooks/useFileUploadForm'
+import useFileUploadQR from '@/app/hooks/useFileUploadQR'
+import useFileUploadState from '@/app/hooks/useFileUploadState'
+import useFileUploadSubmit from '@/app/hooks/useFileUploadSubmit'
+import { markAsCopied } from '@/app/utils/sessionStorage'
 import { FileUpload } from '@/components/file/FileUpload'
-import { FileAccessType } from '@/types/file'
 import { Button, Card, cn, FieldError, Input, Label, Spinner, TextField } from '@heroui/react'
-import { zodResolver } from '@hookform/resolvers/zod'
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 import { LuCheck, LuCopy, LuDownload, LuEye, LuEyeOff, LuFile, LuGlobe, LuLink, LuLock, LuQrCode, LuShare2, LuShield, LuSparkles } from 'react-icons/lu'
 import QRCode from 'react-qr-code'
 
@@ -26,141 +24,13 @@ const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector').t
 })
 
 export function UploadSection() {
-  const {
-    control,
-    handleSubmit,
-    watch,
-    setValue,
-    reset,
-    setFocus,
-    setError,
-    clearErrors,
-    formState: { errors, isSubmitting },
-  } = useForm<UploadFormValues>({
-    resolver: zodResolver(uploadSchema),
-    defaultValues: {
-      files: [],
-      accessType: 'public',
-      password: '',
-      expireAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    },
-  })
-
-  const files = watch('files')
-  const accessType = watch('accessType')
   const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link')
-  const [shareLinks, setShareLinks] = useState<string | null>(null)
-  const [lastShareToken, setLastShareToken] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
 
+  const { shareLinks, setShareLinks, lastShareToken, setLastShareToken, copied, setCopied, showPassword, setShowPassword } = useFileUploadState()
+  const { files, setError, clearErrors, reset, accessType, control, handleSubmit, setValue, setFocus, isSubmitting, errors } = useFileUploadForm()
+  const { onSubmit } = useFileUploadSubmit({ clearErrors, setError, reset, setCopied, setLastShareToken, setShareLinks, setShowPassword })
   const fileSizeMB = files?.[0] ? (files[0].size / (1024 * 1024)).toFixed(2) : null
-
-  const { startUpload } = useUploadThing('fileUploader', {
-    onUploadError: (error) => {
-      setError('root', { message: 'Upload failed. Please try again.' })
-      console.error('Upload error:', error)
-    },
-  })
-
-  const onSubmit = async (data: UploadFormValues) => {
-    const file = data.files[0]
-    const fileType = resolveFileType(file)
-    const deviceInfo = getDeviceInfo()
-    const fileAccessType = data.accessType as FileAccessType
-
-    setShareLinks(null)
-    setCopied(false)
-    clearErrors('root')
-
-    if (!fileType) {
-      setError('root', { message: 'This file type is not supported.' })
-      return
-    }
-
-    try {
-      const uploadResult = await startUpload(data.files, {
-        accessType: fileAccessType,
-        password: data.accessType === 'protected' ? data.password : undefined,
-        expireAt: data.expireAt,
-        fileType,
-        deviceInfo: JSON.stringify(deviceInfo),
-      })
-
-      const uploadedFile = uploadResult?.[0]
-
-      if (!uploadedFile) {
-        throw new Error('Upload did not return a storage key')
-      }
-
-      try {
-        const fileRecord = await uploadFile({
-          fileName: uploadedFile.name,
-          fileType,
-          fileSize: uploadedFile.size,
-          storageKey: uploadedFile.key,
-          clientId: getClientId(),
-          accessType: fileAccessType,
-          expireAt: data.expireAt,
-          password: data.accessType === 'protected' ? data.password : undefined,
-          deviceInfo,
-        })
-
-        setShareLinks(getShareLink(fileRecord.shareToken))
-        setLastShareToken(fileRecord.shareToken)
-        addRecentUpload({
-          fileName: uploadedFile.name,
-          fileSize: uploadedFile.size,
-          fileType,
-          shareToken: fileRecord.shareToken,
-          storageKey: uploadedFile.key,
-          expireAt: data.expireAt,
-          accessType: fileAccessType,
-          copied: false,
-          uploadDate: new Date().toISOString(),
-        })
-        setShowPassword(false)
-        reset()
-      } catch (metadataError) {
-        try {
-          await deleteUploadedStorageFile(uploadedFile.key)
-        } catch (cleanupError) {
-          console.error('Upload cleanup failed:', {
-            storageKey: uploadedFile.key,
-            error: cleanupError,
-          })
-        }
-
-        throw metadataError
-      }
-    } catch (error) {
-      console.error('Upload error:', error)
-      setError('root', { message: 'Upload failed. Please try again.' })
-    }
-  }
-
-  const handleQrDownload = () => {
-    const svg = document.getElementById('share-qr-code')
-    if (!svg) return
-    const svgData = new XMLSerializer().serializeToString(svg)
-    const canvas = document.createElement('canvas')
-    canvas.width = 240
-    canvas.height = 240
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-    const img = new Image()
-    img.onload = () => {
-      ctx.fillStyle = '#ffffff'
-      ctx.fillRect(0, 0, 240, 240)
-      ctx.drawImage(img, 0, 0, 240, 240)
-      const a = document.createElement('a')
-      const uploadedFileName = files?.[0]?.name?.replace(/\.[^/.]+$/, '') ?? 'file'
-      a.download = `docuflash-qr-${uploadedFileName}.png`
-      a.href = canvas.toDataURL('image/png')
-      a.click()
-    }
-    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)))
-  }
+  const { handleQrDownload } = useFileUploadQR({ files })
 
   const handleCopy = () => {
     if (!shareLinks) return
@@ -187,7 +57,7 @@ export function UploadSection() {
       <div className="flex items-center justify-center gap-2 mb-3">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--brand-alpha-12)] border border-[var(--brand-alpha-30)] text-[11px] font-medium tracking-wide text-[var(--brand-400)] font-sans">
           <LuSparkles className="w-3 h-3" />
-          Free • No tracking • Encrypted
+          Free
         </span>
       </div>
       <h1 className="text-4xl md:text-[52px] leading-[1.05] text-foreground font-serif tracking-tight">

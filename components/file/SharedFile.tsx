@@ -1,14 +1,14 @@
-import { formatDate, formatFileSize, getFileTypeInfo, getRelativeTime } from '@/app/share/[shareToken]/shareFileUtil'
+import { formatDate, formatFileSize, getFileTypeInfo, getRelativeTime } from '@/app/utils/shareFileUtil'
 import FileActions from '@/components/file/FileActions'
 import { FileAccessType, FileRecord } from '@/types/file'
 import { Card, CardContent, Chip } from '@heroui/react'
 import { LuCalendar, LuClock, LuDownload, LuFile, LuHardDrive, LuLock, LuShield } from 'react-icons/lu'
 
-interface SharedFilePageProps {
+interface SharedFileProps {
   file: FileRecord
 }
 
-export default function SharedFilePage({ file }: SharedFilePageProps) {
+export const SharedFile = ({ file }: SharedFileProps) => {
   const fileTypeInfo = getFileTypeInfo(file.fileType)
   const isProtected = file.accessType === FileAccessType.PROTECTED
 
@@ -48,11 +48,7 @@ export default function SharedFilePage({ file }: SharedFilePageProps) {
               </div>
 
               {/* Only the interactive part is client-side */}
-              <FileActions
-                shareToken={file.shareToken}
-                isProtected={isProtected}
-                fileName={file.fileName}
-              />
+              <FileActions shareToken={file.shareToken} isProtected={isProtected} fileName={file.fileName} />
             </CardContent>
           </Card>
 
@@ -74,9 +70,7 @@ export default function SharedFilePage({ file }: SharedFilePageProps) {
                     <LuClock className="w-4 h-4 text-[var(--ink-600)]" />
                     <span className="text-sm text-[var(--ink-600)] font-sans">Expires</span>
                   </div>
-                  <span className={`text-sm font-medium font-sans ${getRelativeTime(file.expireAt) === 'Expired' ? 'text-red-600' : 'text-[var(--ink-900)]'}`}>
-                    {formatDate(file.expireAt)}
-                  </span>
+                  <span className={`text-sm font-medium font-sans ${getRelativeTime(file.expireAt) === 'Expired' ? 'text-red-600' : 'text-[var(--ink-900)]'}`}>{formatDate(file.expireAt)}</span>
                 </div>
 
                 <div className="flex flex-row justify-between w-full">
