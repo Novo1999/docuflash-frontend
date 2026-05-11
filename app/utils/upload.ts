@@ -1,4 +1,4 @@
-import { MIME_TO_FILE_TYPE, SHARE_BASE_URL } from '@/app/constants/upload'
+import { EXTENSION_TO_FILE_TYPE, MIME_TO_FILE_TYPE, SHARE_BASE_URL } from '@/app/constants/upload'
 import { FileType } from '@/types/file'
 
 interface UploadDeviceInfo {
@@ -42,7 +42,11 @@ function getDeviceInfo(): UploadDeviceInfo {
 }
 
 function resolveFileType(file: File): FileType | null {
-  return MIME_TO_FILE_TYPE[file.type] ?? null
+  const mimeMatch = MIME_TO_FILE_TYPE[file.type]
+  if (mimeMatch) return mimeMatch
+
+  const extension = file.name.split('.').pop()?.toLowerCase()
+  return extension ? EXTENSION_TO_FILE_TYPE[extension] ?? null : null
 }
 
 function getCookieValue(name: string): string | null {

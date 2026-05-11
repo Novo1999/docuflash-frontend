@@ -81,12 +81,12 @@ export type TextPreviewResponse = {
   text: string
 }
 
-export type HtmlPreviewResponse = {
-  kind: 'html'
-  html: string
+export type DocxPreviewResponse = {
+  kind: 'docx_url'
+  url: string
 }
 
-export type FilePreviewResponse = PdfPreviewResponse | TextPreviewResponse | HtmlPreviewResponse
+export type FilePreviewResponse = PdfPreviewResponse | TextPreviewResponse | DocxPreviewResponse
 
 export type StoredUpload = {
   fileName: string

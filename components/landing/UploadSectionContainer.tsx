@@ -16,7 +16,7 @@ const UploadSectionContainer = ({ children }: { children: ReactNode }) => {
       </h1>
 
       <p className="text-default-500 text-center font-sans text-[15px] max-w-[520px] mx-auto leading-relaxed">
-        Upload a PDF, Word doc, Excel sheet, or ZIP and get a shareable link in seconds. Set an expiry, lock it with a password — no account needed.
+        Upload a PDF, Word doc, Excel sheet, ZIP archive, or TXT file and get a shareable link in seconds. Set an expiry, lock it with a password - no account needed.
       </p>
 
       <Card className="w-full bg-white dark:bg-[var(--surface)] border border-black/[0.06] dark:border-white/[0.08] rounded-2xl p-7 md:p-8 shadow-[0_4px_40px_rgba(15,28,46,0.07)] mt-2 font-sans">

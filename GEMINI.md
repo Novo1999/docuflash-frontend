@@ -1,7 +1,7 @@
 # GEMINI.md - Docuflash-Frontend
 
 ## Project Overview
-**Docuflash-Frontend** is a modern, high-performance web application designed for instant file sharing. It allows users to upload documents (PDF, DOCX, XLSX, ZIP) and generate shareable links in seconds without requiring registration.
+**Docuflash-Frontend** is a modern, high-performance web application designed for instant file sharing. It allows users to upload documents (PDF, DOCX, XLSX, ZIP, TXT) and generate shareable links in seconds without requiring registration.
 
 ### Key Features
 - **Instant Upload:** Powered by UploadThing for reliable file handling.

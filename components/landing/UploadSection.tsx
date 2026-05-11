@@ -1,6 +1,6 @@
 'use client'
 
-import { ACCEPTED_UPLOAD_MIME_TYPES, SUPPORTED_UPLOAD_FORMATS } from '@/app/constants/upload'
+import { ACCEPTED_UPLOAD_FILE_TYPES, SUPPORTED_UPLOAD_FORMATS } from '@/app/constants/upload'
 import useFileUploadForm from '@/app/hooks/useFileUploadForm'
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import useFileUploadState from '@/app/hooks/useFileUploadState'
@@ -64,13 +64,13 @@ export function UploadSection() {
               <div className="flex flex-col gap-1">
                 <FileUpload
                   maxFiles={1}
-                  accept={ACCEPTED_UPLOAD_MIME_TYPES}
+                  accept={ACCEPTED_UPLOAD_FILE_TYPES}
                   onFilesChange={(files) => {
                     clearErrors('root')
                     field.onChange(files)
                   }}
                 >
-                  <FileUpload.Dropzone label="Drop your file here" description="PDF, DOCX, XLSX, ZIP — up to 10 MB" className={errors.files ? 'border-red-400' : undefined} />
+                  <FileUpload.Dropzone label="Drop your file here" description="PDF, DOCX, XLSX, ZIP, TXT - up to 10 MB" className={errors.files ? 'border-red-400' : undefined} />
                   <FileUpload.List isSubmitting={isSubmitting} />
                 </FileUpload>
                 {errors.files && <p className="text-sm text-red-500 font-sans">{errors.files.message}</p>}

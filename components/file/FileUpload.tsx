@@ -62,6 +62,9 @@ function FileUploadRoot({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
       for (const file of incoming) {
         if (accept && accept.length > 0) {
           const matched = accept.some((type) => {
+            if (type.startsWith('.')) {
+              return file.name.toLowerCase().endsWith(type.toLowerCase())
+            }
             if (type.endsWith('/*')) {
               return file.type.startsWith(type.slice(0, -1))
             }

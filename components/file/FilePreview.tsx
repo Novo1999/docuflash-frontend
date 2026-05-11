@@ -1,5 +1,5 @@
 'use client'
-
+import { DocxPreview } from '@/components/file/DocxPreview'
 import { type FilePreviewResponse } from '@/types/file'
 import { Card, CardContent, Spinner } from '@heroui/react'
 import dynamic from 'next/dynamic'
@@ -30,7 +30,7 @@ export default function FilePreview({ fileName, preview }: FilePreviewProps) {
 
         {preview.kind === 'pdf' && <PdfPreview key={preview.url} url={preview.url} />}
         {preview.kind === 'text' && <TextPreview text={preview.text} />}
-        {preview.kind === 'html' && <HtmlPreview html={preview.html} />}
+        {preview.kind === 'docx_url' && <DocxPreview url={preview.url} />}
       </CardContent>
     </Card>
   )
@@ -42,13 +42,11 @@ function TextPreview({ text }: { text: string }) {
   }
 
   return (
-    <pre className="max-h-[560px] overflow-auto whitespace-pre-wrap break-words rounded-xl border border-black/[0.06] bg-white px-4 py-3 text-sm leading-6 text-[var(--ink-900)] font-sans">
-      {text}
-    </pre>
+    <pre className="max-h-[560px] overflow-auto whitespace-pre-wrap break-words rounded-xl border border-black/[0.06] bg-white px-4 py-3 text-sm leading-6 text-[var(--ink-900)] font-sans">{text}</pre>
   )
 }
 
-function HtmlPreview({ html }: { html: string }) {
+export function HtmlPreview({ html }: { html: string }) {
   if (!html) {
     return <EmptyPreview copy="This document preview is empty." />
   }
@@ -63,6 +61,6 @@ function HtmlPreview({ html }: { html: string }) {
   )
 }
 
-function EmptyPreview({ copy }: { copy: string }) {
+export function EmptyPreview({ copy }: { copy: string }) {
   return <div className="rounded-xl border border-black/[0.06] bg-white px-4 py-8 text-center text-sm text-[var(--ink-600)] font-sans">{copy}</div>
 }
