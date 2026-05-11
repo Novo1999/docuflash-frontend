@@ -20,14 +20,16 @@ export const metadata: Metadata = {
   description: 'Upload and process your documents effortlessly.',
 }
 
-export default function RootLayout({
+const RootLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode
-}>) {
+}>) => {
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${dmSans.variable} h-full antialiased scroll-smooth`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   )
 }
+
+export default RootLayout

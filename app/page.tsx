@@ -1,10 +1,10 @@
 import Footer from '@/components/landing/Footer'
 import HowItWorks from '@/components/landing/HowItWorks'
 import Navbar from '@/components/landing/Navbar'
-import { RecentUploads } from '@/components/landing/RecentUploads'
-import { UploadSection } from '@/components/landing/UploadSection'
+import RecentUploads from '@/components/landing/RecentUploads'
+import UploadSection from '@/components/landing/UploadSection'
 
-export default function LandingPage() {
+const LandingPage = () => {
   return (
     <div className="min-h-screen bg-[var(--brand-50,#f9fafb)]">
       <Navbar />
@@ -21,3 +21,5 @@ export default function LandingPage() {
     </div>
   )
 }
+
+export default LandingPage

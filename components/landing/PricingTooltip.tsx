@@ -6,7 +6,7 @@ interface PricingTooltipProps {
   className?: string
 }
 
-export function PricingTooltip({ className }: PricingTooltipProps) {
+const PricingTooltip = ({ className }: PricingTooltipProps) => {
   return (
     <Popover>
       <Popover.Trigger>
@@ -30,4 +30,4 @@ export function PricingTooltip({ className }: PricingTooltipProps) {
   )
 }
 
-
+export default PricingTooltip

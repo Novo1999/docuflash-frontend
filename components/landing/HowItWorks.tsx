@@ -1,6 +1,6 @@
 'use client'
 
-export default function HowItWorks() {
+const HowItWorks = () => {
   return (
     <div id="how-it-works" className="flex justify-center w-full border-t border-black/5 pt-8 mt-2 items-start scroll-mt-24">
       {[
@@ -28,3 +28,5 @@ export default function HowItWorks() {
     </div>
   )
 }
+
+export default HowItWorks

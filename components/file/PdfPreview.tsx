@@ -1,6 +1,8 @@
 'use client'
 
-import { Button, Spinner } from '@heroui/react'
+import PreviewLoading from '@/components/file/PreviewLoading'
+import PreviewUnavailable from '@/components/file/PreviewUnavailable'
+import { Button } from '@heroui/react'
 import { useEffect, useRef, useState } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 
@@ -14,7 +16,7 @@ interface PdfPreviewProps {
   url: string
 }
 
-export default function PdfPreview({ url }: PdfPreviewProps) {
+const PdfPreview = ({ url }: PdfPreviewProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [containerWidth, setContainerWidth] = useState(MAX_PDF_PAGE_WIDTH)
   const [numPages, setNumPages] = useState<number | null>(null)
@@ -75,19 +77,4 @@ export default function PdfPreview({ url }: PdfPreviewProps) {
   )
 }
 
-function PreviewLoading() {
-  return (
-    <div className="flex items-center justify-center gap-3 rounded-xl border border-black/[0.06] bg-white px-4 py-8 text-sm text-[var(--ink-600)] font-sans">
-      <Spinner className="text-[var(--ink-900)]" />
-      Preparing PDF preview
-    </div>
-  )
-}
-
-function PreviewUnavailable() {
-  return (
-    <div className="rounded-xl border border-red-500/15 bg-red-500/[0.04] px-4 py-3 text-sm text-red-600 font-sans">
-      Preview is unavailable for this file. You can still download it.
-    </div>
-  )
-}
+export default PdfPreview

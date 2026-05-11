@@ -1,0 +1,122 @@
+'use client'
+
+import { FileUploadContext } from '@/components/file/FileUploadContext'
+import { useCallback, useRef, useState, type ReactNode } from 'react'
+import { FileTrigger } from 'react-aria-components'
+
+export interface FileUploadRootProps {
+  children: ReactNode
+  accept?: string[]
+  maxFiles?: number
+  maxSizeMB?: number
+  onFilesChange?: (files: File[]) => void
+  className?: string
+}
+
+const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChange, className }: FileUploadRootProps) => {
+  const [files, setFiles] = useState<File[]>([])
+  const [isDragOver, setIsDragOver] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const fileTriggerRef = useRef<HTMLInputElement>(null)
+
+  const validate = useCallback(
+    (incoming: File[]): { valid: File[]; error: string | null } => {
+      let error: string | null = null
+      const valid: File[] = []
+
+      for (const file of incoming) {
+        if (accept && accept.length > 0) {
+          const matched = accept.some((type) => {
+            if (type.startsWith('.')) {
+              return file.name.toLowerCase().endsWith(type.toLowerCase())
+            }
+            if (type.endsWith('/*')) {
+              return file.type.startsWith(type.slice(0, -1))
+            }
+            return file.type === type
+          })
+          if (!matched) {
+            error = `File type "${file.type || file.name}" is not allowed.`
+            continue
+          }
+        }
+        if (maxSizeMB && file.size > maxSizeMB * 1024 * 1024) {
+          error = `"${file.name}" exceeds the ${maxSizeMB} MB limit.`
+          continue
+        }
+        valid.push(file)
+      }
+      return { valid, error }
+    },
+    [accept, maxSizeMB],
+  )
+
+  const addFiles = useCallback(
+    (incoming: File[]) => {
+      setErrorMessage(null)
+      const { valid, error } = validate(incoming)
+      if (error) {
+        setErrorMessage(error)
+        return
+      }
+      setFiles((prev) => {
+        const merged = maxFiles === 1 ? valid.slice(0, 1) : [...prev, ...valid].slice(0, maxFiles)
+        onFilesChange?.(merged)
+        return merged
+      })
+    },
+    [validate, maxFiles, onFilesChange],
+  )
+
+  const removeFile = useCallback(
+    (name: string) => {
+      setFiles((prev) => {
+        const next = prev.filter((f) => f.name !== name)
+        onFilesChange?.(next)
+        return next
+      })
+      if (fileTriggerRef.current) fileTriggerRef.current.value = ''
+    },
+    [onFilesChange],
+  )
+
+  const openFilePicker = useCallback(() => {
+    console.log('Opening file picker...')
+    fileTriggerRef.current?.click()
+  }, [])
+
+  return (
+    <FileUploadContext.Provider
+      value={{
+        files,
+        isDragOver,
+        isInvalid: !!errorMessage,
+        errorMessage,
+        accept,
+        maxFiles,
+        maxSizeMB,
+        addFiles,
+        removeFile,
+        openFilePicker,
+        setIsDragOver,
+      }}
+    >
+      <FileTrigger
+        ref={fileTriggerRef}
+        acceptedFileTypes={accept}
+        allowsMultiple={maxFiles > 1}
+        onSelect={(fileList) => {
+          console.log('🚀 ~ FileUploadRoot ~ fileList:', fileList)
+          if (fileList) addFiles(Array.from(fileList))
+          if (fileTriggerRef.current) fileTriggerRef.current.value = ''
+        }}
+      >
+        <span className="sr-only" />
+      </FileTrigger>
+
+      <div className={className}>{children}</div>
+    </FileUploadContext.Provider>
+  )
+}
+
+export default FileUploadRoot

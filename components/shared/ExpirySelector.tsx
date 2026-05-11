@@ -14,7 +14,7 @@ interface ExpirySelectorProps {
   isInvalid?: boolean
 }
 
-export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorProps) {
+const ExpirySelector = ({ value, onChange, isInvalid }: ExpirySelectorProps) => {
   const [now, setNow] = useState(() => Date.now())
   const [activePreset, setActivePreset] = useState<string | null>(() => matchPreset(value || ''))
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -180,3 +180,5 @@ export function ExpirySelector({ value, onChange, isInvalid }: ExpirySelectorPro
     </div>
   )
 }
+
+export default ExpirySelector

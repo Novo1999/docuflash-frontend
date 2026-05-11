@@ -2,9 +2,9 @@
 
 import { Button, Drawer, Link } from '@heroui/react'
 import { LuFileText, LuMenu } from 'react-icons/lu'
-import { PricingTooltip } from '../landing/PricingTooltip'
+import PricingTooltip from '../landing/PricingTooltip'
 
-export function NavbarDrawer() {
+const NavbarDrawer = () => {
   return (
     <Drawer>
       <Button variant="ghost" size="sm" slot="trigger" className="md:hidden p-2 text-[var(--ink-900)] hover:bg-black/5 min-w-0" aria-label="Open menu">
@@ -37,3 +37,5 @@ export function NavbarDrawer() {
     </Drawer>
   )
 }
+
+export default NavbarDrawer

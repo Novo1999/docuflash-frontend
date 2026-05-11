@@ -6,7 +6,9 @@ import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import useFileUploadState from '@/app/hooks/useFileUploadState'
 import useFileUploadSubmit from '@/app/hooks/useFileUploadSubmit'
 import { markAsCopied } from '@/app/utils/sessionStorage'
-import { FileUpload } from '@/components/file/FileUpload'
+import FileUploadDropzone from '@/components/file/FileUploadDropzone'
+import FileUploadList from '@/components/file/FileUploadList'
+import FileUploadRoot from '@/components/file/FileUploadRoot'
 import UploadSectionContainer from '@/components/landing/UploadSectionContainer'
 import { Button, cn, FieldError, Input, Label, Spinner, TextField } from '@heroui/react'
 import dynamic from 'next/dynamic'
@@ -15,7 +17,7 @@ import { Controller } from 'react-hook-form'
 import { LuCheck, LuCopy, LuDownload, LuEye, LuEyeOff, LuFile, LuGlobe, LuLink, LuLock, LuQrCode, LuShare2, LuShield } from 'react-icons/lu'
 import QRCode from 'react-qr-code'
 
-const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector').then((mod) => mod.ExpirySelector), {
+const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector'), {
   ssr: false,
   loading: () => (
     <div className="flex items-center gap-4 h-[120px] justify-center">
@@ -24,7 +26,7 @@ const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector').t
   ),
 })
 
-export function UploadSection() {
+const UploadSection = () => {
   const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link')
 
   const { shareLinks, setShareLinks, lastShareToken, setLastShareToken, copied, setCopied, showPassword, setShowPassword } = useFileUploadState()
@@ -62,7 +64,7 @@ export function UploadSection() {
             control={control}
             render={({ field }) => (
               <div className="flex flex-col gap-1">
-                <FileUpload
+                <FileUploadRoot
                   maxFiles={1}
                   accept={ACCEPTED_UPLOAD_FILE_TYPES}
                   onFilesChange={(files) => {
@@ -70,9 +72,9 @@ export function UploadSection() {
                     field.onChange(files)
                   }}
                 >
-                  <FileUpload.Dropzone label="Drop your file here" description="PDF, DOCX, XLSX, ZIP, TXT - up to 10 MB" className={errors.files ? 'border-red-400' : undefined} />
-                  <FileUpload.List isSubmitting={isSubmitting} />
-                </FileUpload>
+                  <FileUploadDropzone label="Drop your file here" description="PDF, DOCX, XLSX, ZIP, TXT - up to 10 MB" className={errors.files ? 'border-red-400' : undefined} />
+                  <FileUploadList isSubmitting={isSubmitting} />
+                </FileUploadRoot>
                 {errors.files && <p className="text-sm text-red-500 font-sans">{errors.files.message}</p>}
               </div>
             )}
@@ -293,3 +295,5 @@ export function UploadSection() {
     </UploadSectionContainer>
   )
 }
+
+export default UploadSection

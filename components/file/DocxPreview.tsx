@@ -1,18 +1,25 @@
-import { EmptyPreview, HtmlPreview } from "@/components/file/FilePreview"
-import { Spinner } from "@heroui/react"
-import mammoth from "mammoth"
-import { useEffect, useState } from "react"
+import EmptyPreview from '@/components/file/EmptyPreview'
+import HtmlPreview from '@/components/file/HtmlPreview'
+import { Spinner } from '@heroui/react'
+import mammoth from 'mammoth'
+import { useEffect, useState } from 'react'
 
-export const DocxPreview = ({ url }: { url: string }) => {
+const DocxPreview = ({ url }: { url: string }) => {
   const [html, setHtml] = useState<string | null>(null)
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    fetch(url)
-      .then((r) => r.arrayBuffer())
-      .then((buf) => mammoth.convertToHtml({ arrayBuffer: buf }))
-      .then(({ value }) => setHtml(value))
-      .catch(() => setError(true))
+    const getDocxPreview = async () => {
+      try {
+        const response = await fetch(url)
+        const arrayBuffer = await response.arrayBuffer()
+        const { value } = await mammoth.convertToHtml({ arrayBuffer })
+        setHtml(value)
+      } catch (error) {
+        setError(true)
+      }
+    }
+    getDocxPreview()
   }, [url])
 
   if (error) return <EmptyPreview copy="Failed to load document preview." />
@@ -26,3 +33,5 @@ export const DocxPreview = ({ url }: { url: string }) => {
 
   return <HtmlPreview html={html} />
 }
+
+export default DocxPreview

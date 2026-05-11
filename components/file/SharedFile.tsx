@@ -8,7 +8,7 @@ interface SharedFileProps {
   file: FileRecord
 }
 
-export const SharedFile = ({ file }: SharedFileProps) => {
+const SharedFile = ({ file }: SharedFileProps) => {
   const fileTypeInfo = getFileTypeInfo(file.fileType)
   const isProtected = file.accessType === FileAccessType.PROTECTED
 
@@ -90,3 +90,5 @@ export const SharedFile = ({ file }: SharedFileProps) => {
     </div>
   )
 }
+
+export default SharedFile

@@ -1,11 +1,11 @@
 import docuflashLogo from '@/assets/docuflash.png'
-import { NavbarDrawer } from '@/components/shared/NavbarDrawer'
+import NavbarDrawer from '@/components/shared/NavbarDrawer'
 import { Link } from '@heroui/react'
 import Image from 'next/image'
 import { LuShield } from 'react-icons/lu'
-import { PricingTooltip } from './PricingTooltip'
+import PricingTooltip from './PricingTooltip'
 
-export default function Navbar() {
+const Navbar = () => {
   return (
     <nav className="sticky top-0 z-10 bg-white border-b border-black/10 px-6 md:px-10 h-16 flex items-center justify-between font-sans">
 
@@ -33,3 +33,5 @@ export default function Navbar() {
     </nav>
   )
 }
+
+export default Navbar

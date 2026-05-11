@@ -1,5 +1,5 @@
 import { deleteFileByShareToken, getFileByShareToken } from '@/app/lib/api/files'
-import { SharedFile } from '@/components/file/SharedFile'
+import SharedFile from '@/components/file/SharedFile'
 import { Card, CardContent } from '@heroui/react'
 import Link from 'next/link'
 import { LuClock, LuFileQuestion } from 'react-icons/lu'
@@ -8,7 +8,7 @@ interface PageProps {
   params: Promise<{ shareToken: string }>
 }
 
-export default async function Page({ params }: PageProps) {
+const Page = async ({ params }: PageProps) => {
   const shareToken = (await params).shareToken
 
   let file = null
@@ -72,3 +72,5 @@ export default async function Page({ params }: PageProps) {
 
   return <SharedFile file={file} />
 }
+
+export default Page

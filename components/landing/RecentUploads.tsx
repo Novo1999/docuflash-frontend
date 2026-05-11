@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { LuClock, LuCopy, LuExternalLink, LuFile, LuTrash2 } from 'react-icons/lu'
 
-export function RecentUploads() {
+const RecentUploads = () => {
   const [uploads, setUploads] = useState<StoredUpload[]>(() => getRecentUploads())
   const [copiedToken, setCopiedToken] = useState<string | null>(null)
   const [fileToDelete, setFileToDelete] = useState<StoredUpload | null>(null)
@@ -167,3 +167,5 @@ export function RecentUploads() {
     </div>
   )
 }
+
+export default RecentUploads

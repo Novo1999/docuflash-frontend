@@ -13,7 +13,7 @@ interface DateTimeFieldProps {
   isInvalid?: boolean
 }
 
-export function DateTimeField({ value, onChange, isInvalid }: DateTimeFieldProps) {
+const DateTimeField = ({ value, onChange, isInvalid }: DateTimeFieldProps) => {
   const localTimeZone = getLocalTimeZone()
 
   const parsedValue = useMemo(() => {
@@ -155,3 +155,4 @@ export function DateTimeField({ value, onChange, isInvalid }: DateTimeFieldProps
   )
 }
 
+export default DateTimeField
