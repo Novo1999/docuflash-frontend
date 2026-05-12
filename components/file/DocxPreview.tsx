@@ -1,3 +1,5 @@
+'use client'
+
 import EmptyPreview from '@/components/file/EmptyPreview'
 import HtmlPreview from '@/components/file/HtmlPreview'
 import { Spinner } from '@heroui/react'
@@ -15,7 +17,7 @@ const DocxPreview = ({ url }: { url: string }) => {
         const arrayBuffer = await response.arrayBuffer()
         const { value } = await mammoth.convertToHtml({ arrayBuffer })
         setHtml(value)
-      } catch (error) {
+      } catch {
         setError(true)
       }
     }

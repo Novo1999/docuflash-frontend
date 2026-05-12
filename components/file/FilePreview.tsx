@@ -1,5 +1,3 @@
-'use client'
-
 import DocxPreview from '@/components/file/DocxPreview'
 import TextPreview from '@/components/file/TextPreview'
 import { type FilePreviewResponse } from '@/types/file'
