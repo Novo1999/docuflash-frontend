@@ -110,7 +110,6 @@ const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
         ref={fileTriggerRef}
         acceptedFileTypes={accept}
         allowsMultiple={maxFiles > 1}
-        isDisabled={isDisabled}
         onSelect={(fileList) => {
           console.log('🚀 ~ FileUploadRoot ~ fileList:', fileList)
           if (fileList) addFiles(Array.from(fileList))
