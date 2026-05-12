@@ -14,6 +14,7 @@ export interface FileUploadContextValue {
   removeFile: (name: string) => void
   openFilePicker: () => void
   setIsDragOver: (v: boolean) => void
+  isDisabled?: boolean
 }
 
 export const FileUploadContext = createContext<FileUploadContextValue | null>(null)

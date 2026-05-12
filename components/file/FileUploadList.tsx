@@ -6,11 +6,10 @@ import { LuFile, LuX } from 'react-icons/lu'
 
 export interface FileUploadListProps {
   className?: string
-  isSubmitting: boolean
 }
 
-const FileUploadList = ({ className, isSubmitting }: FileUploadListProps) => {
-  const { files, removeFile, errorMessage } = useFileUpload()
+const FileUploadList = ({ className }: FileUploadListProps) => {
+  const { files, removeFile, errorMessage, isDisabled } = useFileUpload()
 
   if (files.length === 0 && !errorMessage) return null
 
@@ -30,11 +29,11 @@ const FileUploadList = ({ className, isSubmitting }: FileUploadListProps) => {
             </div>
 
             <button
-              disabled={isSubmitting}
+              disabled={isDisabled}
               type="button"
               aria-label={`Remove ${file.name}`}
               onClick={() => removeFile(file.name)}
-              className="w-7 h-7 rounded-md flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-secondary transition-colors shrink-0"
+              className="w-7 h-7 rounded-md flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-secondary transition-colors shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <LuX className="w-4 h-4" />
             </button>

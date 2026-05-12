@@ -12,9 +12,10 @@ interface ExpirySelectorProps {
   value?: string
   onChange?: (value: string) => void
   isInvalid?: boolean
+  isDisabled?: boolean
 }
 
-const ExpirySelector = ({ value, onChange, isInvalid }: ExpirySelectorProps) => {
+const ExpirySelector = ({ value, onChange, isInvalid, isDisabled }: ExpirySelectorProps) => {
   const [now, setNow] = useState(() => Date.now())
   const [activePreset, setActivePreset] = useState<string | null>(() => matchPreset(value || ''))
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -89,11 +90,13 @@ const ExpirySelector = ({ value, onChange, isInvalid }: ExpirySelectorProps) => 
               key={p.key}
               type="button"
               onClick={() => handlePreset(p)}
+              disabled={isDisabled}
               className={cn(
                 'px-3 py-1.5 rounded-full text-xs font-medium tracking-tight transition-all font-sans border',
                 selected
                   ? 'bg-[var(--ink-900)] text-[var(--brand-50)] border-[var(--ink-900)] shadow-[0_1px_2px_rgba(15,28,46,0.18)]'
                   : 'bg-white text-[var(--ink-700)] border-black/[0.08] hover:border-black/20 hover:bg-black/[0.02]',
+                isDisabled && 'opacity-50 cursor-not-allowed',
               )}
             >
               {p.label}
@@ -103,9 +106,11 @@ const ExpirySelector = ({ value, onChange, isInvalid }: ExpirySelectorProps) => 
         <button
           type="button"
           onClick={() => setPickerOpen((v) => !v)}
+          disabled={isDisabled}
           className={cn(
             'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium tracking-tight transition-all font-sans border',
             !activePreset && value ? 'bg-[var(--ink-900)] text-[var(--brand-50)] border-[var(--ink-900)]' : 'bg-white text-[var(--ink-700)] border-black/[0.08] hover:border-black/20',
+            isDisabled && 'opacity-50 cursor-not-allowed',
           )}
         >
           <LuCalendar className="w-3 h-3" />
@@ -114,7 +119,7 @@ const ExpirySelector = ({ value, onChange, isInvalid }: ExpirySelectorProps) => 
       </div>
 
       {pickerOpen && (
-        <DatePicker className="w-full" value={parsedValue} onChange={handlePickerChange} granularity="minute" hideTimeZone shouldForceLeadingZeros isInvalid={isInvalid}>
+        <DatePicker className="w-full" value={parsedValue} onChange={handlePickerChange} granularity="minute" hideTimeZone shouldForceLeadingZeros isInvalid={isInvalid} isDisabled={isDisabled}>
           {({ state }) => (
             <>
               <DateField.Group fullWidth className="bg-[var(--brand-alpha-4)] border border-black/10 rounded-xl h-12 px-4 group-data-[focus=true]:border-[var(--brand-400)] transition-colors">

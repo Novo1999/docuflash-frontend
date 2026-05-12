@@ -12,13 +12,14 @@ export interface FileUploadDropzoneProps {
 }
 
 const FileUploadDropzone = ({ label = 'Drop your file here', description, className }: FileUploadDropzoneProps) => {
-  const { addFiles, openFilePicker, isDragOver, setIsDragOver, isInvalid } = useFileUpload()
+  const { addFiles, openFilePicker, isDragOver, setIsDragOver, isInvalid, isDisabled } = useFileUpload()
 
   return (
     <DropZone
-      onDropEnter={() => setIsDragOver(true)}
+      onDropEnter={() => !isDisabled && setIsDragOver(true)}
       onDropExit={() => setIsDragOver(false)}
       onDrop={async (e) => {
+        if (isDisabled) return
         setIsDragOver(false)
         const dropped: File[] = []
         for (const item of e.items) {
@@ -34,6 +35,7 @@ const FileUploadDropzone = ({ label = 'Drop your file here', description, classN
         'border-[1.5px] border-dashed rounded-xl cursor-pointer transition-all duration-200 outline-none',
         isDragOver ? 'border-primary bg-primary/[0.08] scale-[1.01]' : isInvalid ? 'border-red-400 bg-red-50/50' : 'border-border bg-surface-secondary hover:border-primary/60 hover:bg-primary/[0.04]',
         'focus-visible:ring-2 focus-visible:ring-primary/30',
+        isDisabled && 'opacity-50 cursor-not-allowed pointer-events-none',
         className,
       )}
       onClick={openFilePicker}

@@ -11,9 +11,10 @@ export interface FileUploadRootProps {
   maxSizeMB?: number
   onFilesChange?: (files: File[]) => void
   className?: string
+  isDisabled?: boolean
 }
 
-const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChange, className }: FileUploadRootProps) => {
+const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChange, className, isDisabled }: FileUploadRootProps) => {
   const [files, setFiles] = useState<File[]>([])
   const [isDragOver, setIsDragOver] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -21,6 +22,7 @@ const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
 
   const validate = useCallback(
     (incoming: File[]): { valid: File[]; error: string | null } => {
+      if (isDisabled) return { valid: [], error: null }
       let error: string | null = null
       const valid: File[] = []
 
@@ -48,7 +50,7 @@ const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
       }
       return { valid, error }
     },
-    [accept, maxSizeMB],
+    [accept, maxSizeMB, isDisabled],
   )
 
   const addFiles = useCallback(
@@ -70,6 +72,7 @@ const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
 
   const removeFile = useCallback(
     (name: string) => {
+      if (isDisabled) return
       setFiles((prev) => {
         const next = prev.filter((f) => f.name !== name)
         onFilesChange?.(next)
@@ -77,13 +80,14 @@ const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
       })
       if (fileTriggerRef.current) fileTriggerRef.current.value = ''
     },
-    [onFilesChange],
+    [onFilesChange, isDisabled],
   )
 
   const openFilePicker = useCallback(() => {
+    if (isDisabled) return
     console.log('Opening file picker...')
     fileTriggerRef.current?.click()
-  }, [])
+  }, [isDisabled])
 
   return (
     <FileUploadContext.Provider
@@ -99,12 +103,14 @@ const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
         removeFile,
         openFilePicker,
         setIsDragOver,
+        isDisabled,
       }}
     >
       <FileTrigger
         ref={fileTriggerRef}
         acceptedFileTypes={accept}
         allowsMultiple={maxFiles > 1}
+        isDisabled={isDisabled}
         onSelect={(fileList) => {
           console.log('🚀 ~ FileUploadRoot ~ fileList:', fileList)
           if (fileList) addFiles(Array.from(fileList))

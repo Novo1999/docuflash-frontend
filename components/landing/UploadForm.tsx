@@ -11,7 +11,7 @@ import FileUploadList from '@/components/file/FileUploadList'
 import FileUploadRoot from '@/components/file/FileUploadRoot'
 import { Button, cn, FieldError, Input, Label, Spinner, TextField } from '@heroui/react'
 import dynamic from 'next/dynamic'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { LuCheck, LuCopy, LuDownload, LuEye, LuEyeOff, LuFile, LuGlobe, LuLink, LuLock, LuQrCode, LuShare2 } from 'react-icons/lu'
 import QRCode from 'react-qr-code'
@@ -39,6 +39,17 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
   const fileSizeMB = files?.[0] ? (files[0].size / (1024 * 1024)).toFixed(2) : null
   const { handleQrDownload } = useFileUploadQR({ files })
 
+  useEffect(() => {
+    if (!isSubmitting) return
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [isSubmitting])
+
   const handleCopy = () => {
     if (!shareLinks) return
     navigator.clipboard.writeText(shareLinks)
@@ -61,7 +72,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
   return (
     <>
       {!shareLinks ? (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit(onSubmit)} className={cn('flex flex-col gap-5 transition-opacity', isSubmitting && 'opacity-60 pointer-events-none')}>
           {/* File dropzone */}
           <Controller
             name="files"
@@ -71,13 +82,14 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                 <FileUploadRoot
                   maxFiles={1}
                   accept={ACCEPTED_UPLOAD_FILE_TYPES}
+                  isDisabled={isSubmitting}
                   onFilesChange={(files) => {
                     clearErrors('root')
                     field.onChange(files)
                   }}
                 >
                   <FileUploadDropzone label="Drop your file here" description="PDF, DOCX, XLSX, ZIP, TXT - up to 10 MB" className={errors.files ? 'border-red-400' : undefined} />
-                  <FileUploadList isSubmitting={isSubmitting} />
+                  <FileUploadList />
                 </FileUploadRoot>
                 {errors.files && <p className="text-sm text-red-500 font-sans">{errors.files.message}</p>}
               </div>
@@ -112,6 +124,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                       <button
                         key={val}
                         type="button"
+                        disabled={isSubmitting}
                         onClick={() => {
                           field.onChange(val)
                           if (val !== 'protected') {
@@ -124,6 +137,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                         className={cn(
                           'flex items-start gap-2.5 px-3 py-3 rounded-lg text-left transition-all',
                           selected ? 'bg-white shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-black/[0.08]' : 'border border-transparent hover:bg-white/60',
+                          isSubmitting && 'cursor-not-allowed',
                         )}
                       >
                         <div
@@ -152,7 +166,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
               name="password"
               control={control}
               render={({ field }) => (
-                <TextField className="w-full" isInvalid={!!errors.password} validationBehavior="aria">
+                <TextField className="w-full" isInvalid={!!errors.password} validationBehavior="aria" isDisabled={isSubmitting}>
                   <Label className="text-left text-[var(--ink-900)] flex items-center gap-1.5 font-sans text-sm font-medium">
                     <LuLock className="w-4 h-4" />
                     <span>Password</span>
@@ -172,7 +186,8 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                       type="button"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                       onClick={() => setShowPassword((curr) => !curr)}
-                      className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-[var(--ink-600)] hover:bg-black/5 transition-colors"
+                      disabled={isSubmitting}
+                      className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-[var(--ink-600)] hover:bg-black/5 transition-colors disabled:cursor-not-allowed"
                     >
                       {showPassword ? <LuEyeOff className="w-4 h-4" /> : <LuEye className="w-4 h-4" />}
                     </button>
@@ -189,7 +204,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             control={control}
             render={({ field }) => (
               <div className="flex flex-col gap-1">
-                <DynamicExpirySelector value={field.value} onChange={field.onChange} isInvalid={!!errors.expireAt} />
+                <DynamicExpirySelector value={field.value} onChange={field.onChange} isInvalid={!!errors.expireAt} isDisabled={isSubmitting} />
                 {errors.expireAt && <p className="text-sm text-red-500 font-sans">{errors.expireAt.message}</p>}
               </div>
             )}
