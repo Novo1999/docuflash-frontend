@@ -7,17 +7,68 @@ const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
   weight: '400',
   style: ['normal', 'italic'],
+  display: 'swap',
 })
 
 const dmSans = DM_Sans({
   variable: '--font-dm-sans',
   subsets: ['latin'],
   weight: ['300', '400', '500'],
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'Docuflash',
-  description: 'Upload and process your documents effortlessly.',
+  metadataBase: new URL('https://docuflash-frontend.vercel.app'),
+  title: {
+    default: 'Docuflash - Instant File Sharing, No Signup',
+    template: '%s | Docuflash',
+  },
+  description:
+    'Share files instantly with a secure link. Upload PDFs, Word docs, Excel sheets, ZIPs and more - no account needed. Free up to 10MB.',
+  keywords: [
+    'file sharing',
+    'instant file share',
+    'share PDF online',
+    'no signup file upload',
+    'temporary file link',
+    'secure file sharing',
+    'send files without account',
+  ],
+  authors: [{ name: 'Docuflash' }],
+  creator: 'Docuflash',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://docuflash-frontend.vercel.app',
+    siteName: 'Docuflash',
+    title: 'Docuflash - Instant File Sharing, No Signup',
+    description: 'Upload any file and get a shareable link in seconds. No account needed.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Docuflash - Share files instantly',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Docuflash - Instant File Sharing, No Signup',
+    description: 'Upload any file and get a shareable link in seconds. No account needed.',
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 }
 
 const RootLayout = ({

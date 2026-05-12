@@ -1,11 +1,26 @@
 import { deleteFileByShareToken, getFileByShareToken } from '@/app/lib/api/files'
 import SharedFile from '@/components/file/SharedFile'
 import { Card, CardContent } from '@heroui/react'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { LuClock, LuFileQuestion } from 'react-icons/lu'
 
 interface PageProps {
   params: Promise<{ shareToken: string }>
+}
+
+export const metadata: Metadata = {
+  title: 'Shared File',
+  description: 'A private file shared via Docuflash.',
+  robots: {
+    index: false,
+    follow: false,
+  },
+  openGraph: {
+    title: 'Shared File',
+    description: 'A private file shared via Docuflash.',
+    type: 'website',
+  },
 }
 
 const Page = async ({ params }: PageProps) => {

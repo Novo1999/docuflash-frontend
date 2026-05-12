@@ -12,7 +12,7 @@ const UploadSectionContainer = ({ children }: { children: ReactNode }) => {
         </span>
       </div>
       <h1 className="text-4xl md:text-[52px] leading-[1.05] text-foreground font-serif tracking-tight">
-        Share any document, <em className="text-[var(--brand-400)] italic">instantly</em>.
+        Share any file <em className="text-[var(--brand-400)] italic">instantly</em>. No signup required.
       </h1>
 
       <p className="text-default-500 text-center font-sans text-[15px] max-w-[520px] mx-auto leading-relaxed">
