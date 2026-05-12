@@ -38,9 +38,10 @@
 
 ## Development Workflow
 1. **Research:** Use `codebase_investigator` for architectural insights.
-2. **Strategy:** Plan changes in Plan Mode for complex features.
-3. **Execution:** Use `generalist` for batch tasks or repetitive refactoring.
-4. **Validation:** Always run `npm run lint` and `npm run build` to ensure integrity.
+2. **Best Practices:** Follow guidelines in `.agents/skills/vercel-react-best-practices/SKILL.md` for performance and React patterns.
+3. **Strategy:** Plan changes in Plan Mode for complex features.
+4. **Execution:** Use `generalist` for batch tasks or repetitive refactoring.
+5. **Validation:** Always run `npm run lint` and `npm run build` to ensure integrity.
 
 ---
 *Note: This file is the primary guide for Gemini CLI. Follow these standards strictly.*
