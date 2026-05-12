@@ -5,7 +5,7 @@ import { getRecentUploads, markAsCopied, removeRecentUpload } from '@/app/utils/
 import { getShareLink } from '@/app/utils/upload'
 import { StoredUpload } from '@/types/file'
 import { Button, Card, Modal, useOverlayState } from '@heroui/react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { LuClock, LuCopy, LuExternalLink, LuFile, LuTrash2 } from 'react-icons/lu'
 
@@ -15,30 +15,6 @@ const RecentUploads = () => {
   const [fileToDelete, setFileToDelete] = useState<StoredUpload | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const deleteModal = useOverlayState()
-
-  const loadUploads = () => {
-    setUploads(getRecentUploads())
-  }
-
-  useEffect(() => {
-    window.addEventListener('recent-uploads-updated', loadUploads)
-    
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      const currentUploads = getRecentUploads()
-      const hasUncopied = currentUploads.some(u => !u.copied)
-      if (hasUncopied) {
-        e.preventDefault()
-        e.returnValue = ''
-      }
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
-
-    return () => {
-      window.removeEventListener('recent-uploads-updated', loadUploads)
-      window.removeEventListener('beforeunload', handleBeforeUnload)
-    }
-  }, [])
 
   const handleCopy = (token: string) => {
     const link = getShareLink(token)
@@ -60,6 +36,7 @@ const RecentUploads = () => {
     try {
       await deleteFileByShareToken(fileToDelete.shareToken)
       removeRecentUpload(fileToDelete.storageKey)
+      setUploads((currentUploads) => currentUploads.filter((upload) => upload.storageKey !== fileToDelete.storageKey))
       deleteModal.close()
       setFileToDelete(null)
     } catch (error) {
