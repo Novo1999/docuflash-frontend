@@ -39,17 +39,6 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
   const fileSizeMB = files?.[0] ? (files[0].size / (1024 * 1024)).toFixed(2) : null
   const { handleQrDownload } = useFileUploadQR({ files })
 
-  useEffect(() => {
-    if (!isSubmitting) return
-
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault()
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [isSubmitting])
-
   const handleCopy = () => {
     if (!shareLinks) return
     navigator.clipboard.writeText(shareLinks)
