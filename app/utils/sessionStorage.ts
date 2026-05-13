@@ -1,6 +1,7 @@
 import { StoredUpload } from '@/types/file'
 
 const STORAGE_KEY = 'docuflash_recent_uploads'
+export const RECENT_UPLOADS_UPDATED_EVENT = 'recent-uploads-updated'
 
 export function getRecentUploads(): StoredUpload[] {
   if (typeof window === 'undefined') return []
@@ -16,8 +17,7 @@ export function getRecentUploads(): StoredUpload[] {
 export function saveRecentUploads(uploads: StoredUpload[]) {
   if (typeof window === 'undefined') return
   sessionStorage.setItem(STORAGE_KEY, JSON.stringify(uploads.slice(0, 20)))
-  // Dispatch custom event to notify other components
-  window.dispatchEvent(new Event('recent-uploads-updated'))
+  window.dispatchEvent(new Event(RECENT_UPLOADS_UPDATED_EVENT))
 }
 
 export function addRecentUpload(upload: StoredUpload) {
