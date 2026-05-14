@@ -1,13 +1,13 @@
-import type { Metadata } from 'next'
 import Footer from '@/components/landing/Footer'
 import HowItWorks from '@/components/landing/HowItWorks'
 import Navbar from '@/components/landing/Navbar'
 import RecentUploads from '@/components/landing/RecentUploads'
 import UploadSection from '@/components/landing/UploadSection'
 import { JsonLd } from '@/components/shared/JsonLd'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Instant File Sharing - Upload & Share in Seconds',
+  title: 'Docuflash - Instant File Sharing - Upload & Share in Seconds',
   description:
     'Docuflash lets you share PDFs, Word docs, spreadsheets and more with a single link. No registration, no hassle. Files auto-expire for your privacy.',
   alternates: {
