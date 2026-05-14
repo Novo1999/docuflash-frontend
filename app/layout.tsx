@@ -36,6 +36,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Docuflash' }],
   creator: 'Docuflash',
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/favicon.ico',
+    apple: '/apple-icon.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
