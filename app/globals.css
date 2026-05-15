@@ -22,6 +22,19 @@
   --color-primary-100: var(--brand-100);
   --color-primary-400: var(--brand-400);
 }
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+@utility scrollbar-thumb-slate-200 {
+  scrollbar-color: var(--color-slate-200) transparent;
+}
+
+@utility scrollbar-track-transparent {
+  scrollbar-color: inherit transparent;
+}
+
 :root {
   scroll-behavior: smooth;
   /* Brand */

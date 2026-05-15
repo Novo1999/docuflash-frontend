@@ -27,7 +27,7 @@ const PdfPreview = ({ url }: PdfPreviewProps) => {
     if (!element) return
 
     const updateWidth = () => {
-      const nextWidth = Math.floor(element.getBoundingClientRect().width)
+      const nextWidth = Math.floor(element.clientWidth)
       setContainerWidth(Math.min(MAX_PDF_PAGE_WIDTH, Math.max(MIN_PDF_PAGE_WIDTH, nextWidth)))
     }
 
@@ -43,32 +43,40 @@ const PdfPreview = ({ url }: PdfPreviewProps) => {
   const hasMorePages = !!numPages && visiblePages < numPages
 
   return (
-    <div ref={containerRef} className="w-full overflow-hidden">
-      <Document
-        file={url}
-        loading={<PreviewLoading />}
-        error={<PreviewUnavailable />}
-        onLoadSuccess={({ numPages }) => {
-          setNumPages(numPages)
-          setVisiblePages(Math.min(PDF_PAGE_BATCH_SIZE, numPages))
-        }}
+    <div className="flex flex-col gap-4">
+      <div
+        ref={containerRef}
+        className="max-h-[600px] overflow-y-auto rounded-xl border border-black/[0.06] bg-slate-50/50 p-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent"
       >
-        {pageCount > 0 && (
-          <div className="flex flex-col items-center gap-4">
-            {Array.from({ length: pageCount }, (_, index) => (
-              <div key={index + 1} className="overflow-hidden rounded-xl border border-black/[0.08] bg-white shadow-[0_2px_12px_rgba(15,28,46,0.06)]">
-                <Page pageNumber={index + 1} width={containerWidth} renderAnnotationLayer={false} />
-              </div>
-            ))}
-          </div>
-        )}
-      </Document>
+        <Document
+          file={url}
+          loading={<PreviewLoading />}
+          error={<PreviewUnavailable />}
+          onLoadSuccess={({ numPages }) => {
+            setNumPages(numPages)
+            setVisiblePages(Math.min(PDF_PAGE_BATCH_SIZE, numPages))
+          }}
+        >
+          {pageCount > 0 && (
+            <div className="flex flex-col items-center gap-4">
+              {Array.from({ length: pageCount }, (_, index) => (
+                <div
+                  key={index + 1}
+                  className="overflow-hidden rounded-xl border border-black/[0.08] bg-white shadow-[0_2px_12px_rgba(15,28,46,0.06)]"
+                >
+                  <Page pageNumber={index + 1} width={containerWidth} renderAnnotationLayer={false} />
+                </div>
+              ))}
+            </div>
+          )}
+        </Document>
+      </div>
 
       {hasMorePages && (
         <Button
           variant="secondary"
           onPress={() => setVisiblePages((current) => Math.min(current + PDF_PAGE_BATCH_SIZE, numPages ?? current))}
-          className="mt-4 w-full rounded-xl font-sans"
+          className="w-full rounded-xl font-sans"
         >
           Load more pages
         </Button>
