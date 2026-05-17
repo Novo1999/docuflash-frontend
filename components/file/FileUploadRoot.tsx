@@ -56,7 +56,12 @@ const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
   const addFiles = useCallback(
     (incoming: File[]) => {
       setErrorMessage(null)
-      const { valid, error } = validate(incoming)
+      const remainingSlots = maxFiles === 1 ? 1 : Math.max(maxFiles - files.length, 0)
+      const candidates = incoming.slice(0, remainingSlots)
+
+      if (candidates.length === 0) return
+
+      const { valid, error } = validate(candidates)
       if (error) {
         setErrorMessage(error)
         return
@@ -67,7 +72,7 @@ const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
         return merged
       })
     },
-    [validate, maxFiles, onFilesChange],
+    [files.length, validate, maxFiles, onFilesChange],
   )
 
   const removeFile = useCallback(
@@ -85,7 +90,6 @@ const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
 
   const openFilePicker = useCallback(() => {
     if (isDisabled) return
-    console.log('Opening file picker...')
     fileTriggerRef.current?.click()
   }, [isDisabled])
 
@@ -111,7 +115,6 @@ const FileUploadRoot = ({ children, accept, maxFiles = 1, maxSizeMB, onFilesChan
         acceptedFileTypes={accept}
         allowsMultiple={maxFiles > 1}
         onSelect={(fileList) => {
-          console.log('🚀 ~ FileUploadRoot ~ fileList:', fileList)
           if (fileList) addFiles(Array.from(fileList))
           if (fileTriggerRef.current) fileTriggerRef.current.value = ''
         }}

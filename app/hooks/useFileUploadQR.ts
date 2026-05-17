@@ -1,4 +1,4 @@
-const useFileUploadQR = ({ files }: { files: File[] }) => {
+const useFileUploadQR = ({ fileName }: { fileName?: string }) => {
   const handleQrDownload = () => {
     const svg = document.getElementById('share-qr-code')
     if (!svg) return
@@ -14,7 +14,7 @@ const useFileUploadQR = ({ files }: { files: File[] }) => {
       ctx.fillRect(0, 0, 240, 240)
       ctx.drawImage(img, 0, 0, 240, 240)
       const a = document.createElement('a')
-      const uploadedFileName = files?.[0]?.name?.replace(/\.[^/.]+$/, '') ?? 'file'
+      const uploadedFileName = fileName?.replace(/\.[^/.]+$/, '') ?? 'file'
       a.download = `docuflash-qr-${uploadedFileName}.png`
       a.href = canvas.toDataURL('image/png')
       a.click()

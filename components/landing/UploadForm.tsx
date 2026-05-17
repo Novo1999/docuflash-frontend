@@ -1,6 +1,6 @@
 'use client'
 
-import { ACCEPTED_UPLOAD_FILE_TYPES, MAX_UPLOAD_FILE_SIZE_MB } from '@/app/constants/upload'
+import { ACCEPTED_UPLOAD_FILE_TYPES, MAX_UPLOAD_FILES, MAX_UPLOAD_FILE_SIZE_MB } from '@/app/constants/upload'
 import useFileUploadForm from '@/app/hooks/useFileUploadForm'
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import useFileUploadState from '@/app/hooks/useFileUploadState'
@@ -11,10 +11,11 @@ import FileUploadList from '@/components/file/FileUploadList'
 import FileUploadRoot from '@/components/file/FileUploadRoot'
 import { Button, cn, FieldError, Input, Label, Spinner, TextField } from '@heroui/react'
 import dynamic from 'next/dynamic'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useState } from 'react'
 import { Controller } from 'react-hook-form'
-import { LuCheck, LuCopy, LuDownload, LuEye, LuEyeOff, LuFile, LuGlobe, LuLink, LuLock, LuQrCode, LuShare2 } from 'react-icons/lu'
+import { LuCheck, LuCopy, LuDownload, LuEye, LuEyeOff, LuFile, LuFolder, LuGlobe, LuLink, LuLock, LuQrCode, LuShare2 } from 'react-icons/lu'
 import QRCode from 'react-qr-code'
+import type { UploadedShareLink } from '@/types/file'
 
 const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector'), {
   ssr: false,
@@ -32,21 +33,32 @@ interface UploadFormProps {
 
 const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
   const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link')
+  const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null)
 
-  const { shareLinks, setShareLinks, lastShareToken, setLastShareToken, copied, setCopied, showPassword, setShowPassword } = useFileUploadState()
+  const { shareLinks, setShareLinks, setLastShareToken, copied, setCopied, showPassword, setShowPassword } = useFileUploadState()
   const { files, setError, clearErrors, reset, accessType, control, handleSubmit, setValue, setFocus, isSubmitting, errors } = useFileUploadForm()
   const { onSubmit } = useFileUploadSubmit({ clearErrors, setError, reset, setCopied, setLastShareToken, setShareLinks, setShowPassword })
-  const fileSizeMB = files?.[0] ? (files[0].size / (1024 * 1024)).toFixed(2) : null
-  const { handleQrDownload } = useFileUploadQR({ files })
+  const shareLinkItems = shareLinks ?? []
+  const primaryShareLink = shareLinkItems[0]
+  const isBulkSelection = files.length > 1
+  const isBulkResult = shareLinkItems.length > 1
+  const fileSizeMB = files[0] ? (files[0].size / (1024 * 1024)).toFixed(2) : null
+  const totalFileSizeMB = files.length > 1 ? (files.reduce((total, file) => total + file.size, 0) / (1024 * 1024)).toFixed(2) : null
+  const submitLabel = isBulkSelection ? 'Upload folder' : 'Upload & get link'
+  const { handleQrDownload } = useFileUploadQR({ fileName: primaryShareLink?.fileName })
 
-  const handleCopy = () => {
+  const handleCopy = (linkItem?: UploadedShareLink) => {
     if (!shareLinks) return
-    navigator.clipboard.writeText(shareLinks)
-    if (lastShareToken) {
-      markAsCopied(lastShareToken)
-    }
+    const linksToCopy = linkItem ? [linkItem] : shareLinks
+    navigator.clipboard.writeText(linksToCopy.map(({ link }) => link).join('\n'))
+    linksToCopy.forEach(({ shareToken }) => markAsCopied(shareToken))
+
+    setCopiedLinkId(linkItem?.shareToken ?? 'all')
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setTimeout(() => {
+      setCopied(false)
+      setCopiedLinkId(null)
+    }, 2000)
   }
 
   const handleReset = () => {
@@ -54,6 +66,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
     setLastShareToken(null)
     setShowPassword(false)
     setActiveTab('link')
+    setCopiedLinkId(null)
     clearErrors('root')
     reset()
   }
@@ -69,7 +82,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             render={({ field }) => (
               <div className="flex flex-col gap-1">
                 <FileUploadRoot
-                  maxFiles={1}
+                  maxFiles={MAX_UPLOAD_FILES}
                   maxSizeMB={MAX_UPLOAD_FILE_SIZE_MB}
                   accept={ACCEPTED_UPLOAD_FILE_TYPES}
                   isDisabled={isSubmitting}
@@ -78,7 +91,11 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                     field.onChange(files)
                   }}
                 >
-                  <FileUploadDropzone label="Drop your file here" description={`PDF, DOCX, XLSX, ZIP, TXT - up to ${MAX_UPLOAD_FILE_SIZE_MB} MB`} className={errors.files ? 'border-red-400' : undefined} />
+                  <FileUploadDropzone
+                    label="Drop your file here"
+                    description={`PDF, DOCX, XLSX, ZIP, TXT - ${MAX_UPLOAD_FILE_SIZE_MB} MB each, ${MAX_UPLOAD_FILES} files max`}
+                    className={errors.files ? 'border-red-400' : undefined}
+                  />
                   <FileUploadList />
                 </FileUploadRoot>
                 {errors.files && <p className="text-sm text-red-500 font-sans">{errors.files.message}</p>}
@@ -89,12 +106,19 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
           {/* Format badges + file size */}
           <div className="flex flex-wrap gap-1.5 justify-center">
             {formatBadges}
-            {fileSizeMB && (
+            {isBulkSelection && totalFileSizeMB ? (
+              <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--brand-alpha-12)] border border-[var(--brand-alpha-30)]">
+                <LuFolder className="w-3 h-3 text-[var(--brand-400)]" />
+                <span className="text-[10px] font-medium text-[var(--brand-400)] font-sans tracking-tight">
+                  {files.length} files / {totalFileSizeMB} MB
+                </span>
+              </span>
+            ) : fileSizeMB ? (
               <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--brand-alpha-12)] border border-[var(--brand-alpha-30)]">
                 <LuFile className="w-3 h-3 text-[var(--brand-400)]" />
                 <span className="text-[10px] font-medium text-[var(--brand-400)] font-sans tracking-tight">{fileSizeMB} MB</span>
               </span>
-            )}
+            ) : null}
           </div>
 
           {/* Access Type — segmented control */}
@@ -103,7 +127,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             control={control}
             render={({ field }) => (
               <div className="flex flex-col gap-2">
-                <span className="text-left text-sm font-medium text-[var(--ink-900)] font-sans">Who can access this file?</span>
+                <span className="text-left text-sm font-medium text-[var(--ink-900)] font-sans">Who can access {isBulkSelection ? 'these files' : 'this file'}?</span>
                 <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-black/[0.06]">
                   {[
                     { val: 'public', label: 'Public', desc: 'Anyone with the link', Icon: LuGlobe },
@@ -165,7 +189,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                     <Input
                       {...field}
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Set a password for this file"
+                      placeholder={`Set a password for ${isBulkSelection ? 'these files' : 'this file'}`}
                       className={cn(
                         'w-full bg-[var(--brand-alpha-4)] border rounded-xl px-4 h-12 pr-12 text-[15px] text-[var(--ink-900)] font-sans',
                         'placeholder:text-[var(--ink-600)]/60 focus-visible:border-[var(--brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--brand-400)]/10 outline-none transition-colors',
@@ -209,7 +233,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             isPending={isSubmitting}
             className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] disabled:opacity-40 disabled:cursor-not-allowed font-sans"
           >
-            {isSubmitting ? <Spinner className="text-[var(--brand-50)]" /> : 'Upload & get link'}
+            {isSubmitting ? <Spinner className="text-[var(--brand-50)]" /> : submitLabel}
           </Button>
 
           {footer}
@@ -226,10 +250,52 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                 <LuCheck className="w-3.5 h-3.5" />
               </span>
             </div>
-            <p className="text-xl font-serif text-[var(--ink-900)]">Your file is ready to share</p>
-            <p className="text-sm text-[var(--ink-600)] font-sans text-center">Anyone with this link can download the file. We don&apos;t track who.</p>
+            <p className="text-xl font-serif text-[var(--ink-900)]">{isBulkResult ? 'Your folder is ready to share' : 'Your file is ready to share'}</p>
+            <p className="text-sm text-[var(--ink-600)] font-sans text-center">
+              {isBulkResult ? `${shareLinkItems.length} files uploaded. Copy individual links or the full folder list.` : 'Anyone with this link can download the file. We don\'t track who.'}
+            </p>
           </div>
 
+          {isBulkResult ? (
+            <div className="flex flex-col gap-4">
+              <div className="rounded-xl border border-black/10 bg-[var(--brand-alpha-4)] overflow-hidden">
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-black/10 bg-white/70">
+                  <div className="w-9 h-9 rounded-lg bg-[var(--brand-alpha-12)] flex items-center justify-center shrink-0">
+                    <LuFolder className="w-5 h-5 text-[var(--brand-400)]" />
+                  </div>
+                  <div className="flex flex-col min-w-0 flex-1 text-left">
+                    <span className="text-sm font-medium text-[var(--ink-900)] font-sans">{shareLinkItems.length} files uploaded</span>
+                    <span className="text-xs text-[var(--ink-600)] font-sans">Each file has its own share link</span>
+                  </div>
+                </div>
+
+                <div className="max-h-56 overflow-y-auto">
+                  {shareLinkItems.map((linkItem) => (
+                    <div key={linkItem.shareToken} className="flex items-center gap-3 px-4 py-3 border-b border-black/10 last:border-b-0">
+                      <LuFile className="w-4 h-4 text-[var(--ink-600)] shrink-0" />
+                      <div className="flex flex-col min-w-0 flex-1 text-left">
+                        <span className="text-sm font-medium text-[var(--ink-900)] font-sans truncate">{linkItem.fileName}</span>
+                        <span className="text-xs text-[var(--ink-600)] font-sans truncate">{linkItem.link}</span>
+                      </div>
+                      <button
+                        type="button"
+                        aria-label={`Copy ${linkItem.fileName} link`}
+                        onClick={() => handleCopy(linkItem)}
+                        className={cn('shrink-0 p-1.5 rounded-md transition-colors hover:bg-black/5', copiedLinkId === linkItem.shareToken ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]')}
+                      >
+                        <LuCopy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Button fullWidth onPress={() => handleCopy()} className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans">
+                {copied && copiedLinkId === 'all' ? 'Links copied to clipboard' : 'Copy all links'}
+              </Button>
+            </div>
+          ) : (
+            <>
           {/* Tab segmented control */}
           <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-black/[0.06]">
             {[
@@ -257,26 +323,26 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
           {/* Link tab */}
           <div className={cn(activeTab === 'link' ? 'flex flex-col gap-4' : 'hidden')}>
             <div className="flex items-center justify-between gap-3 bg-[var(--brand-alpha-4)] border border-black/10 rounded-xl px-4 py-3">
-              <span className="text-sm text-[var(--ink-900)] font-sans overflow-hidden text-ellipsis whitespace-nowrap flex-1 text-left">{shareLinks}</span>
+              <span className="text-sm text-[var(--ink-900)] font-sans overflow-hidden text-ellipsis whitespace-nowrap flex-1 text-left">{primaryShareLink?.link}</span>
               <button
                 type="button"
                 aria-label="Copy link"
-                onClick={handleCopy}
+                onClick={() => handleCopy(primaryShareLink)}
                 className={cn('shrink-0 p-1.5 rounded-md transition-colors hover:bg-black/5', copied ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]')}
               >
                 <LuCopy className="w-4 h-4" />
               </button>
             </div>
 
-            <Button fullWidth onPress={handleCopy} className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans">
-              {copied ? '✓ Link copied to clipboard' : 'Copy link'}
+            <Button fullWidth onPress={() => handleCopy(primaryShareLink)} className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans">
+              {copied ? 'Link copied to clipboard' : 'Copy link'}
             </Button>
           </div>
 
           {/* QR tab */}
-          <div className={activeTab === 'qr' ? 'flex flex-col items-center gap-4' : 'hidden'}>
-            <div className="p-4 bg-white rounded-2xl border border-black/[0.06] shadow-[0_2px_12px_rgba(15,28,46,0.06)]">
-              <QRCode id="share-qr-code" value={shareLinks!} size={240} level="M" bgColor="#ffffff" fgColor="#0f1c2e" />
+            <div className={activeTab === 'qr' ? 'flex flex-col items-center gap-4' : 'hidden'}>
+              <div className="p-4 bg-white rounded-2xl border border-black/[0.06] shadow-[0_2px_12px_rgba(15,28,46,0.06)]">
+              <QRCode id="share-qr-code" value={primaryShareLink?.link ?? ''} size={240} level="M" bgColor="#ffffff" fgColor="#0f1c2e" />
             </div>
 
             <Button
@@ -288,9 +354,11 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
               Download QR
             </Button>
           </div>
+            </>
+          )}
 
           <Button fullWidth variant="ghost" onPress={handleReset} className="text-[var(--ink-600)] text-sm hover:text-[var(--ink-900)] hover:bg-black/5 font-sans">
-            Upload another file
+            {isBulkResult ? 'Upload another folder' : 'Upload another file'}
           </Button>
         </div>
       )}

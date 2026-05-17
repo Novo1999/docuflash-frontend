@@ -100,6 +100,12 @@ export type StoredUpload = {
   uploadDate: string
 }
 
+export type UploadedShareLink = {
+  fileName: string
+  shareToken: string
+  link: string
+}
+
 export type Preset = {
   key: string
   label: string
