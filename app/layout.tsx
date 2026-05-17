@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: '%s | Docuflash',
   },
   description:
-    'Share files instantly with a secure link. Upload PDFs, Word docs, Excel sheets, ZIPs and more - no account needed. Free up to 10MB.',
+    'Share files instantly with a secure link. Upload PDFs, Word docs, Excel sheets, ZIPs and more - no account needed. Free up to 16MB.',
   keywords: [
     'file sharing',
     'instant file share',

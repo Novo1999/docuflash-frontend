@@ -1,6 +1,6 @@
 'use client'
 
-import { ACCEPTED_UPLOAD_FILE_TYPES } from '@/app/constants/upload'
+import { ACCEPTED_UPLOAD_FILE_TYPES, MAX_UPLOAD_FILE_SIZE_MB } from '@/app/constants/upload'
 import useFileUploadForm from '@/app/hooks/useFileUploadForm'
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import useFileUploadState from '@/app/hooks/useFileUploadState'
@@ -70,6 +70,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
               <div className="flex flex-col gap-1">
                 <FileUploadRoot
                   maxFiles={1}
+                  maxSizeMB={MAX_UPLOAD_FILE_SIZE_MB}
                   accept={ACCEPTED_UPLOAD_FILE_TYPES}
                   isDisabled={isSubmitting}
                   onFilesChange={(files) => {
@@ -77,7 +78,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                     field.onChange(files)
                   }}
                 >
-                  <FileUploadDropzone label="Drop your file here" description="PDF, DOCX, XLSX, ZIP, TXT - up to 10 MB" className={errors.files ? 'border-red-400' : undefined} />
+                  <FileUploadDropzone label="Drop your file here" description={`PDF, DOCX, XLSX, ZIP, TXT - up to ${MAX_UPLOAD_FILE_SIZE_MB} MB`} className={errors.files ? 'border-red-400' : undefined} />
                   <FileUploadList />
                 </FileUploadRoot>
                 {errors.files && <p className="text-sm text-red-500 font-sans">{errors.files.message}</p>}

@@ -1,8 +1,14 @@
 import { z } from 'zod'
+import { MAX_UPLOAD_FILE_SIZE_BYTES, MAX_UPLOAD_FILE_SIZE_MB } from '@/app/constants/upload'
 
 const uploadSchema = z
   .object({
-    files: z.array(z.instanceof(File)).min(1, 'Please select a file to upload'),
+    files: z
+      .array(z.instanceof(File))
+      .min(1, 'Please select a file to upload')
+      .refine((files) => files.every((file) => file.size <= MAX_UPLOAD_FILE_SIZE_BYTES), {
+        message: `File must be ${MAX_UPLOAD_FILE_SIZE_MB} MB or smaller`,
+      }),
     accessType: z.enum(['public', 'protected']),
     password: z.string().optional(),
     expireAt: z.string().min(1, 'Please select an expiration date'),
