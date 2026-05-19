@@ -4,8 +4,8 @@ import { useUploadThing } from '@/app/utils/generateReactHelpers'
 import { addRecentUpload } from '@/app/utils/sessionStorage'
 import { getClientId, getDeviceInfo, getShareLink, resolveFileType } from '@/app/utils/upload'
 import { UploadFormValues } from '@/app/zod/uploadSchema'
-import { FileAccessType } from '@/types/file'
 import type { StoredUpload, UploadedShareLink } from '@/types/file'
+import { FileAccessType } from '@/types/file'
 import { FieldValues, UseFormClearErrors, UseFormReset, UseFormSetError } from 'react-hook-form'
 
 type Props<T extends FieldValues> = {
@@ -55,6 +55,7 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
       })
 
       const uploadedFiles = uploadResult ?? []
+      console.log('🚀 ~ onSubmit ~ uploadedFiles:', uploadedFiles)
 
       if (uploadedFiles.length !== filesWithTypes.length) {
         throw new Error('Upload did not return every storage key')
