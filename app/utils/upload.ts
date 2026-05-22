@@ -119,4 +119,8 @@ function getShareLink(shareToken: string): string {
   return `${SHARE_BASE_URL}/share/${shareToken}`
 }
 
-export { getClientId, getDeviceInfo, getShareLink, resolveFileType }
+function getFolderShareLink(shareToken: string): string {
+  return `${SHARE_BASE_URL}/folder/${shareToken}`
+}
+
+export { getClientId, getDeviceInfo, getShareLink, getFolderShareLink, resolveFileType }

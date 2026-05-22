@@ -23,14 +23,20 @@ const formatFileSize = (bytes: number): string => {
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
 }
 
-const formatDate = (dateString: string): string =>
-  new Date(dateString).toLocaleDateString('en-US', {
+const formatDate = (dateString?: string): string => {
+  if (!dateString) return 'Unknown'
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return 'Unknown'
+  
+  return date.toLocaleString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    hour12: true
   })
+}
 
 const getRelativeTime = (dateString: string): string => {
   const diffDays = Math.ceil((new Date(dateString).getTime() - Date.now()) / 86400000)

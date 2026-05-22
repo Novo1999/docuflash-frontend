@@ -1,3 +1,5 @@
+import { StoredFolder } from './folder'
+
 export enum FileType {
   PDF = 'pdf',
   DOCX = 'docx',
@@ -53,6 +55,7 @@ export type UploadFilePayload = {
 }
 
 export type FileRecord = {
+  id: string
   shareToken: string
   fileName: string
   fileType: FileType
@@ -100,10 +103,15 @@ export type StoredUpload = {
   uploadDate: string
 }
 
+export type StoredItem = 
+  | ({ kind: 'file' } & StoredUpload)
+  | ({ kind: 'folder' } & StoredFolder)
+
 export type UploadedShareLink = {
   fileName: string
   shareToken: string
   link: string
+  kind?: 'file' | 'folder'
 }
 
 export type Preset = {

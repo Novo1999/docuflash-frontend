@@ -10,6 +10,7 @@ const uploadSchema = z
       .refine((files) => files.every((file) => file.size <= MAX_UPLOAD_FILE_SIZE_BYTES), {
         message: `File must be ${MAX_UPLOAD_FILE_SIZE_MB} MB or smaller`,
       }),
+    folderName: z.string().optional(),
     accessType: z.enum(['public', 'protected']),
     password: z.string().optional(),
     expireAt: z.string().min(1, 'Please select an expiration date'),

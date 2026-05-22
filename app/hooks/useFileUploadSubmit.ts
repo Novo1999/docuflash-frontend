@@ -1,8 +1,9 @@
 import { MAX_UPLOAD_FILES } from '@/app/constants/upload'
 import { deleteFileByShareToken, deleteUploadedStorageFile, uploadFile } from '@/app/lib/api/files'
+import { createFolder } from '@/app/lib/api/folder'
 import { useUploadThing } from '@/app/utils/generateReactHelpers'
-import { addRecentUpload } from '@/app/utils/sessionStorage'
-import { getClientId, getDeviceInfo, getShareLink, resolveFileType } from '@/app/utils/upload'
+import { addRecentFolder, addRecentUpload } from '@/app/utils/sessionStorage'
+import { getClientId, getDeviceInfo, getFolderShareLink, getShareLink, resolveFileType } from '@/app/utils/upload'
 import { UploadFormValues } from '@/app/zod/uploadSchema'
 import type { StoredUpload, UploadedShareLink } from '@/types/file'
 import { FileAccessType } from '@/types/file'
@@ -65,6 +66,8 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
       const recentUploads: StoredUpload[] = []
       const createdShareTokens: string[] = []
 
+      const fileIds: string[] = []
+
       try {
         for (const [index, uploadedFile] of uploadedFiles.entries()) {
           const fileType = filesWithTypes[index]?.fileType
@@ -82,11 +85,14 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
             deviceInfo,
           })
 
+          fileIds.push(fileRecord.id)
+
           createdShareTokens.push(fileRecord.shareToken)
           uploadedShareLinks.push({
             fileName: uploadedFile.name,
             shareToken: fileRecord.shareToken,
             link: getShareLink(fileRecord.shareToken),
+            kind: 'file'
           })
           recentUploads.push({
             fileName: uploadedFile.name,
@@ -101,12 +107,36 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
           })
         }
 
-        for (const recentUpload of recentUploads) {
-          addRecentUpload(recentUpload)
+        if (fileIds.length <= 1) {
+          for (const recentUpload of recentUploads) {
+            addRecentUpload(recentUpload)
+          }
+          setShareLinks(uploadedShareLinks)
+          setLastShareToken(uploadedShareLinks[0]?.shareToken ?? null)
+        } else {
+          const folderName = data.folderName || 'My Folder'
+          const folder = await createFolder({ folderName, fileIds })
+          
+          addRecentFolder({
+            folderName: folder.folderName,
+            shareToken: folder.shareToken,
+            createdAt: folder.createdAt,
+            expireAt: data.expireAt,
+            accessType: fileAccessType,
+            copied: false,
+            fileCount: folder.files.length,
+          })
+
+          const folderLink = getFolderShareLink(folder.shareToken)
+          setShareLinks([{
+            fileName: folder.folderName,
+            shareToken: folder.shareToken,
+            link: folderLink,
+            kind: 'folder'
+          }])
+          setLastShareToken(folder.shareToken)
         }
 
-        setShareLinks(uploadedShareLinks)
-        setLastShareToken(uploadedShareLinks[0]?.shareToken ?? null)
         setShowPassword(false)
         reset()
       } catch (metadataError) {

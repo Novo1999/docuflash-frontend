@@ -17,6 +17,7 @@ const useFileUploadForm = () => {
     resolver: zodResolver(uploadSchema),
     defaultValues: {
       files: [],
+      folderName: 'My Folder',
       accessType: 'public',
       password: '',
       expireAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),

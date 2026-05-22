@@ -1,7 +1,7 @@
 'use client'
 
-import { getFileDownloadUrl, getFilePreview, verifyFilePassword } from '@/app/lib/api/files'
-import { triggerDownload } from '@/app/utils/shareFileUtil'
+import { getFilePreview, verifyFilePassword } from '@/app/lib/api/files'
+import { useFileDownload } from '@/app/hooks/useFileDownload'
 import FilePreview from '@/components/file/FilePreview'
 import PasswordUnlockForm from '@/components/file/PasswordUnlockForm'
 import { isPreviewableFileType, type FilePreviewResponse, type FileType } from '@/types/file'
@@ -27,7 +27,7 @@ const FileActions = ({ shareToken, isProtected, fileName, fileType, children }: 
   const [previewError, setPreviewError] = useState<string | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
   const [isPreviewLoading, setIsPreviewLoading] = useState(false)
-  const [isDownloading, setIsDownloading] = useState(false)
+  const { downloadFile, isDownloading } = useFileDownload()
 
   const isLocked = isProtected && !accessToken
   const canPreview = isPreviewableFileType(fileType)
@@ -67,18 +67,7 @@ const FileActions = ({ shareToken, isProtected, fileName, fileType, children }: 
   }
 
   const handleDownload = async () => {
-    setIsDownloading(true)
-    setError(null)
-    try {
-      const url = (await getFileDownloadUrl(shareToken, accessToken ?? undefined)).fileUrl
-      triggerDownload(url, fileName)
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message ?? 'Download failed. Please try again.')
-      }
-    } finally {
-      setIsDownloading(false)
-    }
+    await downloadFile(shareToken, fileName, accessToken ?? undefined)
   }
 
   return (
@@ -112,7 +101,7 @@ const FileActions = ({ shareToken, isProtected, fileName, fileType, children }: 
                     Preview File
                   </Button>
                 )}
-                <Button className="w-full bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-md font-medium h-14 font-sans" onPress={handleDownload} isPending={isDownloading}>
+                <Button className="w-full bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-md font-medium h-14 font-sans" onPress={handleDownload} isPending={!!isDownloading}>
                   <LuDownload className="w-5 h-5" />
                   Download File
                 </Button>

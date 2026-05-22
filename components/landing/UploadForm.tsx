@@ -121,6 +121,35 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             ) : null}
           </div>
 
+          {/* Folder Name — only when multiple files */}
+          {isBulkSelection && (
+            <Controller
+              name="folderName"
+              control={control}
+              render={({ field }) => (
+                <TextField className="w-full" isInvalid={!!errors.folderName} validationBehavior="aria" isDisabled={isSubmitting}>
+                  <Label className="text-left text-[var(--ink-900)] flex items-center gap-1.5 font-sans text-sm font-medium">
+                    <LuFolder className="w-4 h-4" />
+                    <span>Folder Name</span>
+                  </Label>
+                  <div className="relative w-full mt-1.5">
+                    <Input
+                      {...field}
+                      type="text"
+                      placeholder="Enter folder name"
+                      className={cn(
+                        'w-full bg-[var(--brand-alpha-4)] border rounded-xl px-4 h-12 text-[15px] text-[var(--ink-900)] font-sans',
+                        'placeholder:text-[var(--ink-600)]/60 focus-visible:border-[var(--brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--brand-400)]/10 outline-none transition-colors',
+                        errors.folderName ? 'border-red-400' : 'border-black/10',
+                      )}
+                    />
+                  </div>
+                  {errors.folderName && <FieldError className="text-sm text-red-500 font-sans">{errors.folderName.message}</FieldError>}
+                </TextField>
+              )}
+            />
+          )}
+
           {/* Access Type — segmented control */}
           <Controller
             name="accessType"
@@ -244,15 +273,25 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
               <div className="w-14 h-14 bg-[var(--brand-alpha-12)] rounded-full flex items-center justify-center mx-auto">
-                <LuShare2 className="w-6 h-6 text-[var(--brand-400)]" />
+                {primaryShareLink?.kind === 'folder' ? (
+                  <LuFolder className="w-6 h-6 text-[var(--brand-400)]" />
+                ) : (
+                  <LuShare2 className="w-6 h-6 text-[var(--brand-400)]" />
+                )}
               </div>
               <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-4 ring-white">
                 <LuCheck className="w-3.5 h-3.5" />
               </span>
             </div>
-            <p className="text-xl font-serif text-[var(--ink-900)]">{isBulkResult ? 'Your folder is ready to share' : 'Your file is ready to share'}</p>
+            <p className="text-xl font-serif text-[var(--ink-900)]">
+              {primaryShareLink?.kind === 'folder' ? 'Your folder is ready to share' : isBulkResult ? 'Your folder is ready to share' : 'Your file is ready to share'}
+            </p>
             <p className="text-sm text-[var(--ink-600)] font-sans text-center">
-              {isBulkResult ? `${shareLinkItems.length} files uploaded. Copy individual links or the full folder list.` : 'Anyone with this link can download the file. We don\'t track who.'}
+              {primaryShareLink?.kind === 'folder' 
+                ? 'Anyone with this link can view the files in the folder.'
+                : isBulkResult 
+                  ? `${shareLinkItems.length} files uploaded. Copy individual links or the full folder list.` 
+                  : 'Anyone with this link can download the file. We don\'t track who.'}
             </p>
           </div>
 
@@ -358,7 +397,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
           )}
 
           <Button fullWidth variant="ghost" onPress={handleReset} className="text-[var(--ink-600)] text-sm hover:text-[var(--ink-900)] hover:bg-black/5 font-sans">
-            {isBulkResult ? 'Upload another folder' : 'Upload another file'}
+            {primaryShareLink?.kind === 'folder' ? 'Upload another folder' : isBulkResult ? 'Upload another folder' : 'Upload another file'}
           </Button>
         </div>
       )}
