@@ -1,8 +1,9 @@
 import { deleteFileByShareToken, getFileByShareToken } from '@/app/lib/api/files'
 import SharedFile from '@/components/file/SharedFile'
-import { Card, CardContent } from '@heroui/react'
+import { Card, CardContent, Spinner } from '@heroui/react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { LuClock, LuFileQuestion } from 'react-icons/lu'
 
 interface PageProps {
@@ -12,10 +13,7 @@ interface PageProps {
 export const metadata: Metadata = {
   title: 'Shared File',
   description: 'A private file shared via Docuflash.',
-  robots: {
-    index: false,
-    follow: false,
-  },
+  robots: { index: false, follow: false },
   openGraph: {
     title: 'Shared File',
     description: 'A private file shared via Docuflash.',
@@ -23,8 +21,8 @@ export const metadata: Metadata = {
   },
 }
 
-const Page = async ({ params }: PageProps) => {
-  const shareToken = (await params).shareToken
+async function FileContent({ params }: PageProps) {
+  const { shareToken } = await params
 
   let file = null
   try {
@@ -55,19 +53,11 @@ const Page = async ({ params }: PageProps) => {
   }
 
   const isExpired = new Date(file.expireAt) <= new Date()
-  if (isExpired) {
-    const triggerBackgroundCleanup = async () => {
-      try {
-        await deleteFileByShareToken(shareToken)
-      } catch (err) {
-        console.error('Failed to delete expired file on server:', err)
-      }
-    }
-    triggerBackgroundCleanup()
-  }
 
-  // ---- Expired state ----
   if (isExpired) {
+    deleteFileByShareToken(shareToken).catch((err) =>
+      console.error('Failed to delete expired file on server:', err)
+    )
     return (
       <div className="min-h-screen bg-[var(--brand-50)] flex items-center justify-center p-4">
         <Card className="max-w-[480px] w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
@@ -86,6 +76,20 @@ const Page = async ({ params }: PageProps) => {
   }
 
   return <SharedFile file={file} />
+}
+
+const Page = ({ params }: PageProps) => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center h-screen justify-center">
+          <Spinner className="text-black" />
+        </div>
+      }
+    >
+      <FileContent params={params} />
+    </Suspense>
+  )
 }
 
 export default Page
