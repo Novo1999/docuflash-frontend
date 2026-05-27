@@ -2,9 +2,10 @@ import { getFolderByShareToken } from '@/app/cache/cache'
 import { formatDate } from '@/app/utils/shareFileUtil'
 import SharedFolder from '@/components/file/SharedFolder'
 import ItemDeletion from '@/components/folder/ItemDeletion'
-import { Card, CardContent, Chip } from '@heroui/react'
+import { Card, CardContent, Chip, Spinner } from '@heroui/react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { LuCalendar, LuFileQuestion, LuFolder } from 'react-icons/lu'
 
 interface PageProps {
@@ -14,16 +15,11 @@ interface PageProps {
 export const metadata: Metadata = {
   title: 'Shared Folder',
   description: 'A private folder shared via Docuflash.',
-  robots: {
-    index: false,
-    follow: false,
-  },
+  robots: { index: false, follow: false },
 }
 
-const Page = async ({ params }: PageProps) => {
-  const searchParams = await params
-  const shareToken = searchParams.shareToken
-
+async function FolderContent({ params }: PageProps) {
+  const { shareToken } = await params
   let folder = null
   try {
     folder = await getFolderByShareToken(shareToken)
@@ -85,6 +81,20 @@ const Page = async ({ params }: PageProps) => {
         </div>
       </div>
     </div>
+  )
+}
+
+const Page = async ({ params }: PageProps) => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center gap-4 h-screen justify-center">
+          <Spinner className="text-black" />
+        </div>
+      }
+    >
+      <FolderContent params={params} />
+    </Suspense>
   )
 }
 
