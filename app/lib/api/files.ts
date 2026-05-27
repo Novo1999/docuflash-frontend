@@ -21,12 +21,6 @@ export async function getFileByShareToken(token: string): Promise<FileRecord> {
   return response.data
 }
 
-export async function deleteFile(id: string): Promise<void> {
-  await apiClient<null>(`/api/files/${id}`, {
-    method: 'DELETE',
-  })
-}
-
 export async function deleteFileByShareToken(token: string): Promise<void> {
   await apiClient<null>(`/api/files/token/${token}`, {
     method: 'DELETE',

@@ -14,11 +14,6 @@ export async function getFolderById(id: string): Promise<FolderRecord> {
   return response.data
 }
 
-export async function getFolderByShareToken(token: string): Promise<FolderRecord> {
-  const response = await apiClient<FolderRecord>(`/api/folders/token/${token}`)
-  return response.data
-}
-
 export async function deleteFolderById(id: string): Promise<void> {
   await apiClient<null>(`/api/folders/${id}`, {
     method: 'DELETE',

@@ -56,7 +56,6 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
       })
 
       const uploadedFiles = uploadResult ?? []
-      console.log('🚀 ~ onSubmit ~ uploadedFiles:', uploadedFiles)
 
       if (uploadedFiles.length !== filesWithTypes.length) {
         throw new Error('Upload did not return every storage key')
@@ -92,7 +91,7 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
             fileName: uploadedFile.name,
             shareToken: fileRecord.shareToken,
             link: getShareLink(fileRecord.shareToken),
-            kind: 'file'
+            kind: 'file',
           })
           recentUploads.push({
             fileName: uploadedFile.name,
@@ -116,7 +115,7 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
         } else {
           const folderName = data.folderName || 'My Folder'
           const folder = await createFolder({ folderName, fileIds })
-          
+
           addRecentFolder({
             folderName: folder.folderName,
             shareToken: folder.shareToken,
@@ -128,12 +127,14 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
           })
 
           const folderLink = getFolderShareLink(folder.shareToken)
-          setShareLinks([{
-            fileName: folder.folderName,
-            shareToken: folder.shareToken,
-            link: folderLink,
-            kind: 'folder'
-          }])
+          setShareLinks([
+            {
+              fileName: folder.folderName,
+              shareToken: folder.shareToken,
+              link: folderLink,
+              kind: 'folder',
+            },
+          ])
           setLastShareToken(folder.shareToken)
         }
 

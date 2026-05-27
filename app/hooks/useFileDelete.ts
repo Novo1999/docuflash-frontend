@@ -1,9 +1,9 @@
 'use client'
 
+import { deleteFile } from '@/app/actions/actions'
 import { useState } from 'react'
-import { deleteFile } from '@/app/lib/api/files'
 
-export const useFileDelete = () => {
+export const useFileDelete = (folderToken?: string) => {
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -11,7 +11,7 @@ export const useFileDelete = () => {
     setIsDeleting(id)
     setError(null)
     try {
-      await deleteFile(id)
+      await deleteFile(id, folderToken)
       return true
     } catch (err: unknown) {
       if (err instanceof Error) {
