@@ -16,7 +16,7 @@ const Navbar = () => {
 
       {/* Nav Links — desktop only */}
       <div className="hidden md:flex items-center gap-8">
-        <Link href="#how-it-works" className="text-sm text-[var(--ink-600)] no-underline hover:text-[var(--ink-900)]">
+        <Link href="/#how-it-works" className="text-sm text-[var(--ink-600)] no-underline hover:text-[var(--ink-900)]">
           How it works
         </Link>
         <PricingTooltip />

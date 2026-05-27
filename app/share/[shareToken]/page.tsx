@@ -55,9 +55,12 @@ async function FileContent({ params }: PageProps) {
   const isExpired = new Date(file.expireAt) <= new Date()
 
   if (isExpired) {
-    deleteFileByShareToken(shareToken).catch((err) =>
-      console.error('Failed to delete expired file on server:', err)
-    )
+    try {
+      await deleteFileByShareToken(shareToken)
+    } catch (error) {
+      console.error('Failed to delete expired file on server:', error)
+    }
+
     return (
       <div className="min-h-screen bg-[var(--brand-50)] flex items-center justify-center p-4">
         <Card className="max-w-[480px] w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">

@@ -1,3 +1,5 @@
+import Footer from '@/components/landing/Footer'
+import Navbar from '@/components/landing/Navbar'
 import type { Metadata } from 'next'
 import { DM_Sans, Instrument_Serif } from 'next/font/google'
 import './globals.css'
@@ -23,17 +25,8 @@ export const metadata: Metadata = {
     default: 'Docuflash - Instant File Sharing, No Signup',
     template: '%s | Docuflash',
   },
-  description:
-    'Share files instantly with a secure link. Upload PDFs, Word docs, Excel sheets, ZIPs and more - no account needed. Free up to 16MB.',
-  keywords: [
-    'file sharing',
-    'instant file share',
-    'share PDF online',
-    'no signup file upload',
-    'temporary file link',
-    'secure file sharing',
-    'send files without account',
-  ],
+  description: 'Share files instantly with a secure link. Upload PDFs, Word docs, Excel sheets, ZIPs and more - no account needed. Free up to 16MB.',
+  keywords: ['file sharing', 'instant file share', 'share PDF online', 'no signup file upload', 'temporary file link', 'secure file sharing', 'send files without account'],
   authors: [{ name: 'Docuflash' }],
   creator: 'Docuflash',
   icons: {
@@ -83,7 +76,11 @@ const RootLayout = ({
 }>) => {
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${dmSans.variable} h-full antialiased scroll-smooth`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <Navbar />
+        {children}
+        <Footer />
+      </body>
     </html>
   )
 }

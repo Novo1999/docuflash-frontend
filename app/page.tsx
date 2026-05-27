@@ -1,6 +1,4 @@
-import Footer from '@/components/landing/Footer'
 import HowItWorks from '@/components/landing/HowItWorks'
-import Navbar from '@/components/landing/Navbar'
 import RecentUploads from '@/components/landing/RecentUploads'
 import UploadSection from '@/components/landing/UploadSection'
 import { JsonLd } from '@/components/shared/JsonLd'
@@ -18,7 +16,6 @@ export const metadata: Metadata = {
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-[var(--brand-50,#f9fafb)]">
-      <Navbar />
 
       <main className="max-w-[680px] mx-auto pt-[72px] pb-[64px] px-4 text-center">
         <JsonLd
@@ -51,7 +48,6 @@ const LandingPage = () => {
         </div>
       </main>
 
-      <Footer />
     </div>
   )
 }
