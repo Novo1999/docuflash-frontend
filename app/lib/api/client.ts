@@ -44,11 +44,7 @@ export async function apiClient<T>(endpoint: string, options: FetchOptions = {})
     body: body !== undefined ? JSON.stringify(body) : undefined,
   })
 
-  const json = await response.json()
+  const json: ApiResponse<T> = await response.json()
 
-  if (!response.ok) {
-    throw new ApiError(json.msg ?? 'An unexpected error occurred', response.status)
-  }
-
-  return json as ApiResponse<T>
+  return json
 }

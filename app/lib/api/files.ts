@@ -3,7 +3,7 @@ import { ApiError, apiClient, buildApiUrl } from './client'
 
 const buildAccessBody = (accessToken?: string) => (accessToken ? { accessToken } : {})
 
-export async function uploadFile(payload: UploadFilePayload): Promise<FileRecord> {
+export async function uploadFile(payload: UploadFilePayload) {
   if (payload.accessType === 'protected' && !payload.password) {
     throw new Error('A password is required for protected files')
   }
@@ -13,7 +13,7 @@ export async function uploadFile(payload: UploadFilePayload): Promise<FileRecord
     body: payload,
   })
 
-  return response.data
+  return response
 }
 
 export async function getFileByShareToken(token: string): Promise<FileRecord> {

@@ -72,7 +72,7 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
           const fileType = filesWithTypes[index]?.fileType
           if (!fileType) throw new Error(`Could not resolve file type for ${uploadedFile.name}`)
 
-          const fileRecord = await uploadFile({
+          const fileResponse = await uploadFile({
             fileName: uploadedFile.name,
             fileType,
             fileSize: uploadedFile.size,
@@ -83,6 +83,13 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
             password: data.accessType === 'protected' ? data.password : undefined,
             deviceInfo,
           })
+
+          if (!fileResponse.success) {
+            setError('root', { message: fileResponse?.msg })
+            return
+          }
+
+          const fileRecord = fileResponse?.data
 
           fileIds.push(fileRecord.id)
 
