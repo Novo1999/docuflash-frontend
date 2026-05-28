@@ -16,9 +16,9 @@ export async function uploadFile(payload: UploadFilePayload) {
   return response
 }
 
-export async function getFileByShareToken(token: string): Promise<FileRecord> {
+export async function getFileByShareToken(token: string) {
   const response = await apiClient<FileRecord>(`/api/files/${token}`)
-  return response.data
+  return response
 }
 
 export async function deleteFileByShareToken(token: string): Promise<void> {

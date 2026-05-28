@@ -19,6 +19,7 @@ export class ApiError extends Error {
 
 type FetchOptions = Omit<RequestInit, 'body'> & {
   body?: unknown
+  noToast?: boolean
 }
 
 export function buildApiUrl(endpoint: string): string {

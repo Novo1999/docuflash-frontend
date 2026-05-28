@@ -26,9 +26,13 @@ async function FileContent({ params }: PageProps) {
 
   let file = null
   try {
-    file = await getFileByShareToken(shareToken)
+    const fileResponse = await getFileByShareToken(shareToken)
+    if (!fileResponse.success) {
+      throw new Error(fileResponse?.msg || 'Failed to fetch file')
+    }
+    file = fileResponse?.data
   } catch (error) {
-    console.error('Error fetching file:', error)
+    throw error
   }
 
   if (!file) {

@@ -1,18 +1,22 @@
-import DocxPreview from '@/components/file/DocxPreview'
-import TextPreview from '@/components/file/TextPreview'
+import PreviewLoader from '@/components/shared/PreviewLoader'
 import { type FilePreviewResponse } from '@/types/file'
-import { Card, CardContent, Spinner } from '@heroui/react'
+import { Card, CardContent } from '@heroui/react'
 import dynamic from 'next/dynamic'
 
 const PdfPreview = dynamic(() => import('@/components/file/PdfPreview'), {
   ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center gap-3 rounded-xl border border-black/[0.06] bg-white px-4 py-8 text-sm text-[var(--ink-600)] font-sans">
-      <Spinner className="text-[var(--ink-900)]" />
-      Preparing PDF preview
-    </div>
-  ),
+  loading: () => <PreviewLoader label="Preparing PDF preview" />,
 })
+
+const DocxPreview = dynamic(() => import('@/components/file/DocxPreview'), {
+  ssr: false,
+  loading: () => <PreviewLoader label="Preparing document preview" />,
+})
+
+const TextPreview = dynamic(() => import('@/components/file/TextPreview'), {
+  loading: () => <PreviewLoader />,
+})
+
 
 interface FilePreviewProps {
   fileName: string
