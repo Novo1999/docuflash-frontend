@@ -5,6 +5,7 @@ export type SafeFileRecord = Omit<FileRecord, 'id' | 'password' | 'storageKey' |
 export type CreateFolderPayload = {
   folderName: string
   fileIds: string[]
+  expireAt: string
 }
 
 export type FolderRecord = {

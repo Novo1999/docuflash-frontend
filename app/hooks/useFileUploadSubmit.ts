@@ -121,7 +121,7 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
           setLastShareToken(uploadedShareLinks[0]?.shareToken ?? null)
         } else {
           const folderName = data.folderName || 'My Folder'
-          const folder = await createFolder({ folderName, fileIds })
+          const folder = await createFolder({ folderName, fileIds, expireAt: data.expireAt })
 
           addRecentFolder({
             folderName: folder.folderName,
