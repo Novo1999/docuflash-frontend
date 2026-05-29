@@ -2,30 +2,58 @@
 
 import { useCopyLink } from '@/app/hooks/useCopyLink'
 import { useFileDownload } from '@/app/hooks/useFileDownload'
+import { verifyFilePassword } from '@/app/lib/api/files'
 import { formatFileSize, getFileTypeInfo } from '@/app/utils/shareFileUtil'
 import { getShareLink } from '@/app/utils/upload'
 import { deleteModalOpenAtom, itemToDeleteAtom } from '@/components/folder/atoms/folderAtom'
-import { FileRecord } from '@/types/file'
+import { FileAccessType, FileRecord } from '@/types/file'
 import { FolderRecord } from '@/types/folder'
 import { Button } from '@heroui/react'
 import { useSetAtom } from 'jotai'
 import Link from 'next/link'
+import { useState } from 'react'
 import { LuCheck, LuCopy, LuDownload, LuExternalLink, LuFile, LuTrash2 } from 'react-icons/lu'
 
 interface SharedFolderProps {
   folder: FolderRecord
+  folderPassword?: string | null
 }
 
-const SharedFolder = ({ folder }: SharedFolderProps) => {
+const SharedFolder = ({ folder, folderPassword }: SharedFolderProps) => {
   const setItemToDelete = useSetAtom(itemToDeleteAtom)
 
-  const { downloadFile, isDownloading } = useFileDownload()
+  const { downloadFile, isDownloading, error: downloadError } = useFileDownload()
   const { copyToClipboard, copiedId } = useCopyLink()
   const setDeleteModalOpen = useSetAtom(deleteModalOpenAtom)
+  const [fileAccessTokens, setFileAccessTokens] = useState<Record<string, string>>({})
+  const [folderDownloadError, setFolderDownloadError] = useState<string | null>(null)
 
   const handleDeleteFileClick = (file: FileRecord) => {
     setItemToDelete({ kind: 'file', data: file })
     setDeleteModalOpen(true)
+  }
+
+  const handleDownloadFile = async (file: FileRecord) => {
+    setFolderDownloadError(null)
+
+    try {
+      let accessToken = fileAccessTokens[file.shareToken]
+
+      if (file.accessType === FileAccessType.PROTECTED && !accessToken) {
+        if (!folderPassword) {
+          setFolderDownloadError('Open this file to enter its password before downloading.')
+          return
+        }
+
+        const result = await verifyFilePassword(file.shareToken, folderPassword)
+        accessToken = result.accessToken
+        setFileAccessTokens((current) => ({ ...current, [file.shareToken]: accessToken }))
+      }
+
+      await downloadFile(file.shareToken, file.fileName, accessToken)
+    } catch (err: unknown) {
+      setFolderDownloadError(err instanceof Error ? err.message || 'Download failed. Please try again.' : 'Download failed. Please try again.')
+    }
   }
 
   return (
@@ -49,7 +77,7 @@ const SharedFolder = ({ folder }: SharedFolderProps) => {
                   <Button
                     isIconOnly
                     variant="ghost"
-                    onPress={() => downloadFile(file.shareToken, file.fileName)}
+                    onPress={() => handleDownloadFile(file)}
                     isPending={isDownloading === file.shareToken}
                     className="w-8 h-8 rounded-lg min-w-0 hover:bg-black/[0.05] transition-colors"
                     aria-label="Download file"
@@ -86,6 +114,7 @@ const SharedFolder = ({ folder }: SharedFolderProps) => {
             )
           })
         )}
+        {(folderDownloadError || downloadError) && <p className="text-sm text-red-500 font-sans">{folderDownloadError || downloadError}</p>}
       </div>
     </>
   )

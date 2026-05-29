@@ -36,6 +36,7 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
     const unsupportedFile = filesWithTypes.find(({ fileType }) => !fileType)?.file
     const deviceInfo = getDeviceInfo()
     const fileAccessType = data.accessType as FileAccessType
+    const clientId = getClientId()
 
     setShareLinks(null)
     setCopied(false)
@@ -77,7 +78,7 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
             fileType,
             fileSize: uploadedFile.size,
             storageKey: uploadedFile.key,
-            clientId: getClientId(),
+            clientId,
             accessType: fileAccessType,
             expireAt: data.expireAt,
             password: data.accessType === 'protected' ? data.password : undefined,
@@ -99,6 +100,7 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
             shareToken: fileRecord.shareToken,
             link: getShareLink(fileRecord.shareToken),
             kind: 'file',
+            accessType: fileAccessType,
           })
           recentUploads.push({
             fileName: uploadedFile.name,
@@ -121,12 +123,19 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
           setLastShareToken(uploadedShareLinks[0]?.shareToken ?? null)
         } else {
           const folderName = data.folderName || 'My Folder'
-          const folder = await createFolder({ folderName, fileIds, expireAt: data.expireAt })
+          const folder = await createFolder({
+            folderName,
+            fileIds,
+            expireAt: data.expireAt,
+            accessType: fileAccessType,
+            password: data.accessType === 'protected' ? data.password : undefined,
+            clientId,
+          })
 
           addRecentFolder({
             folderName: folder.folderName,
             shareToken: folder.shareToken,
-            createdAt: folder.createdAt,
+            createdAt: folder.createdAt ?? new Date().toISOString(),
             expireAt: data.expireAt,
             accessType: fileAccessType,
             copied: false,
@@ -140,6 +149,7 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
               shareToken: folder.shareToken,
               link: folderLink,
               kind: 'folder',
+              accessType: fileAccessType,
             },
           ])
           setLastShareToken(folder.shareToken)

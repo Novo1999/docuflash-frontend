@@ -1,7 +1,16 @@
 import { FileAccessTokenResponse, FileDownloadResponse, FilePreviewResponse, FileRecord, UploadFilePayload } from '@/types/file'
+import type { ApiResponse } from './client'
 import { ApiError, apiClient, buildApiUrl } from './client'
 
 const buildAccessBody = (accessToken?: string) => (accessToken ? { accessToken } : {})
+
+const requireApiData = <T>(response: ApiResponse<T>, fallbackMessage: string): T => {
+  if (!response.success) {
+    throw new ApiError(response.msg || fallbackMessage, response.status)
+  }
+
+  return response.data
+}
 
 export async function uploadFile(payload: UploadFilePayload) {
   if (payload.accessType === 'protected' && !payload.password) {
@@ -32,7 +41,7 @@ export async function verifyFilePassword(token: string, password: string): Promi
     method: 'POST',
     body: { password },
   })
-  return response.data
+  return requireApiData(response, 'Invalid password')
 }
 
 export async function getFilePreview(token: string, accessToken?: string): Promise<FilePreviewResponse> {
@@ -40,7 +49,7 @@ export async function getFilePreview(token: string, accessToken?: string): Promi
     method: 'POST',
     body: buildAccessBody(accessToken),
   })
-  return response.data
+  return requireApiData(response, 'Preview is unavailable for this file')
 }
 
 export async function getFileDownloadUrl(token: string, accessToken?: string): Promise<FileDownloadResponse> {
@@ -48,7 +57,7 @@ export async function getFileDownloadUrl(token: string, accessToken?: string): P
     method: 'POST',
     body: buildAccessBody(accessToken),
   })
-  return response.data
+  return requireApiData(response, 'Download failed. Please try again.')
 }
 
 export async function deleteUploadedStorageFile(storageKey: string): Promise<void> {

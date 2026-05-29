@@ -42,6 +42,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
   const primaryShareLink = shareLinkItems[0]
   const isBulkSelection = files.length > 1
   const isBulkResult = shareLinkItems.length > 1
+  const isProtectedResult = primaryShareLink?.accessType === 'protected'
   const fileSizeMB = files[0] ? (files[0].size / (1024 * 1024)).toFixed(2) : null
   const totalFileSizeMB = files.length > 1 ? (files.reduce((total, file) => total + file.size, 0) / (1024 * 1024)).toFixed(2) : null
   const submitLabel = isBulkSelection ? 'Upload folder' : 'Upload & get link'
@@ -156,7 +157,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             control={control}
             render={({ field }) => (
               <div className="flex flex-col gap-2">
-                <span className="text-left text-sm font-medium text-[var(--ink-900)] font-sans">Who can access {isBulkSelection ? 'these files' : 'this file'}?</span>
+                <span className="text-left text-sm font-medium text-[var(--ink-900)] font-sans">Who can access {isBulkSelection ? 'this folder' : 'this file'}?</span>
                 <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-black/[0.06]">
                   {[
                     { val: 'public', label: 'Public', desc: 'Anyone with the link', Icon: LuGlobe },
@@ -218,7 +219,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                     <Input
                       {...field}
                       type={showPassword ? 'text' : 'password'}
-                      placeholder={`Set a password for ${isBulkSelection ? 'these files' : 'this file'}`}
+                      placeholder={`Set a password for ${isBulkSelection ? 'this folder' : 'this file'}`}
                       className={cn(
                         'w-full bg-[var(--brand-alpha-4)] border rounded-xl px-4 h-12 pr-12 text-[15px] text-[var(--ink-900)] font-sans',
                         'placeholder:text-[var(--ink-600)]/60 focus-visible:border-[var(--brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--brand-400)]/10 outline-none transition-colors',
@@ -288,10 +289,14 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             </p>
             <p className="text-sm text-[var(--ink-600)] font-sans text-center">
               {primaryShareLink?.kind === 'folder' 
-                ? 'Anyone with this link can view the files in the folder.'
+                ? isProtectedResult
+                  ? 'Share this link and password so others can unlock the folder.'
+                  : 'Anyone with this link can view the files in the folder.'
                 : isBulkResult 
                   ? `${shareLinkItems.length} files uploaded. Copy individual links or the full folder list.` 
-                  : 'Anyone with this link can download the file. We don\'t track who.'}
+                  : isProtectedResult
+                    ? 'Share this link and password so others can unlock the file.'
+                    : 'Anyone with this link can download the file. We don\'t track who.'}
             </p>
           </div>
 

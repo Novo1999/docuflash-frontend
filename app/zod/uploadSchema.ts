@@ -19,7 +19,7 @@ const uploadSchema = z
     if (data.accessType === 'protected' && !data.password) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Please set a password for protected files',
+        message: 'Please set a password for protected sharing',
         path: ['password'],
       })
     }

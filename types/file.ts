@@ -112,6 +112,7 @@ export type UploadedShareLink = {
   shareToken: string
   link: string
   kind?: 'file' | 'folder'
+  accessType?: FileAccessType
 }
 
 export type Preset = {
