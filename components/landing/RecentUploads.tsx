@@ -6,6 +6,7 @@ import { RECENT_UPLOADS_UPDATED_EVENT, getRecentUploads, markAsCopied, removeRec
 import { getFolderShareLink, getShareLink } from '@/app/utils/upload'
 import { StoredItem } from '@/types/file'
 import { Button, Card, Modal, useOverlayState } from '@heroui/react'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { LuClock, LuCopy, LuExternalLink, LuFile, LuFolder, LuTrash2 } from 'react-icons/lu'
@@ -16,6 +17,7 @@ const RecentUploads = () => {
   const [itemToDelete, setItemToDelete] = useState<StoredItem | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const deleteModal = useOverlayState()
+  const router = useRouter()
 
   useEffect(() => {
     const syncUploads = () => setUploads(getRecentUploads())
@@ -114,7 +116,7 @@ const RecentUploads = () => {
                   isIconOnly
                   size="sm"
                   variant="ghost"
-                  onPress={() => window.open(getItemLink(item), '_blank')}
+                  onPress={() => router.push(getItemLink(item))}
                   className="text-ink-600"
                 >
                   <LuExternalLink className="w-4 h-4" />

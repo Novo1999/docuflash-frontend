@@ -1,4 +1,4 @@
-import { MAX_UPLOAD_FILES } from '@/app/constants/upload'
+import { DEFAULT_UPLOAD_FOLDER_NAME, MAX_UPLOAD_FILES } from '@/app/constants/upload'
 import { deleteFileByShareToken, deleteUploadedStorageFile, uploadFile } from '@/app/lib/api/files'
 import { createFolder } from '@/app/lib/api/folder'
 import { useUploadThing } from '@/app/utils/generateReactHelpers'
@@ -122,7 +122,7 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
           setShareLinks(uploadedShareLinks)
           setLastShareToken(uploadedShareLinks[0]?.shareToken ?? null)
         } else {
-          const folderName = data.folderName || 'My Folder'
+          const folderName = data.folderName || DEFAULT_UPLOAD_FOLDER_NAME
           const folder = await createFolder({
             folderName,
             fileIds,

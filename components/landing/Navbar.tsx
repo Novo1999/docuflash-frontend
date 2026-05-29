@@ -1,7 +1,7 @@
 import docuflashLogo from '@/assets/docuflash.png'
 import NavbarDrawer from '@/components/shared/NavbarDrawer'
-import { Link } from '@heroui/react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { LuShield } from 'react-icons/lu'
 import PricingTooltip from './PricingTooltip'
 

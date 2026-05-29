@@ -1,3 +1,4 @@
+import { DEFAULT_UPLOAD_FOLDER_NAME } from '@/app/constants/upload'
 import { UploadFormValues, uploadSchema } from '@/app/zod/uploadSchema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -17,7 +18,7 @@ const useFileUploadForm = () => {
     resolver: zodResolver(uploadSchema),
     defaultValues: {
       files: [],
-      folderName: 'My Folder',
+      folderName: DEFAULT_UPLOAD_FOLDER_NAME,
       accessType: 'public',
       password: '',
       expireAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
