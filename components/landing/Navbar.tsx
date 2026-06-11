@@ -1,4 +1,5 @@
 import docuflashLogo from '@/assets/docuflash.png'
+import AuthButton from '@/components/auth/AuthButton'
 import NavbarDrawer from '@/components/shared/NavbarDrawer'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -22,10 +23,13 @@ const Navbar = () => {
         <PricingTooltip />
       </div>
 
-      {/* Badge — desktop only */}
-      <div className="hidden md:flex items-center gap-1 bg-[var(--brand-alpha-12)] border border-[var(--brand-alpha-30)] px-3 py-1.5 rounded-full">
-        <LuShield className="text-[var(--brand-400)] w-3 h-3" />
-        <span className="text-xs font-medium text-[var(--brand-400)]">No sign-up required</span>
+      {/* Right side — desktop badge + auth */}
+      <div className="hidden md:flex items-center gap-4">
+        <div className="flex items-center gap-1 bg-[var(--brand-alpha-12)] border border-[var(--brand-alpha-30)] px-3 py-1.5 rounded-full">
+          <LuShield className="text-[var(--brand-400)] w-3 h-3" />
+          <span className="text-xs font-medium text-[var(--brand-400)]">No sign-up required</span>
+        </div>
+        <AuthButton />
       </div>
 
       <NavbarDrawer />
