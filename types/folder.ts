@@ -30,6 +30,16 @@ export type SafeFolderRecord = {
   files: SafeFileRecord[]
 }
 
+export type MyFolderRecord = {
+  id: string
+  folderName: string
+  shareToken: string
+  accessType: FileAccessType
+  ownerId: string
+  expireAt: string
+  createdAt: string
+}
+
 export type StoredFolder = {
   folderName: string
   shareToken: string

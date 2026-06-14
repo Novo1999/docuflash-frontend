@@ -1,4 +1,4 @@
-import { CreateFolderPayload, FolderRecord } from '@/types/folder'
+import { CreateFolderPayload, FolderRecord, MyFolderRecord } from '@/types/folder'
 import type { ApiResponse } from './client'
 import { ApiError, apiClient } from './client'
 
@@ -20,6 +20,11 @@ export async function createFolder(payload: CreateFolderPayload): Promise<Folder
     body: payload,
   })
   return requireApiData(response, 'Failed to create folder')
+}
+
+export async function getMyFolders(): Promise<MyFolderRecord[]> {
+  const response = await apiClient<MyFolderRecord[]>('/api/folders/mine')
+  return requireApiData(response, 'Failed to load your folders')
 }
 
 export async function getFolderById(id: string): Promise<FolderRecord> {

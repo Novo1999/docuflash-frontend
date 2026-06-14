@@ -1,0 +1,288 @@
+'use client'
+
+import useFileUploadQR from '@/app/hooks/useFileUploadQR'
+import { deleteFileByShareToken, getMyFiles } from '@/app/lib/api/files'
+import { deleteFolderByShareToken, getMyFolders } from '@/app/lib/api/folder'
+import { getFolderShareLink, getShareLink } from '@/app/utils/upload'
+import UploadItemCard, { type UploadEntry } from '@/components/me/UploadItemCard'
+import { useAuth } from '@/components/auth/useAuth'
+import type { MyFileRecord } from '@/types/file'
+import type { MyFolderRecord } from '@/types/folder'
+import { Button, Modal, Spinner, useOverlayState } from '@heroui/react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
+import QRCode from 'react-qr-code'
+import { FiAlertTriangle } from 'react-icons/fi'
+import { LuDownload } from 'react-icons/lu'
+
+type LoadState = 'loading' | 'error' | 'ready'
+
+const formatBytes = (bytes: number) => {
+  if (!bytes) return '0 B'
+  const mb = bytes / (1024 * 1024)
+  return mb >= 1 ? `${mb.toFixed(2)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`
+}
+
+const fileToEntry = (file: MyFileRecord): UploadEntry => ({
+  kind: 'file',
+  id: file.id,
+  name: file.fileName,
+  shareToken: file.shareToken,
+  link: getShareLink(file.shareToken),
+  accessType: file.accessType,
+  expireAt: file.expireAt,
+  meta: `${file.fileType} · ${formatBytes(file.fileSize)}`,
+  downloadCount: file.downloadCount,
+})
+
+const folderToEntry = (folder: MyFolderRecord): UploadEntry => ({
+  kind: 'folder',
+  id: folder.id,
+  name: folder.folderName,
+  shareToken: folder.shareToken,
+  link: getFolderShareLink(folder.shareToken),
+  accessType: folder.accessType,
+  expireAt: folder.expireAt,
+  meta: 'Folder',
+  downloadCount: null,
+})
+
+const MyUploads = () => {
+  const { status, isAuthenticated, openAuthModal } = useAuth()
+  const router = useRouter()
+
+  const [loadState, setLoadState] = useState<LoadState>('loading')
+  const [files, setFiles] = useState<MyFileRecord[]>([])
+  const [folders, setFolders] = useState<MyFolderRecord[]>([])
+
+  const [copiedToken, setCopiedToken] = useState<string | null>(null)
+  const [qrEntry, setQrEntry] = useState<UploadEntry | null>(null)
+  const [entryToDelete, setEntryToDelete] = useState<UploadEntry | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  const qrModal = useOverlayState()
+  const deleteModal = useOverlayState()
+  const { handleQrDownload } = useFileUploadQR({ fileName: qrEntry?.name })
+
+  useEffect(() => {
+    if (status !== 'authenticated') return
+
+    let active = true
+
+    Promise.all([getMyFiles(), getMyFolders()])
+      .then(([myFiles, myFolders]) => {
+        if (!active) return
+        setFiles(myFiles)
+        setFolders(myFolders)
+        setLoadState('ready')
+      })
+      .catch(() => {
+        if (active) setLoadState('error')
+      })
+
+    return () => {
+      active = false
+    }
+  }, [status])
+
+  const handleCopy = useCallback((entry: UploadEntry) => {
+    navigator.clipboard.writeText(entry.link)
+    setCopiedToken(entry.shareToken)
+    setTimeout(() => setCopiedToken((current) => (current === entry.shareToken ? null : current)), 2000)
+  }, [])
+
+  const handleShowQr = useCallback(
+    (entry: UploadEntry) => {
+      setQrEntry(entry)
+      qrModal.open()
+    },
+    [qrModal],
+  )
+
+  const handleOpen = useCallback((entry: UploadEntry) => router.push(entry.link), [router])
+
+  const handleDeleteClick = useCallback(
+    (entry: UploadEntry) => {
+      setEntryToDelete(entry)
+      deleteModal.open()
+    },
+    [deleteModal],
+  )
+
+  const handleConfirmDelete = async () => {
+    if (!entryToDelete) return
+
+    setIsDeleting(true)
+    try {
+      if (entryToDelete.kind === 'folder') {
+        await deleteFolderByShareToken(entryToDelete.shareToken)
+        setFolders((current) => current.filter((folder) => folder.shareToken !== entryToDelete.shareToken))
+      } else {
+        await deleteFileByShareToken(entryToDelete.shareToken)
+        setFiles((current) => current.filter((file) => file.shareToken !== entryToDelete.shareToken))
+      }
+      deleteModal.close()
+      setEntryToDelete(null)
+    } catch (error) {
+      console.error('Failed to delete item:', error)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  if (status === 'loading') {
+    return (
+      <main className="flex-1 flex items-center justify-center px-6 py-20">
+        <Spinner className="text-[var(--ink-900)]" />
+      </main>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <main className="flex-1 flex flex-col items-center justify-center gap-4 px-6 py-20 text-center font-sans">
+        <p className="text-xl font-serif text-[var(--ink-900)]">You&apos;re not signed in</p>
+        <p className="text-sm text-[var(--ink-600)] max-w-sm">Sign in to view the files and folders you&apos;ve uploaded.</p>
+        <div className="flex items-center gap-3">
+          <Button onPress={openAuthModal} className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-full font-medium h-10 px-6 text-sm hover:bg-[var(--ink-800)]">
+            Sign in
+          </Button>
+          <Link href="/" className="text-sm text-[var(--ink-600)] no-underline hover:text-[var(--ink-900)]">
+            Back to home
+          </Link>
+        </div>
+      </main>
+    )
+  }
+
+  const folderEntries = folders.map(folderToEntry)
+  const fileEntries = files.map(fileToEntry)
+  const isEmpty = loadState === 'ready' && folderEntries.length === 0 && fileEntries.length === 0
+
+  return (
+    <main className="flex-1 px-6 py-12 md:py-16 font-sans">
+      <div className="max-w-3xl mx-auto flex flex-col gap-8">
+        <div>
+          <h1 className="text-2xl font-serif text-[var(--ink-900)]">My Uploads</h1>
+          <p className="text-sm text-[var(--ink-600)] mt-1">Files and folders you uploaded while signed in. Items auto-expire and disappear over time.</p>
+        </div>
+
+        {loadState === 'loading' ? (
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="h-[74px] rounded-2xl bg-black/5 animate-pulse" aria-hidden />
+            ))}
+          </div>
+        ) : loadState === 'error' ? (
+          <div className="flex flex-col items-center gap-3 py-16 text-center">
+            <p className="text-sm text-[var(--ink-600)]">We couldn&apos;t load your uploads. Please try again.</p>
+            <Button onPress={() => router.refresh()} variant="ghost" className="rounded-xl text-[var(--ink-700)]">
+              Retry
+            </Button>
+          </div>
+        ) : isEmpty ? (
+          <div className="flex flex-col items-center gap-3 py-16 text-center">
+            <p className="text-base text-[var(--ink-900)]">No uploads yet</p>
+            <p className="text-sm text-[var(--ink-600)] max-w-sm">Anything you upload while signed in will show up here so you can share or manage it later.</p>
+            <Link href="/" className="text-sm text-[var(--brand-500)] no-underline hover:underline">
+              Upload a file
+            </Link>
+          </div>
+        ) : (
+          <>
+            {folderEntries.length > 0 ? (
+              <section className="flex flex-col gap-3">
+                <h2 className="text-sm font-medium text-[var(--ink-600)] uppercase tracking-wide">Folders</h2>
+                {folderEntries.map((entry) => (
+                  <UploadItemCard
+                    key={entry.shareToken}
+                    entry={entry}
+                    isCopied={copiedToken === entry.shareToken}
+                    onCopy={handleCopy}
+                    onShowQr={handleShowQr}
+                    onOpen={handleOpen}
+                    onDelete={handleDeleteClick}
+                  />
+                ))}
+              </section>
+            ) : null}
+
+            {fileEntries.length > 0 ? (
+              <section className="flex flex-col gap-3">
+                <h2 className="text-sm font-medium text-[var(--ink-600)] uppercase tracking-wide">Files</h2>
+                {fileEntries.map((entry) => (
+                  <UploadItemCard
+                    key={entry.shareToken}
+                    entry={entry}
+                    isCopied={copiedToken === entry.shareToken}
+                    onCopy={handleCopy}
+                    onShowQr={handleShowQr}
+                    onOpen={handleOpen}
+                    onDelete={handleDeleteClick}
+                  />
+                ))}
+              </section>
+            ) : null}
+          </>
+        )}
+      </div>
+
+      <Modal.Backdrop isOpen={qrModal.isOpen} onOpenChange={qrModal.setOpen}>
+        <Modal.Container>
+          <Modal.Dialog className="sm:max-w-[360px]">
+            <Modal.CloseTrigger />
+            <Modal.Header>
+              <Modal.Heading>Share QR code</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="flex flex-col items-center gap-4">
+              <p className="text-sm text-ink-600 truncate max-w-full">{qrEntry?.name}</p>
+              <div className="p-4 bg-white rounded-2xl border border-black/[0.06] shadow-[0_2px_12px_rgba(15,28,46,0.06)]">
+                <QRCode id="share-qr-code" value={qrEntry?.link ?? ''} size={240} level="M" bgColor="#ffffff" fgColor="#0f1c2e" />
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                fullWidth
+                onPress={handleQrDownload}
+                className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] flex items-center justify-center gap-2"
+              >
+                <LuDownload className="w-4 h-4" />
+                Download QR
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+
+      <Modal.Backdrop isOpen={deleteModal.isOpen} onOpenChange={deleteModal.setOpen}>
+        <Modal.Container>
+          <Modal.Dialog className="sm:max-w-[360px]">
+            <Modal.CloseTrigger />
+            <Modal.Header>
+              <Modal.Icon className="bg-red-50 text-red-500">
+                <FiAlertTriangle className="size-5" />
+              </Modal.Icon>
+              <Modal.Heading>Delete {entryToDelete?.kind === 'folder' ? 'folder' : 'file'}</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body>
+              <p className="text-sm text-ink-600">
+                Are you sure you want to delete <span className="font-semibold text-ink-900">{entryToDelete?.name}</span>? This action cannot be undone.
+              </p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="ghost" onPress={deleteModal.close} className="flex-1 text-ink-600" isDisabled={isDeleting}>
+                Cancel
+              </Button>
+              <Button onPress={handleConfirmDelete} className="flex-1 bg-red-500 text-white hover:bg-red-600" isPending={isDeleting}>
+                Delete
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </main>
+  )
+}
+
+export default MyUploads

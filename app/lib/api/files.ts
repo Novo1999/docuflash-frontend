@@ -1,4 +1,4 @@
-import { FileAccessTokenResponse, FileDownloadResponse, FilePreviewResponse, FileRecord, UploadFilePayload } from '@/types/file'
+import { FileAccessTokenResponse, FileDownloadResponse, FilePreviewResponse, FileRecord, MyFileRecord, UploadFilePayload } from '@/types/file'
 import type { ApiResponse } from './client'
 import { ApiError, apiClient, buildApiUrl } from './client'
 
@@ -23,6 +23,11 @@ export async function uploadFile(payload: UploadFilePayload) {
   })
 
   return response
+}
+
+export async function getMyFiles(): Promise<MyFileRecord[]> {
+  const response = await apiClient<MyFileRecord[]>('/api/files/mine')
+  return requireApiData(response, 'Failed to load your files')
 }
 
 export async function getFileByShareToken(token: string) {

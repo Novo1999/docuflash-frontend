@@ -4,7 +4,7 @@ import { useAuth } from '@/components/auth/useAuth'
 import { Button, Popover, cn } from '@heroui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LuLogOut, LuUser } from 'react-icons/lu'
+import { LuFolderOpen, LuLogOut, LuUser } from 'react-icons/lu'
 
 const getInitials = (name: string | null, email: string) => {
   const source = name?.trim() || email
@@ -52,6 +52,10 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
         <LuUser className="w-4 h-4" />
         Profile
       </Link>
+      <Link href="/me/uploads" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-black/5 hover:text-[var(--ink-900)]">
+        <LuFolderOpen className="w-4 h-4" />
+        My Uploads
+      </Link>
       <button
         type="button"
         onClick={handleLogout}
@@ -65,14 +69,24 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
 
   if (isMobile) {
     return (
-      <button
-        type="button"
-        onClick={handleLogout}
-        className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 text-left"
-      >
-        <LuLogOut className="w-4 h-4" />
-        Sign out
-      </button>
+      <div className="flex flex-col gap-1">
+        <Link
+          href="/me/uploads"
+          onClick={onNavigate}
+          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-black/5 hover:text-[var(--ink-900)]"
+        >
+          <LuFolderOpen className="w-4 h-4" />
+          My Uploads
+        </Link>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 text-left"
+        >
+          <LuLogOut className="w-4 h-4" />
+          Sign out
+        </button>
+      </div>
     )
   }
 

@@ -66,6 +66,19 @@ export type FileRecord = {
   uploadDate: string
 }
 
+export type MyFileRecord = {
+  id: string
+  fileName: string
+  fileType: FileType
+  shareToken: string
+  accessType: FileAccessType
+  downloadCount: number
+  expireAt: string
+  fileSize: number
+  ownerId: string
+  createdAt: string
+}
+
 export type FileAccessTokenResponse = {
   accessToken: string
 }
