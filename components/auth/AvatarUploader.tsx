@@ -3,7 +3,7 @@
 import { MAX_AVATAR_SIZE_BYTES, MAX_AVATAR_SIZE_MB } from '@/app/constants/auth'
 import { useUploadThing } from '@/app/utils/generateReactHelpers'
 import { useAuth } from '@/components/auth/useAuth'
-import { Spinner } from '@heroui/react'
+import { cn, Spinner } from '@heroui/react'
 import { useRef, useState, type ChangeEvent } from 'react'
 import { LuCamera } from 'react-icons/lu'
 
@@ -68,7 +68,7 @@ const AvatarUploader = () => {
         ) : (
           initials
         )}
-        <span className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className={cn('absolute inset-0 flex items-center justify-center bg-black/45 transition-opacity', busy ? 'opacity-100' : 'opacity-0 group-hover:opacity-100')}>
           {busy ? <Spinner className="text-white w-5 h-5" /> : <LuCamera className="w-5 h-5 text-white" />}
         </span>
       </button>

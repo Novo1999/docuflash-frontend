@@ -3,6 +3,7 @@
 import { useAuth } from '@/components/auth/useAuth'
 import { Button, Popover, cn } from '@heroui/react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { LuLogOut, LuUser } from 'react-icons/lu'
 
 const getInitials = (name: string | null, email: string) => {
@@ -11,8 +12,15 @@ const getInitials = (name: string | null, email: string) => {
   return (parts[0]?.[0] ?? '?').concat(parts[1]?.[0] ?? '').toUpperCase()
 }
 
-const AuthButton = ({ isMobile = false }: { isMobile?: boolean }) => {
+const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNavigate?: () => void }) => {
   const { status, user, isAuthenticated, openAuthModal, logout } = useAuth()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await logout()
+    onNavigate?.()
+    router.push('/')
+  }
 
   if (status === 'loading') {
     return <div className={cn('h-9 rounded-full bg-black/5 animate-pulse', isMobile ? 'w-full' : 'w-20')} aria-hidden />
@@ -46,7 +54,7 @@ const AuthButton = ({ isMobile = false }: { isMobile?: boolean }) => {
       </Link>
       <button
         type="button"
-        onClick={() => logout()}
+        onClick={handleLogout}
         className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 text-left"
       >
         <LuLogOut className="w-4 h-4" />
@@ -56,7 +64,16 @@ const AuthButton = ({ isMobile = false }: { isMobile?: boolean }) => {
   )
 
   if (isMobile) {
-    return menu
+    return (
+      <button
+        type="button"
+        onClick={handleLogout}
+        className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 text-left"
+      >
+        <LuLogOut className="w-4 h-4" />
+        Sign out
+      </button>
+    )
   }
 
   return (

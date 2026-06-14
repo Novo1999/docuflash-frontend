@@ -4,6 +4,7 @@ import AvatarUploader from '@/components/auth/AvatarUploader'
 import { useAuth } from '@/components/auth/useAuth'
 import { Button, Spinner } from '@heroui/react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { LuLogOut } from 'react-icons/lu'
 
 const formatDate = (value: string) => {
@@ -13,6 +14,12 @@ const formatDate = (value: string) => {
 
 const ProfilePage = () => {
   const { status, user, isAuthenticated, openAuthModal, logout } = useAuth()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await logout()
+    router.push('/')
+  }
 
   if (status === 'loading') {
     return (
@@ -62,7 +69,7 @@ const ProfilePage = () => {
         </dl>
 
         <div>
-          <Button onPress={() => logout()} variant="ghost" className="rounded-xl h-11 px-5 flex items-center gap-2 text-red-600 border border-red-200 hover:bg-red-50">
+          <Button onPress={handleLogout} variant="ghost" className="rounded-xl h-11 px-5 flex items-center gap-2 text-red-600 border border-red-200 hover:bg-red-50">
             <LuLogOut className="w-4 h-4" />
             Sign out
           </Button>
