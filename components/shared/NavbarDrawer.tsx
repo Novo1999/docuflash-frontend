@@ -1,5 +1,6 @@
 'use client'
 
+import AuthButton from '@/components/auth/AuthButton'
 import { Button, Drawer, Link } from '@heroui/react'
 import { LuFileText, LuMenu } from 'react-icons/lu'
 import PricingTooltip from '../landing/PricingTooltip'
@@ -30,6 +31,9 @@ const NavbarDrawer = () => {
                 How it works
               </Link>
               <PricingTooltip className="text-base text-[var(--ink-700)] py-3 font-sans cursor-pointer hover:text-[var(--ink-900)] select-none block" />
+              <div className="pt-4">
+                <AuthButton isMobile />
+              </div>
             </Drawer.Body>
           </Drawer.Dialog>
         </Drawer.Content>

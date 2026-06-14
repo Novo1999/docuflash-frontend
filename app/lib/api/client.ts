@@ -1,4 +1,5 @@
 import { BASE_URL } from '@/app/constants/api'
+import { getStoredAccessToken } from '@/app/utils/auth'
 
 export type ApiResponse<T> = {
   success: boolean
@@ -36,10 +37,13 @@ export function buildApiUrl(endpoint: string): string {
 export async function apiClient<T>(endpoint: string, options: FetchOptions = {}): Promise<ApiResponse<T>> {
   const { body, headers, ...rest } = options
 
+  const accessToken = getStoredAccessToken()
+
   const response = await fetch(buildApiUrl(endpoint), {
     ...rest,
     headers: {
       'Content-Type': 'application/json',
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       ...headers,
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
