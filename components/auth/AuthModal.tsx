@@ -148,7 +148,7 @@ const AuthModal = () => {
                   </div>
 
                   {isLogin ? (
-                    <form onSubmit={loginForm.handleSubmit(onLogin)} className="flex flex-col gap-4">
+                    <form key="login-form" onSubmit={loginForm.handleSubmit(onLogin)} className="flex flex-col gap-4">
                       <Controller
                         name="email"
                         control={loginForm.control}
@@ -193,7 +193,7 @@ const AuthModal = () => {
                       </Button>
                     </form>
                   ) : (
-                    <form onSubmit={registerForm.handleSubmit(onRegister)} className="flex flex-col gap-4">
+                    <form key="register-form" onSubmit={registerForm.handleSubmit(onRegister)} className="flex flex-col gap-4">
                       <Controller
                         name="displayName"
                         control={registerForm.control}
