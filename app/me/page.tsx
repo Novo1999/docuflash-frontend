@@ -1,5 +1,6 @@
 'use client'
 
+import AvatarUploader from '@/components/auth/AvatarUploader'
 import { useAuth } from '@/components/auth/useAuth'
 import { Button, Spinner } from '@heroui/react'
 import Link from 'next/link'
@@ -38,20 +39,11 @@ const ProfilePage = () => {
     )
   }
 
-  const initials = (user.displayName?.trim() || user.email)[0]?.toUpperCase() ?? '?'
-
   return (
     <main className="flex-1 px-6 py-12 md:py-16 font-sans">
       <div className="max-w-2xl mx-auto flex flex-col gap-8">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-[var(--ink-900)] text-[var(--brand-50)] text-xl font-medium flex items-center justify-center overflow-hidden">
-            {user.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={user.avatarUrl} alt={user.displayName || user.email} className="w-16 h-16 object-cover" />
-            ) : (
-              initials
-            )}
-          </div>
+          <AvatarUploader />
           <div className="min-w-0">
             <h1 className="text-2xl font-serif text-[var(--ink-900)] truncate">{user.displayName || 'Your account'}</h1>
             <p className="text-sm text-[var(--ink-600)] truncate">{user.email}</p>

@@ -1,7 +1,7 @@
 import { AUTH_SESSION_STORAGE_KEY } from '@/app/constants/auth'
-import { getCurrentUser, loginUser, logoutUser, refreshAuthSession, registerUser } from '@/app/lib/api/auth'
+import { getCurrentUser, loginUser, logoutUser, refreshAuthSession, registerUser, updateProfile } from '@/app/lib/api/auth'
 import { isSessionExpired } from '@/app/utils/auth'
-import type { AuthSession, AuthStatus, AuthUser, LoginPayload, RegisterPayload, RegisterResult } from '@/types/auth'
+import type { AuthSession, AuthStatus, AuthUser, LoginPayload, RegisterPayload, RegisterResult, UpdateProfilePayload } from '@/types/auth'
 import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 
@@ -56,6 +56,12 @@ export const establishSessionAtom = atom(null, async (_get, set, session: AuthSe
   } catch {
     set(clearSessionAtom)
   }
+})
+
+export const updateProfileAtom = atom(null, async (_get, set, payload: UpdateProfilePayload): Promise<AuthUser> => {
+  const updated = await updateProfile(payload)
+  set(userAtom, updated)
+  return updated
 })
 
 export const logoutAtom = atom(null, async (_get, set) => {

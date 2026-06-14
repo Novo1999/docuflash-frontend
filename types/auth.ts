@@ -46,4 +46,9 @@ export type RefreshResult = {
   session: AuthSession
 }
 
+export type UpdateProfilePayload = {
+  avatarUrl?: string
+  displayName?: string
+}
+
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated'

@@ -1,4 +1,4 @@
-import type { AuthResult, AuthUser, LoginPayload, OAuthProvider, RefreshResult, RegisterPayload, RegisterResult } from '@/types/auth'
+import type { AuthResult, AuthUser, LoginPayload, OAuthProvider, RefreshResult, RegisterPayload, RegisterResult, UpdateProfilePayload } from '@/types/auth'
 import type { ApiResponse } from './client'
 import { ApiError, apiClient, buildApiUrl } from './client'
 
@@ -43,6 +43,14 @@ export async function logoutUser(): Promise<void> {
 export async function getCurrentUser(): Promise<AuthUser> {
   const response = await apiClient<AuthUser>('/api/auth/me')
   return requireApiData(response, 'Failed to load your profile')
+}
+
+export async function updateProfile(payload: UpdateProfilePayload): Promise<AuthUser> {
+  const response = await apiClient<AuthUser>('/api/auth/me', {
+    method: 'PATCH',
+    body: payload,
+  })
+  return requireApiData(response, 'Failed to update your profile')
 }
 
 export function getOAuthUrl(provider: OAuthProvider): string {
