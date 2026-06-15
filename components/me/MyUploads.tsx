@@ -3,8 +3,10 @@
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import { deleteFileByShareToken, getMyFiles } from '@/app/lib/api/files'
 import { deleteFolderByShareToken, getMyFolders } from '@/app/lib/api/folder'
-import { getFolderShareLink, getShareLink } from '@/app/utils/upload'
-import UploadItemCard, { type UploadEntry } from '@/components/me/UploadItemCard'
+import { groupUploadsByFolder } from '@/app/utils/groupUploads'
+import { fileCountLabel, fileToEntry, folderToEntry } from '@/app/utils/uploadEntries'
+import { type UploadEntry } from '@/components/me/UploadItemCard'
+import UploadTree, { type UploadTreeGroup } from '@/components/me/UploadTree'
 import { useAuth } from '@/components/auth/useAuth'
 import type { MyFileRecord } from '@/types/file'
 import type { MyFolderRecord } from '@/types/folder'
@@ -17,36 +19,6 @@ import { FiAlertTriangle } from 'react-icons/fi'
 import { LuDownload } from 'react-icons/lu'
 
 type LoadState = 'loading' | 'error' | 'ready'
-
-const formatBytes = (bytes: number) => {
-  if (!bytes) return '0 B'
-  const mb = bytes / (1024 * 1024)
-  return mb >= 1 ? `${mb.toFixed(2)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`
-}
-
-const fileToEntry = (file: MyFileRecord): UploadEntry => ({
-  kind: 'file',
-  id: file.id,
-  name: file.fileName,
-  shareToken: file.shareToken,
-  link: getShareLink(file.shareToken),
-  accessType: file.accessType,
-  expireAt: file.expireAt,
-  meta: `${file.fileType} · ${formatBytes(file.fileSize)}`,
-  downloadCount: file.downloadCount,
-})
-
-const folderToEntry = (folder: MyFolderRecord): UploadEntry => ({
-  kind: 'folder',
-  id: folder.id,
-  name: folder.folderName,
-  shareToken: folder.shareToken,
-  link: getFolderShareLink(folder.shareToken),
-  accessType: folder.accessType,
-  expireAt: folder.expireAt,
-  meta: 'Folder',
-  downloadCount: null,
-})
 
 const MyUploads = () => {
   const { status, isAuthenticated, openAuthModal } = useAuth()
@@ -156,9 +128,13 @@ const MyUploads = () => {
     )
   }
 
-  const folderEntries = folders.map(folderToEntry)
-  const fileEntries = files.map(fileToEntry)
-  const isEmpty = loadState === 'ready' && folderEntries.length === 0 && fileEntries.length === 0
+  const { groups, ungrouped } = groupUploadsByFolder(files, folders)
+  const treeGroups: UploadTreeGroup[] = groups.map((group) => ({
+    folder: { ...folderToEntry(group.folder), meta: fileCountLabel(group.files.length) },
+    files: group.files.map(fileToEntry),
+  }))
+  const ungroupedEntries = ungrouped.map(fileToEntry)
+  const isEmpty = loadState === 'ready' && treeGroups.length === 0 && ungroupedEntries.length === 0
 
   return (
     <main className="flex-1 px-6 py-12 md:py-16 font-sans">
@@ -190,41 +166,15 @@ const MyUploads = () => {
             </Link>
           </div>
         ) : (
-          <>
-            {folderEntries.length > 0 ? (
-              <section className="flex flex-col gap-3">
-                <h2 className="text-sm font-medium text-[var(--ink-600)] uppercase tracking-wide">Folders</h2>
-                {folderEntries.map((entry) => (
-                  <UploadItemCard
-                    key={entry.shareToken}
-                    entry={entry}
-                    isCopied={copiedToken === entry.shareToken}
-                    onCopy={handleCopy}
-                    onShowQr={handleShowQr}
-                    onOpen={handleOpen}
-                    onDelete={handleDeleteClick}
-                  />
-                ))}
-              </section>
-            ) : null}
-
-            {fileEntries.length > 0 ? (
-              <section className="flex flex-col gap-3">
-                <h2 className="text-sm font-medium text-[var(--ink-600)] uppercase tracking-wide">Files</h2>
-                {fileEntries.map((entry) => (
-                  <UploadItemCard
-                    key={entry.shareToken}
-                    entry={entry}
-                    isCopied={copiedToken === entry.shareToken}
-                    onCopy={handleCopy}
-                    onShowQr={handleShowQr}
-                    onOpen={handleOpen}
-                    onDelete={handleDeleteClick}
-                  />
-                ))}
-              </section>
-            ) : null}
-          </>
+          <UploadTree
+            groups={treeGroups}
+            ungrouped={ungroupedEntries}
+            copiedToken={copiedToken}
+            onCopy={handleCopy}
+            onShowQr={handleShowQr}
+            onOpen={handleOpen}
+            onDelete={handleDeleteClick}
+          />
         )}
       </div>
 

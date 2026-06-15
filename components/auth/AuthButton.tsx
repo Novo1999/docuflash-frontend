@@ -4,6 +4,7 @@ import { useAuth } from '@/components/auth/useAuth'
 import { Button, Popover, cn } from '@heroui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { LuFolderOpen, LuLogOut, LuUser } from 'react-icons/lu'
 
 const getInitials = (name: string | null, email: string) => {
@@ -15,8 +16,10 @@ const getInitials = (name: string | null, email: string) => {
 const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNavigate?: () => void }) => {
   const { status, user, isAuthenticated, openAuthModal, logout } = useAuth()
   const router = useRouter()
+  const [isMenuOpen, setMenuOpen] = useState(false)
 
   const handleLogout = async () => {
+    setMenuOpen(false)
     await logout()
     onNavigate?.()
     router.push('/')
@@ -48,11 +51,11 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
         <p className="text-sm font-medium text-[var(--ink-900)] truncate">{user.displayName || 'Your account'}</p>
         <p className="text-xs text-[var(--ink-600)] truncate">{user.email}</p>
       </div>
-      <Link href="/me" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-black/5 hover:text-[var(--ink-900)]">
+      <Link onClick={() => setMenuOpen(false)} href="/me" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-black/5 hover:text-[var(--ink-900)]">
         <LuUser className="w-4 h-4" />
         Profile
       </Link>
-      <Link href="/me/uploads" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-black/5 hover:text-[var(--ink-900)]">
+      <Link onClick={() => setMenuOpen(false)} href="/me/uploads" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-black/5 hover:text-[var(--ink-900)]">
         <LuFolderOpen className="w-4 h-4" />
         My Uploads
       </Link>
@@ -91,7 +94,7 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
   }
 
   return (
-    <Popover>
+    <Popover isOpen={isMenuOpen} onOpenChange={setMenuOpen}>
       <Popover.Trigger>
         <button
           type="button"

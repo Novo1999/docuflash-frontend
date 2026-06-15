@@ -66,6 +66,11 @@ export type FileRecord = {
   uploadDate: string
 }
 
+export type FileFolderRef = {
+  id: string
+  folderName: string
+}
+
 export type MyFileRecord = {
   id: string
   fileName: string
@@ -77,6 +82,7 @@ export type MyFileRecord = {
   fileSize: number
   ownerId: string
   createdAt: string
+  folders: FileFolderRef[]
 }
 
 export type FileAccessTokenResponse = {

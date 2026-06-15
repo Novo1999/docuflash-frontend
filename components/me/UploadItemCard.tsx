@@ -2,7 +2,7 @@
 
 import { FileAccessType } from '@/types/file'
 import { Button, Card, cn } from '@heroui/react'
-import { LuClock, LuCopy, LuExternalLink, LuFile, LuFolder, LuLock, LuQrCode, LuTrash2 } from 'react-icons/lu'
+import { LuChevronRight, LuClock, LuCopy, LuExternalLink, LuFile, LuFolder, LuLock, LuQrCode, LuTrash2 } from 'react-icons/lu'
 
 export type UploadEntry = {
   kind: 'file' | 'folder'
@@ -20,9 +20,11 @@ type UploadItemCardProps = {
   entry: UploadEntry
   isCopied: boolean
   onCopy: (entry: UploadEntry) => void
-  onShowQr: (entry: UploadEntry) => void
   onOpen: (entry: UploadEntry) => void
   onDelete: (entry: UploadEntry) => void
+  onShowQr?: (entry: UploadEntry) => void
+  isExpanded?: boolean
+  onToggle?: (entry: UploadEntry) => void
 }
 
 const formatExpiry = (value: string) => {
@@ -30,13 +32,25 @@ const formatExpiry = (value: string) => {
   return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString()
 }
 
-const UploadItemCard = ({ entry, isCopied, onCopy, onShowQr, onOpen, onDelete }: UploadItemCardProps) => {
+const UploadItemCard = ({ entry, isCopied, onCopy, onShowQr, onOpen, onDelete, isExpanded, onToggle }: UploadItemCardProps) => {
   const isFolder = entry.kind === 'folder'
   const isProtected = entry.accessType === FileAccessType.PROTECTED
 
   return (
     <Card className="bg-white border border-black/[0.06] rounded-2xl p-4 shadow-[0_2px_20px_rgba(15,28,46,0.04)] font-sans">
       <div className="flex items-center gap-4">
+        {onToggle ? (
+          <Button
+            isIconOnly
+            size="sm"
+            variant="ghost"
+            aria-label={isExpanded ? 'Collapse folder' : 'Expand folder'}
+            onPress={() => onToggle(entry)}
+            className="text-ink-600 -ml-1 shrink-0"
+          >
+            <LuChevronRight className={cn('w-4 h-4 transition-transform', isExpanded && 'rotate-90')} />
+          </Button>
+        ) : null}
         <div className="w-10 h-10 rounded-xl bg-primary/[0.08] flex items-center justify-center shrink-0">
           {isFolder ? <LuFolder className="w-5 h-5 text-primary-400" /> : <LuFile className="w-5 h-5 text-primary-400" />}
         </div>
@@ -63,9 +77,11 @@ const UploadItemCard = ({ entry, isCopied, onCopy, onShowQr, onOpen, onDelete }:
           <Button isIconOnly size="sm" variant="ghost" aria-label="Copy share link" onPress={() => onCopy(entry)} className={cn(isCopied ? 'text-primary-400' : 'text-ink-600')}>
             <LuCopy className="w-4 h-4" />
           </Button>
-          <Button isIconOnly size="sm" variant="ghost" aria-label="Show QR code" onPress={() => onShowQr(entry)} className="text-ink-600">
-            <LuQrCode className="w-4 h-4" />
-          </Button>
+          {onShowQr ? (
+            <Button isIconOnly size="sm" variant="ghost" aria-label="Show QR code" onPress={() => onShowQr(entry)} className="text-ink-600">
+              <LuQrCode className="w-4 h-4" />
+            </Button>
+          ) : null}
           <Button isIconOnly size="sm" variant="ghost" aria-label="Open share link" onPress={() => onOpen(entry)} className="text-ink-600">
             <LuExternalLink className="w-4 h-4" />
           </Button>
