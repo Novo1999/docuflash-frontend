@@ -17,9 +17,10 @@ type UploadTreeProps = {
   onOpen: (entry: UploadEntry) => void
   onDelete: (entry: UploadEntry) => void
   onShowQr?: (entry: UploadEntry) => void
+  onShareEmail?: (entry: UploadEntry) => void
 }
 
-const UploadTree = ({ groups, ungrouped, copiedToken, onCopy, onOpen, onDelete, onShowQr }: UploadTreeProps) => {
+const UploadTree = ({ groups, ungrouped, copiedToken, onCopy, onOpen, onDelete, onShowQr, onShareEmail }: UploadTreeProps) => {
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set())
 
   const toggle = (entry: UploadEntry) => {
@@ -38,6 +39,7 @@ const UploadTree = ({ groups, ungrouped, copiedToken, onCopy, onOpen, onDelete, 
     onOpen,
     onDelete,
     onShowQr,
+    onShareEmail,
   })
 
   return (

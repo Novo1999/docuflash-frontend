@@ -1,5 +1,6 @@
 'use client'
 
+import { isEmailShareConfigured } from '@/app/constants/email'
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import { deleteFileByShareToken, getMyFiles } from '@/app/lib/api/files'
 import { deleteFolderByShareToken, getMyFolders } from '@/app/lib/api/folder'
@@ -7,8 +8,9 @@ import { groupUploadsByFolder } from '@/app/utils/groupUploads'
 import { fileCountLabel, fileToEntry, folderToEntry } from '@/app/utils/uploadEntries'
 import { type UploadEntry } from '@/components/me/UploadItemCard'
 import UploadTree, { type UploadTreeGroup } from '@/components/me/UploadTree'
+import ShareToEmailModal, { type ShareEmailTarget } from '@/components/share/ShareToEmailModal'
 import { useAuth } from '@/components/auth/useAuth'
-import type { MyFileRecord } from '@/types/file'
+import { FileAccessType, type MyFileRecord } from '@/types/file'
 import type { MyFolderRecord } from '@/types/folder'
 import { Button, Modal, Spinner, useOverlayState } from '@heroui/react'
 import Link from 'next/link'
@@ -30,10 +32,12 @@ const MyUploads = () => {
 
   const [copiedToken, setCopiedToken] = useState<string | null>(null)
   const [qrEntry, setQrEntry] = useState<UploadEntry | null>(null)
+  const [emailEntry, setEmailEntry] = useState<UploadEntry | null>(null)
   const [entryToDelete, setEntryToDelete] = useState<UploadEntry | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
   const qrModal = useOverlayState()
+  const emailModal = useOverlayState()
   const deleteModal = useOverlayState()
   const { handleQrDownload } = useFileUploadQR({ fileName: qrEntry?.name })
 
@@ -70,6 +74,14 @@ const MyUploads = () => {
       qrModal.open()
     },
     [qrModal],
+  )
+
+  const handleShareEmail = useCallback(
+    (entry: UploadEntry) => {
+      setEmailEntry(entry)
+      emailModal.open()
+    },
+    [emailModal],
   )
 
   const handleOpen = useCallback((entry: UploadEntry) => router.push(entry.link), [router])
@@ -135,6 +147,9 @@ const MyUploads = () => {
   }))
   const ungroupedEntries = ungrouped.map(fileToEntry)
   const isEmpty = loadState === 'ready' && treeGroups.length === 0 && ungroupedEntries.length === 0
+  const emailTarget: ShareEmailTarget | null = emailEntry
+    ? { name: emailEntry.name, link: emailEntry.link, resourceType: emailEntry.kind, isProtected: emailEntry.accessType === FileAccessType.PROTECTED }
+    : null
 
   return (
     <main className="flex-1 px-6 py-12 md:py-16 font-sans">
@@ -172,11 +187,14 @@ const MyUploads = () => {
             copiedToken={copiedToken}
             onCopy={handleCopy}
             onShowQr={handleShowQr}
+            onShareEmail={isEmailShareConfigured ? handleShareEmail : undefined}
             onOpen={handleOpen}
             onDelete={handleDeleteClick}
           />
         )}
       </div>
+
+      <ShareToEmailModal isOpen={emailModal.isOpen} onOpenChange={emailModal.setOpen} target={emailTarget} />
 
       <Modal.Backdrop isOpen={qrModal.isOpen} onOpenChange={qrModal.setOpen}>
         <Modal.Container>

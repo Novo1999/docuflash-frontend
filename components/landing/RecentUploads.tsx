@@ -1,5 +1,6 @@
 'use client'
 
+import { isEmailShareConfigured } from '@/app/constants/email'
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import { deleteFileByShareToken, getMyFiles } from '@/app/lib/api/files'
 import { deleteFolderByShareToken, getMyFolders } from '@/app/lib/api/folder'
@@ -10,6 +11,7 @@ import { getFolderShareLink, getShareLink } from '@/app/utils/upload'
 import { useAuth } from '@/components/auth/useAuth'
 import { type UploadEntry } from '@/components/me/UploadItemCard'
 import UploadTree, { type UploadTreeGroup } from '@/components/me/UploadTree'
+import ShareToEmailModal, { type ShareEmailTarget } from '@/components/share/ShareToEmailModal'
 import { FileAccessType, type StoredItem } from '@/types/file'
 import { Button, Modal, useOverlayState } from '@heroui/react'
 import { useRouter } from 'next/navigation'
@@ -69,8 +71,10 @@ const RecentUploads = () => {
   const [itemToDelete, setItemToDelete] = useState<UploadEntry | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [qrEntry, setQrEntry] = useState<UploadEntry | null>(null)
+  const [emailEntry, setEmailEntry] = useState<UploadEntry | null>(null)
   const deleteModal = useOverlayState()
   const qrModal = useOverlayState()
+  const emailModal = useOverlayState()
   const { handleQrDownload } = useFileUploadQR({ fileName: qrEntry?.name })
   const router = useRouter()
 
@@ -146,6 +150,18 @@ const RecentUploads = () => {
     [qrModal],
   )
 
+  const handleShareEmail = useCallback(
+    (entry: UploadEntry) => {
+      setEmailEntry(entry)
+      emailModal.open()
+    },
+    [emailModal],
+  )
+
+  const emailTarget: ShareEmailTarget | null = emailEntry
+    ? { name: emailEntry.name, link: emailEntry.link, resourceType: emailEntry.kind, isProtected: emailEntry.accessType === FileAccessType.PROTECTED }
+    : null
+
   const handleDeleteClick = useCallback(
     (entry: UploadEntry) => {
       setItemToDelete(entry)
@@ -210,9 +226,12 @@ const RecentUploads = () => {
         copiedToken={copiedToken}
         onCopy={handleCopy}
         onShowQr={handleShowQr}
+        onShareEmail={isEmailShareConfigured ? handleShareEmail : undefined}
         onOpen={handleOpen}
         onDelete={handleDeleteClick}
       />
+
+      <ShareToEmailModal isOpen={emailModal.isOpen} onOpenChange={emailModal.setOpen} target={emailTarget} />
 
       <Modal.Backdrop isOpen={qrModal.isOpen} onOpenChange={qrModal.setOpen}>
         <Modal.Container>

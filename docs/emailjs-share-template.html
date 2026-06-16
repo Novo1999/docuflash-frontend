@@ -1,0 +1,105 @@
+<!--
+  Docuflash — "Share to Email" template for EmailJS.
+  Paste this into your EmailJS template's HTML editor (Code view).
+
+  NOTE: EmailJS does NOT support Handlebars block helpers ({{#if}} / {{/if}}).
+  Using them throws "One or more dynamic variables are corrupted". This template uses
+  only flat {{variable}} substitution. The optional `message` and `protected_note`
+  values are empty strings when not applicable, so their lines simply render nothing.
+
+  Variables (must match app/lib/email/shareEmail.ts):
+    {{to_email}}       -> put this in the template's "To Email" field (Settings tab), NOT in the body
+    {{from_name}}      -> sender's name (defaults to "A Docuflash user")
+    {{resource_name}}  -> file or folder name
+    {{resource_type}}  -> "file" or "folder"
+    {{share_link}}     -> the share URL
+    {{protected_note}} -> "🔒 …" sentence for password-protected items (empty otherwise)
+    {{message}}        -> optional personal note (empty otherwise)
+
+  Suggested Subject (set in the template Settings, not here):
+    {{from_name}} shared a {{resource_type}} with you on Docuflash
+-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;padding:0;background-color:#f5f0e8;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+        <!-- Brand wordmark -->
+        <tr>
+          <td align="center" style="padding-bottom:20px;">
+            <span style="font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:bold;color:#0f1c2e;letter-spacing:-0.3px;">
+              Docu<span style="color:#c8a96e;">flash</span>
+            </span>
+          </td>
+        </tr>
+
+        <!-- Card -->
+        <tr>
+          <td style="background-color:#ffffff;border:1px solid #ece9e3;border-radius:16px;padding:40px 36px;">
+
+            <p style="margin:0 0 6px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:1.25;color:#0f1c2e;">
+              {{from_name}} shared a {{resource_type}} with you
+            </p>
+            <p style="margin:0 0 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#5a6a7e;">
+              Here&rsquo;s the secure link to view and download it on Docuflash.
+            </p>
+
+            <!-- Resource chip -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+              <tr>
+                <td style="background-color:#faf8f4;border:1px solid #ece9e3;border-radius:12px;padding:16px 18px;">
+                  <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#c8a96e;font-weight:bold;">
+                    {{resource_type}}
+                  </p>
+                  <p style="margin:4px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:#0f1c2e;word-break:break-word;">
+                    {{resource_name}}
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Optional personal message (renders nothing when empty) -->
+            <p style="margin:0 0 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#1a2d45;font-style:italic;">{{message}}</p>
+
+            <!-- CTA button -->
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">
+              <tr>
+                <td align="center" bgcolor="#0f1c2e" style="border-radius:12px;">
+                  <a href="{{share_link}}" target="_blank"
+                     style="display:inline-block;padding:14px 36px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:#f5f0e8;text-decoration:none;border-radius:12px;">
+                    Open {{resource_type}}
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Plain-text fallback link -->
+            <p style="margin:0 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#5a6a7e;">
+              Or copy this link into your browser:
+            </p>
+            <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#c8a96e;word-break:break-all;">
+              <a href="{{share_link}}" target="_blank" style="color:#c8a96e;text-decoration:none;">{{share_link}}</a>
+            </p>
+
+            <!-- Optional protected note (renders nothing when public) -->
+            <p style="margin:18px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;color:#9a6a1e;">{{protected_note}}</p>
+
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td align="center" style="padding:24px 16px 0;">
+            <p style="margin:0 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.5;color:#8a94a3;">
+              Files on Docuflash auto-expire for your privacy.
+            </p>
+            <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#8a94a3;">
+              You received this because someone chose to share a file with you.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>

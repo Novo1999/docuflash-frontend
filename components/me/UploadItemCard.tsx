@@ -2,7 +2,7 @@
 
 import { FileAccessType } from '@/types/file'
 import { Button, Card, cn } from '@heroui/react'
-import { LuChevronRight, LuClock, LuCopy, LuExternalLink, LuFile, LuFolder, LuLock, LuQrCode, LuTrash2 } from 'react-icons/lu'
+import { LuChevronRight, LuClock, LuCopy, LuExternalLink, LuFile, LuFolder, LuLock, LuMail, LuQrCode, LuTrash2 } from 'react-icons/lu'
 
 export type UploadEntry = {
   kind: 'file' | 'folder'
@@ -23,6 +23,7 @@ type UploadItemCardProps = {
   onOpen: (entry: UploadEntry) => void
   onDelete: (entry: UploadEntry) => void
   onShowQr?: (entry: UploadEntry) => void
+  onShareEmail?: (entry: UploadEntry) => void
   isExpanded?: boolean
   onToggle?: (entry: UploadEntry) => void
 }
@@ -32,7 +33,7 @@ const formatExpiry = (value: string) => {
   return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString()
 }
 
-const UploadItemCard = ({ entry, isCopied, onCopy, onShowQr, onOpen, onDelete, isExpanded, onToggle }: UploadItemCardProps) => {
+const UploadItemCard = ({ entry, isCopied, onCopy, onShowQr, onShareEmail, onOpen, onDelete, isExpanded, onToggle }: UploadItemCardProps) => {
   const isFolder = entry.kind === 'folder'
   const isProtected = entry.accessType === FileAccessType.PROTECTED
 
@@ -77,6 +78,11 @@ const UploadItemCard = ({ entry, isCopied, onCopy, onShowQr, onOpen, onDelete, i
           <Button isIconOnly size="sm" variant="ghost" aria-label="Copy share link" onPress={() => onCopy(entry)} className={cn(isCopied ? 'text-primary-400' : 'text-ink-600')}>
             <LuCopy className="w-4 h-4" />
           </Button>
+          {onShareEmail ? (
+            <Button isIconOnly size="sm" variant="ghost" aria-label="Share via email" onPress={() => onShareEmail(entry)} className="text-ink-600">
+              <LuMail className="w-4 h-4" />
+            </Button>
+          ) : null}
           {onShowQr ? (
             <Button isIconOnly size="sm" variant="ghost" aria-label="Show QR code" onPress={() => onShowQr(entry)} className="text-ink-600">
               <LuQrCode className="w-4 h-4" />

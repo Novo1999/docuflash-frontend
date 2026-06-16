@@ -1,5 +1,6 @@
 'use client'
 
+import { isEmailShareConfigured } from '@/app/constants/email'
 import { ACCEPTED_UPLOAD_FILE_TYPES, MAX_UPLOAD_FILES, MAX_UPLOAD_FILE_SIZE_MB } from '@/app/constants/upload'
 import useFileUploadForm from '@/app/hooks/useFileUploadForm'
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
@@ -9,13 +10,14 @@ import { markAsCopied } from '@/app/utils/sessionStorage'
 import FileUploadDropzone from '@/components/file/FileUploadDropzone'
 import FileUploadList from '@/components/file/FileUploadList'
 import FileUploadRoot from '@/components/file/FileUploadRoot'
+import ShareToEmailModal, { type ShareEmailTarget } from '@/components/share/ShareToEmailModal'
 import { Button, cn, FieldError, Input, Label, Spinner, TextField } from '@heroui/react'
 import dynamic from 'next/dynamic'
 import { ReactNode, useState } from 'react'
 import { Controller } from 'react-hook-form'
-import { LuCheck, LuCopy, LuDownload, LuEye, LuEyeOff, LuFile, LuFolder, LuGlobe, LuLink, LuLock, LuQrCode, LuShare2 } from 'react-icons/lu'
+import { LuCheck, LuCopy, LuDownload, LuEye, LuEyeOff, LuFile, LuFolder, LuGlobe, LuLink, LuLock, LuMail, LuQrCode, LuShare2 } from 'react-icons/lu'
 import QRCode from 'react-qr-code'
-import type { UploadedShareLink } from '@/types/file'
+import { FileAccessType, type UploadedShareLink } from '@/types/file'
 
 const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector'), {
   ssr: false,
@@ -34,6 +36,7 @@ interface UploadFormProps {
 const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
   const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link')
   const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null)
+  const [emailOpen, setEmailOpen] = useState(false)
 
   const { shareLinks, setShareLinks, setLastShareToken, copied, setCopied, showPassword, setShowPassword } = useFileUploadState()
   const { files, setError, clearErrors, reset, accessType, control, handleSubmit, setValue, setFocus, isSubmitting, errors } = useFileUploadForm()
@@ -47,6 +50,14 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
   const totalFileSizeMB = files.length > 1 ? (files.reduce((total, file) => total + file.size, 0) / (1024 * 1024)).toFixed(2) : null
   const submitLabel = isBulkSelection ? 'Upload folder' : 'Upload & get link'
   const { handleQrDownload } = useFileUploadQR({ fileName: primaryShareLink?.fileName })
+  const emailTarget: ShareEmailTarget | null = primaryShareLink
+    ? {
+        name: primaryShareLink.fileName,
+        link: primaryShareLink.link,
+        resourceType: primaryShareLink.kind === 'folder' ? 'folder' : 'file',
+        isProtected: primaryShareLink.accessType === FileAccessType.PROTECTED,
+      }
+    : null
 
   const handleCopy = (linkItem?: UploadedShareLink) => {
     if (!shareLinks) return
@@ -401,9 +412,23 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             </>
           )}
 
+          {isEmailShareConfigured && primaryShareLink ? (
+            <Button
+              fullWidth
+              variant="secondary"
+              onPress={() => setEmailOpen(true)}
+              className="rounded-xl text-base font-medium h-12 font-sans flex items-center justify-center gap-2"
+            >
+              <LuMail className="w-4 h-4" />
+              Share via email
+            </Button>
+          ) : null}
+
           <Button fullWidth variant="ghost" onPress={handleReset} className="text-[var(--ink-600)] text-sm hover:text-[var(--ink-900)] hover:bg-ink-900/[0.06] font-sans">
             {primaryShareLink?.kind === 'folder' ? 'Upload another folder' : isBulkResult ? 'Upload another folder' : 'Upload another file'}
           </Button>
+
+          <ShareToEmailModal isOpen={emailOpen} onOpenChange={setEmailOpen} target={emailTarget} />
         </div>
       )}
     </>
