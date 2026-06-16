@@ -1,5 +1,6 @@
 'use client'
 
+import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import { deleteFileByShareToken, getMyFiles } from '@/app/lib/api/files'
 import { deleteFolderByShareToken, getMyFolders } from '@/app/lib/api/folder'
 import { groupUploadsByFolder } from '@/app/utils/groupUploads'
@@ -13,7 +14,9 @@ import { FileAccessType, type StoredItem } from '@/types/file'
 import { Button, Modal, useOverlayState } from '@heroui/react'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
+import QRCode from 'react-qr-code'
 import { FiAlertTriangle } from 'react-icons/fi'
+import { LuDownload } from 'react-icons/lu'
 
 const storedToEntry = (item: StoredItem): UploadEntry =>
   item.kind === 'folder'
@@ -47,7 +50,10 @@ const RecentUploads = () => {
   const [copiedToken, setCopiedToken] = useState<string | null>(null)
   const [itemToDelete, setItemToDelete] = useState<UploadEntry | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [qrEntry, setQrEntry] = useState<UploadEntry | null>(null)
   const deleteModal = useOverlayState()
+  const qrModal = useOverlayState()
+  const { handleQrDownload } = useFileUploadQR({ fileName: qrEntry?.name })
   const router = useRouter()
 
   useEffect(() => {
@@ -107,6 +113,14 @@ const RecentUploads = () => {
 
   const handleOpen = useCallback((entry: UploadEntry) => router.push(entry.link), [router])
 
+  const handleShowQr = useCallback(
+    (entry: UploadEntry) => {
+      setQrEntry(entry)
+      qrModal.open()
+    },
+    [qrModal],
+  )
+
   const handleDeleteClick = useCallback(
     (entry: UploadEntry) => {
       setItemToDelete(entry)
@@ -157,9 +171,37 @@ const RecentUploads = () => {
         ungrouped={ungrouped}
         copiedToken={copiedToken}
         onCopy={handleCopy}
+        onShowQr={handleShowQr}
         onOpen={handleOpen}
         onDelete={handleDeleteClick}
       />
+
+      <Modal.Backdrop isOpen={qrModal.isOpen} onOpenChange={qrModal.setOpen}>
+        <Modal.Container>
+          <Modal.Dialog className="sm:max-w-[360px]">
+            <Modal.CloseTrigger />
+            <Modal.Header>
+              <Modal.Heading>Share QR code</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="flex flex-col items-center gap-4">
+              <p className="text-sm text-ink-600 truncate max-w-full">{qrEntry?.name}</p>
+              <div className="p-4 bg-white rounded-2xl border border-black/[0.06] shadow-[0_2px_12px_rgba(15,28,46,0.06)]">
+                <QRCode id="share-qr-code" value={qrEntry?.link ?? ''} size={240} level="M" bgColor="#ffffff" fgColor="#0f1c2e" />
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                fullWidth
+                onPress={handleQrDownload}
+                className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] flex items-center justify-center gap-2"
+              >
+                <LuDownload className="w-4 h-4" />
+                Download QR
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
 
       <Modal.Backdrop isOpen={deleteModal.isOpen} onOpenChange={deleteModal.setOpen}>
         <Modal.Container>
