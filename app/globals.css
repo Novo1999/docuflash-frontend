@@ -4,6 +4,8 @@
 @import "react-pdf/dist/Page/AnnotationLayer.css";
 @import "react-pdf/dist/Page/TextLayer.css";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --font-sans: var(--font-dm-sans);
   --font-serif: var(--font-instrument-serif);
@@ -21,6 +23,11 @@
   --color-primary-50: var(--brand-50);
   --color-primary-100: var(--brand-100);
   --color-primary-400: var(--brand-400);
+
+  /* Theme-aware semantic surfaces */
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-line: var(--line);
 }
 
 @utility scrollbar-thin {
@@ -37,6 +44,8 @@
 
 :root {
   scroll-behavior: smooth;
+  color-scheme: light;
+
   /* Brand */
   --brand-50: #f5f0e8;
   --brand-100: #ede7d9;
@@ -53,4 +62,42 @@
   --ink-600: #5a6a7e;
   --ink-800: #1a2d45;
   --ink-900: #0f1c2e;
+
+  /* Semantic surfaces */
+  --surface: #ffffff;
+  --surface-soft: #faf8f4;
+  --line: rgba(15, 28, 46, 0.06);
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Neutral charcoal palette. The brand/ink scales are inverted so that every
+     existing `text-ink-*` / `bg-[var(--brand-50)]` utility flips automatically. */
+  --brand-50: #121417;
+  --brand-100: #1b1e23;
+  --brand-400: #d4b87f;
+
+  /* Gold accent reads a touch brighter on dark surfaces */
+  --brand-alpha-4: rgba(212, 184, 127, 0.06);
+  --brand-alpha-8: rgba(212, 184, 127, 0.1);
+  --brand-alpha-12: rgba(212, 184, 127, 0.16);
+  --brand-alpha-30: rgba(212, 184, 127, 0.32);
+  --brand-alpha-50: rgba(212, 184, 127, 0.5);
+
+  --ink-600: #9aa7b8;
+  --ink-800: #c3cad3;
+  --ink-900: #e8eaed;
+
+  --surface: #1b1e23;
+  --surface-soft: #22262d;
+  --line: rgba(255, 255, 255, 0.1);
+}
+
+@layer base {
+  body {
+    background-color: var(--brand-50);
+    color: var(--ink-900);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
 }

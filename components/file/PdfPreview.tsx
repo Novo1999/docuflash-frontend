@@ -94,7 +94,7 @@ const PdfPreview = ({ url }: PdfPreviewProps) => {
         >
           −
         </Button>
-        <span className="min-w-[48px] text-center text-sm text-slate-500">{Math.round(scale * 100)}%</span>
+        <span className="min-w-[48px] text-center text-sm text-ink-600">{Math.round(scale * 100)}%</span>
         <Button
           variant="secondary"
           onPress={() => setScale((s) => Math.min(MAX_ZOOM, parseFloat((s + ZOOM_STEP).toFixed(2))))}
@@ -107,7 +107,7 @@ const PdfPreview = ({ url }: PdfPreviewProps) => {
 
       <div
         ref={containerRef}
-        className="max-h-[600px] overflow-auto rounded-xl border border-black/[0.06] bg-slate-50/50 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent"
+        className="max-h-[600px] overflow-auto rounded-xl border border-line bg-surface-soft scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent"
         style={{ cursor: 'grab' }}
         onMouseDown={handleMouseDownOnPage}
         onMouseMove={handleMouseMove}

@@ -37,7 +37,7 @@ const FileUploadDropzone = ({ label = 'Drop your file here', description, classN
           isDragOver
             ? 'border-primary bg-primary/[0.08] scale-[1.01]'
             : isInvalid
-              ? 'border-red-400 bg-red-50/50'
+              ? 'border-red-400 bg-red-500/10'
               : 'border-border bg-surface-secondary hover:border-primary/60 hover:bg-primary/[0.04]',
           'focus-visible:ring-2 focus-visible:ring-primary/30',
           isDisabled && 'opacity-50 cursor-not-allowed pointer-events-none',

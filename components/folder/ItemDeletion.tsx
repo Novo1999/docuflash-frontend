@@ -42,7 +42,7 @@ const ItemDeletion = ({ folder }: ItemDeletionProps) => {
 
   return (
     <>
-      <Button isIconOnly variant="ghost" size="sm" onPress={handleDeleteFolderClick} className="text-red-400 hover:text-red-600 hover:bg-red-50 shrink-0" aria-label="Delete folder">
+      <Button isIconOnly variant="ghost" size="sm" onPress={handleDeleteFolderClick} className="text-red-400 hover:text-red-600 hover:bg-red-500/10 shrink-0" aria-label="Delete folder">
         <LuTrash2 className="w-4 h-4" />
       </Button>
       <Modal.Backdrop isOpen={isDeleteModalOpen} onOpenChange={setDeleteModalOpen}>
@@ -50,7 +50,7 @@ const ItemDeletion = ({ folder }: ItemDeletionProps) => {
           <Modal.Dialog className="sm:max-w-[360px]">
             <Modal.CloseTrigger />
             <Modal.Header>
-              <Modal.Icon className="bg-red-50 text-red-500">
+              <Modal.Icon className="bg-red-500/15 text-red-500">
                 <FiAlertTriangle className="size-5" />
               </Modal.Icon>
               <Modal.Heading>Delete {itemToDelete?.kind}</Modal.Heading>

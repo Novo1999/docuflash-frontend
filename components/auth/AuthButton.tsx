@@ -26,7 +26,7 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
   }
 
   if (status === 'loading') {
-    return <div className={cn('h-9 rounded-full bg-black/5 animate-pulse', isMobile ? 'w-full' : 'w-20')} aria-hidden />
+    return <div className={cn('h-9 rounded-full bg-ink-900/10 animate-pulse', isMobile ? 'w-full' : 'w-20')} aria-hidden />
   }
 
   if (!isAuthenticated || !user) {
@@ -47,22 +47,22 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
 
   const menu = (
     <div className="flex flex-col gap-1 min-w-52">
-      <div className="px-3 py-2 border-b border-black/[0.06]">
+      <div className="px-3 py-2 border-b border-line">
         <p className="text-sm font-medium text-[var(--ink-900)] truncate">{user.displayName || 'Your account'}</p>
         <p className="text-xs text-[var(--ink-600)] truncate">{user.email}</p>
       </div>
-      <Link onClick={() => setMenuOpen(false)} href="/me" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-black/5 hover:text-[var(--ink-900)]">
+      <Link onClick={() => setMenuOpen(false)} href="/me" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-ink-900/[0.06] hover:text-[var(--ink-900)]">
         <LuUser className="w-4 h-4" />
         Profile
       </Link>
-      <Link onClick={() => setMenuOpen(false)} href="/me/uploads" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-black/5 hover:text-[var(--ink-900)]">
+      <Link onClick={() => setMenuOpen(false)} href="/me/uploads" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-ink-900/[0.06] hover:text-[var(--ink-900)]">
         <LuFolderOpen className="w-4 h-4" />
         My Uploads
       </Link>
       <button
         type="button"
         onClick={handleLogout}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 text-left"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-500/10 text-left"
       >
         <LuLogOut className="w-4 h-4" />
         Sign out
@@ -76,7 +76,7 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
         <Link
           href="/me/uploads"
           onClick={onNavigate}
-          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-black/5 hover:text-[var(--ink-900)]"
+          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-ink-900/[0.06] hover:text-[var(--ink-900)]"
         >
           <LuFolderOpen className="w-4 h-4" />
           My Uploads
@@ -84,7 +84,7 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
         <button
           type="button"
           onClick={handleLogout}
-          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 text-left"
+          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-500/10 text-left"
         >
           <LuLogOut className="w-4 h-4" />
           Sign out
@@ -109,7 +109,7 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
           )}
         </button>
       </Popover.Trigger>
-      <Popover.Content placement="bottom end" offset={10} className="bg-white border border-black/10 rounded-xl shadow-xl z-50">
+      <Popover.Content placement="bottom end" offset={10} className="bg-surface border border-line rounded-xl shadow-xl z-50">
         <Popover.Dialog className="p-1 font-sans">{menu}</Popover.Dialog>
       </Popover.Content>
     </Popover>

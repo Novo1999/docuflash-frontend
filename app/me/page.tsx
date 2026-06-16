@@ -58,18 +58,18 @@ const ProfilePage = () => {
         </div>
 
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="rounded-xl border border-black/10 bg-[var(--brand-alpha-4)] px-4 py-3">
+          <div className="rounded-xl border border-line bg-[var(--brand-alpha-4)] px-4 py-3">
             <dt className="text-xs text-[var(--ink-600)] uppercase tracking-wide">Sign-in method</dt>
             <dd className="text-sm text-[var(--ink-900)] mt-1 capitalize">{user.provider}</dd>
           </div>
-          <div className="rounded-xl border border-black/10 bg-[var(--brand-alpha-4)] px-4 py-3">
+          <div className="rounded-xl border border-line bg-[var(--brand-alpha-4)] px-4 py-3">
             <dt className="text-xs text-[var(--ink-600)] uppercase tracking-wide">Member since</dt>
             <dd className="text-sm text-[var(--ink-900)] mt-1">{formatDate(user.createdAt)}</dd>
           </div>
         </dl>
 
         <div>
-          <Button onPress={handleLogout} variant="ghost" className="rounded-xl h-11 px-5 flex items-center gap-2 text-red-600 border border-red-200 hover:bg-red-50">
+          <Button onPress={handleLogout} variant="ghost" className="rounded-xl h-11 px-5 flex items-center gap-2 text-red-600 border border-red-500/30 hover:bg-red-500/10">
             <LuLogOut className="w-4 h-4" />
             Sign out
           </Button>

@@ -25,7 +25,7 @@ const MobileProfileHeader = ({ onNavigate }: { onNavigate?: () => void }) => {
       type="button"
       onClick={handlePress}
       aria-label="Open your profile"
-      className="w-full flex items-center gap-3 px-6 py-4 border-y border-black/[0.06] hover:bg-black/5 transition-colors text-left font-sans"
+      className="w-full flex items-center gap-3 px-6 py-4 border-y border-line hover:bg-ink-900/[0.06] transition-colors text-left font-sans"
     >
       <span className="w-11 h-11 rounded-full bg-[var(--ink-900)] text-[var(--brand-50)] text-sm font-medium flex items-center justify-center overflow-hidden shrink-0">
         {user.avatarUrl ? (

@@ -30,7 +30,7 @@ async function FolderContent({ params }: PageProps) {
       <div className="min-h-screen bg-[var(--brand-50)] flex items-center justify-center p-4">
         <Card className="max-w-[480px] w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
           <CardContent className="p-10 flex flex-col items-center text-center gap-6">
-            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-red-500/15 rounded-full flex items-center justify-center">
               <LuFileQuestion className="text-red-500 w-8 h-8" />
             </div>
             <div className="flex flex-col gap-2">
@@ -54,7 +54,7 @@ const Page = async ({ params }: PageProps) => {
     <Suspense
       fallback={
         <div className="flex items-center gap-4 h-screen justify-center">
-          <Spinner className="text-black" />
+          <Spinner className="text-ink-900" />
         </div>
       }
     >

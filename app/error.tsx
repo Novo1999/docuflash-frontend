@@ -14,8 +14,8 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
 
   return (
     <main className="flex-1 flex items-center justify-center p-4 min-h-[70vh]">
-      <Card className="max-w-md w-full bg-white border border-black/[0.06] rounded-3xl p-8 md:p-10 shadow-[0_8px_40px_rgba(15,28,46,0.08)] text-center flex flex-col items-center gap-6 font-sans">
-        <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-2">
+      <Card className="max-w-md w-full bg-surface border border-line rounded-3xl p-8 md:p-10 shadow-[0_8px_40px_rgba(15,28,46,0.08)] text-center flex flex-col items-center gap-6 font-sans">
+        <div className="w-20 h-20 bg-red-500/15 rounded-full flex items-center justify-center mb-2">
           <TbAlertHexagonFilled className="w-10 h-10 text-red-500" />
         </div>
 
@@ -27,8 +27,8 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
         </Card.Header>
 
         {process.env.NODE_ENV === 'development' && (
-          <div className="w-full bg-red-50/50 rounded-2xl p-4 text-left overflow-auto max-h-40 border border-red-100/50">
-            <p className="text-xs font-mono text-red-800 break-words leading-tight">{error.message}</p>
+          <div className="w-full bg-red-500/10 rounded-2xl p-4 text-left overflow-auto max-h-40 border border-red-500/20">
+            <p className="text-xs font-mono text-red-700 dark:text-red-300 break-words leading-tight">{error.message}</p>
           </div>
         )}
 
@@ -46,7 +46,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
             render={() => <Link href="/" />}
             fullWidth
             variant="ghost"
-            className="text-[var(--ink-600)] rounded-2xl h-14 text-base font-medium hover:text-[var(--ink-900)] hover:bg-black/5 flex items-center justify-center gap-2.5 transition-all"
+            className="text-[var(--ink-600)] rounded-2xl h-14 text-base font-medium hover:text-[var(--ink-900)] hover:bg-ink-900/[0.06] flex items-center justify-center gap-2.5 transition-all"
           >
             <FaHome className="w-5 h-5" />
             Return home

@@ -1,6 +1,7 @@
 import AuthProvider from '@/components/auth/AuthProvider'
 import Footer from '@/components/landing/Footer'
 import Navbar from '@/components/landing/Navbar'
+import ThemeProvider from '@/components/providers/ThemeProvider'
 import { Toast } from '@heroui/react'
 import type { Metadata } from 'next'
 import { DM_Sans, Instrument_Serif } from 'next/font/google'
@@ -79,12 +80,14 @@ const RootLayout = ({
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${dmSans.variable} h-full antialiased scroll-smooth`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
-        <AuthProvider>
-          <Toast.Provider />
-          <Navbar />
-          {children}
-          <Footer />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <Toast.Provider />
+            <Navbar />
+            {children}
+            <Footer />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

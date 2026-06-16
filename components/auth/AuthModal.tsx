@@ -18,7 +18,7 @@ const inputClassName = (hasError: boolean) =>
   cn(
     'w-full bg-[var(--brand-alpha-4)] border rounded-xl px-4 h-12 text-[15px] text-[var(--ink-900)] font-sans',
     'placeholder:text-[var(--ink-600)]/60 focus-visible:border-[var(--brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--brand-400)]/10 outline-none transition-colors',
-    hasError ? 'border-red-400' : 'border-black/10',
+    hasError ? 'border-red-400' : 'border-line',
   )
 
 const AuthModal = () => {
@@ -97,7 +97,7 @@ const AuthModal = () => {
     >
       <Modal.Backdrop>
         <Modal.Container placement="center" size="md">
-          <Modal.Dialog className="bg-white rounded-2xl p-6 max-w-md w-full font-sans">
+          <Modal.Dialog className="bg-surface rounded-2xl p-6 max-w-md w-full font-sans">
             <Modal.CloseTrigger />
 
             <Modal.Header className="px-0 pt-0 pb-4">
@@ -126,7 +126,7 @@ const AuthModal = () => {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-black/[0.06]">
+                  <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-line">
                     {(['login', 'register'] as const).map((value) => {
                       const selected = mode === value
                       return (
@@ -137,8 +137,8 @@ const AuthModal = () => {
                           className={cn(
                             'px-3 py-2.5 rounded-lg text-sm font-medium font-sans transition-all',
                             selected
-                              ? 'bg-white shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-black/[0.08] text-[var(--ink-900)]'
-                              : 'border border-transparent text-[var(--ink-600)] hover:bg-white/60',
+                              ? 'bg-surface shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-line text-[var(--ink-900)]'
+                              : 'border border-transparent text-[var(--ink-600)] hover:bg-ink-900/[0.04]',
                           )}
                         >
                           {value === 'login' ? 'Sign in' : 'Sign up'}
@@ -177,7 +177,7 @@ const AuthModal = () => {
                             </Label>
                             <div className="relative w-full mt-1.5">
                               <Input {...field} type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Enter your password" className={cn(inputClassName(!!loginForm.formState.errors.password), 'pr-12')} />
-                              <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword((curr) => !curr)} className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-[var(--ink-600)] hover:bg-black/5 transition-colors">
+                              <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword((curr) => !curr)} className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-[var(--ink-600)] hover:bg-ink-900/[0.06] transition-colors">
                                 {showPassword ? <LuEyeOff className="w-4 h-4" /> : <LuEye className="w-4 h-4" />}
                               </button>
                             </div>
@@ -239,7 +239,7 @@ const AuthModal = () => {
                             </Label>
                             <div className="relative w-full mt-1.5">
                               <Input {...field} type={showPassword ? 'text' : 'password'} autoComplete="new-password" placeholder="At least 6 characters" className={cn(inputClassName(!!registerForm.formState.errors.password), 'pr-12')} />
-                              <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword((curr) => !curr)} className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-[var(--ink-600)] hover:bg-black/5 transition-colors">
+                              <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword((curr) => !curr)} className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-[var(--ink-600)] hover:bg-ink-900/[0.06] transition-colors">
                                 {showPassword ? <LuEyeOff className="w-4 h-4" /> : <LuEye className="w-4 h-4" />}
                               </button>
                             </div>
@@ -257,17 +257,17 @@ const AuthModal = () => {
                   )}
 
                   <div className="flex items-center gap-3">
-                    <span className="h-px flex-1 bg-black/10" />
+                    <span className="h-px flex-1 bg-ink-900/15" />
                     <span className="text-xs text-[var(--ink-600)]">or continue with</span>
-                    <span className="h-px flex-1 bg-black/10" />
+                    <span className="h-px flex-1 bg-ink-900/15" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
-                    <Button onPress={() => handleOAuth('google')} variant="ghost" fullWidth className="w-full border border-black/10 rounded-xl h-12 flex items-center justify-center gap-2 text-[var(--ink-900)] hover:bg-black/5">
+                    <Button onPress={() => handleOAuth('google')} variant="ghost" fullWidth className="w-full border border-line rounded-xl h-12 flex items-center justify-center gap-2 text-[var(--ink-900)] hover:bg-ink-900/[0.06]">
                       <FcGoogle className="w-5 h-5" />
                       Google
                     </Button>
-                    <Button onPress={() => handleOAuth('github')} variant="ghost" fullWidth className="w-full border border-black/10 rounded-xl h-12 flex items-center justify-center gap-2 text-[var(--ink-900)] hover:bg-black/5">
+                    <Button onPress={() => handleOAuth('github')} variant="ghost" fullWidth className="w-full border border-line rounded-xl h-12 flex items-center justify-center gap-2 text-[var(--ink-900)] hover:bg-ink-900/[0.06]">
                       <FaGithub className="w-5 h-5" />
                       GitHub
                     </Button>

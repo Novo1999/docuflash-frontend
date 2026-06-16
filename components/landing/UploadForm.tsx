@@ -21,7 +21,7 @@ const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector'), 
   ssr: false,
   loading: () => (
     <div className="flex items-center gap-4 h-[120px] justify-center">
-      <Spinner className="text-black" />
+      <Spinner className="text-ink-900" />
     </div>
   ),
 })
@@ -141,7 +141,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                       className={cn(
                         'w-full bg-[var(--brand-alpha-4)] border rounded-xl px-4 h-12 text-[15px] text-[var(--ink-900)] font-sans',
                         'placeholder:text-[var(--ink-600)]/60 focus-visible:border-[var(--brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--brand-400)]/10 outline-none transition-colors',
-                        errors.folderName ? 'border-red-400' : 'border-black/10',
+                        errors.folderName ? 'border-red-400' : 'border-line',
                       )}
                     />
                   </div>
@@ -158,7 +158,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             render={({ field }) => (
               <div className="flex flex-col gap-2">
                 <span className="text-left text-sm font-medium text-[var(--ink-900)] font-sans">Who can access {isBulkSelection ? 'this folder' : 'this file'}?</span>
-                <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-black/[0.06]">
+                <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-line">
                   {[
                     { val: 'public', label: 'Public', desc: 'Anyone with the link', Icon: LuGlobe },
                     { val: 'protected', label: 'Protected', desc: 'Password-locked', Icon: LuLock },
@@ -180,14 +180,14 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                         }}
                         className={cn(
                           'flex items-start gap-2.5 px-3 py-3 rounded-lg text-left transition-all',
-                          selected ? 'bg-white shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-black/[0.08]' : 'border border-transparent hover:bg-white/60',
+                          selected ? 'bg-surface shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-line' : 'border border-transparent hover:bg-ink-900/[0.04]',
                           isSubmitting && 'cursor-not-allowed',
                         )}
                       >
                         <div
                           className={cn(
                             'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
-                            selected ? 'bg-[var(--brand-alpha-12)] text-[var(--brand-400)]' : 'bg-black/[0.04] text-[var(--ink-600)]',
+                            selected ? 'bg-[var(--brand-alpha-12)] text-[var(--brand-400)]' : 'bg-ink-900/[0.06] text-[var(--ink-600)]',
                           )}
                         >
                           <Icon className="w-4 h-4" />
@@ -223,7 +223,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                       className={cn(
                         'w-full bg-[var(--brand-alpha-4)] border rounded-xl px-4 h-12 pr-12 text-[15px] text-[var(--ink-900)] font-sans',
                         'placeholder:text-[var(--ink-600)]/60 focus-visible:border-[var(--brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--brand-400)]/10 outline-none transition-colors',
-                        errors.password ? 'border-red-400' : 'border-black/10',
+                        errors.password ? 'border-red-400' : 'border-line',
                       )}
                     />
                     <button
@@ -231,7 +231,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                       onClick={() => setShowPassword((curr) => !curr)}
                       disabled={isSubmitting}
-                      className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-[var(--ink-600)] hover:bg-black/5 transition-colors disabled:cursor-not-allowed"
+                      className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-[var(--ink-600)] hover:bg-ink-900/[0.06] transition-colors disabled:cursor-not-allowed"
                     >
                       {showPassword ? <LuEyeOff className="w-4 h-4" /> : <LuEye className="w-4 h-4" />}
                     </button>
@@ -280,7 +280,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                   <LuShare2 className="w-6 h-6 text-[var(--brand-400)]" />
                 )}
               </div>
-              <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-4 ring-white">
+              <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-4 ring-surface">
                 <LuCheck className="w-3.5 h-3.5" />
               </span>
             </div>
@@ -302,8 +302,8 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
 
           {isBulkResult ? (
             <div className="flex flex-col gap-4">
-              <div className="rounded-xl border border-black/10 bg-[var(--brand-alpha-4)] overflow-hidden">
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-black/10 bg-white/70">
+              <div className="rounded-xl border border-line bg-[var(--brand-alpha-4)] overflow-hidden">
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-line bg-ink-900/[0.03]">
                   <div className="w-9 h-9 rounded-lg bg-[var(--brand-alpha-12)] flex items-center justify-center shrink-0">
                     <LuFolder className="w-5 h-5 text-[var(--brand-400)]" />
                   </div>
@@ -315,7 +315,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
 
                 <div className="max-h-56 overflow-y-auto">
                   {shareLinkItems.map((linkItem) => (
-                    <div key={linkItem.shareToken} className="flex items-center gap-3 px-4 py-3 border-b border-black/10 last:border-b-0">
+                    <div key={linkItem.shareToken} className="flex items-center gap-3 px-4 py-3 border-b border-line last:border-b-0">
                       <LuFile className="w-4 h-4 text-[var(--ink-600)] shrink-0" />
                       <div className="flex flex-col min-w-0 flex-1 text-left">
                         <span className="text-sm font-medium text-[var(--ink-900)] font-sans truncate">{linkItem.fileName}</span>
@@ -325,7 +325,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                         type="button"
                         aria-label={`Copy ${linkItem.fileName} link`}
                         onClick={() => handleCopy(linkItem)}
-                        className={cn('shrink-0 p-1.5 rounded-md transition-colors hover:bg-black/5', copiedLinkId === linkItem.shareToken ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]')}
+                        className={cn('shrink-0 p-1.5 rounded-md transition-colors hover:bg-ink-900/[0.06]', copiedLinkId === linkItem.shareToken ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]')}
                       >
                         <LuCopy className="w-4 h-4" />
                       </button>
@@ -341,7 +341,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
           ) : (
             <>
           {/* Tab segmented control */}
-          <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-black/[0.06]">
+          <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-line">
             {[
               { val: 'link', label: 'Link', Icon: LuLink },
               { val: 'qr', label: 'QR Code', Icon: LuQrCode },
@@ -354,7 +354,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                   onClick={() => setActiveTab(val as 'link' | 'qr')}
                   className={cn(
                     'flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium font-sans transition-all',
-                    selected ? 'bg-white shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-black/[0.08] text-[var(--ink-900)]' : 'border border-transparent text-[var(--ink-600)] hover:bg-white/60',
+                    selected ? 'bg-surface shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-line text-[var(--ink-900)]' : 'border border-transparent text-[var(--ink-600)] hover:bg-ink-900/[0.04]',
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -366,13 +366,13 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
 
           {/* Link tab */}
           <div className={cn(activeTab === 'link' ? 'flex flex-col gap-4' : 'hidden')}>
-            <div className="flex items-center justify-between gap-3 bg-[var(--brand-alpha-4)] border border-black/10 rounded-xl px-4 py-3">
+            <div className="flex items-center justify-between gap-3 bg-[var(--brand-alpha-4)] border border-line rounded-xl px-4 py-3">
               <span className="text-sm text-[var(--ink-900)] font-sans overflow-hidden text-ellipsis whitespace-nowrap flex-1 text-left">{primaryShareLink?.link}</span>
               <button
                 type="button"
                 aria-label="Copy link"
                 onClick={() => handleCopy(primaryShareLink)}
-                className={cn('shrink-0 p-1.5 rounded-md transition-colors hover:bg-black/5', copied ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]')}
+                className={cn('shrink-0 p-1.5 rounded-md transition-colors hover:bg-ink-900/[0.06]', copied ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]')}
               >
                 <LuCopy className="w-4 h-4" />
               </button>
@@ -401,7 +401,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             </>
           )}
 
-          <Button fullWidth variant="ghost" onPress={handleReset} className="text-[var(--ink-600)] text-sm hover:text-[var(--ink-900)] hover:bg-black/5 font-sans">
+          <Button fullWidth variant="ghost" onPress={handleReset} className="text-[var(--ink-600)] text-sm hover:text-[var(--ink-900)] hover:bg-ink-900/[0.06] font-sans">
             {primaryShareLink?.kind === 'folder' ? 'Upload another folder' : isBulkResult ? 'Upload another folder' : 'Upload another file'}
           </Button>
         </div>

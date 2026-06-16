@@ -26,7 +26,7 @@ const PasswordUnlockForm = ({ password, error, isVerifying, onPasswordChange, on
           className={cn(
             'bg-[var(--brand-50)]',
             'border-1',
-            error ? 'border-red-400' : 'border-black/10',
+            error ? 'border-red-400' : 'border-line',
             'rounded-xl',
             'px-4',
             'h-12',

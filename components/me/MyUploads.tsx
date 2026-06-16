@@ -147,7 +147,7 @@ const MyUploads = () => {
         {loadState === 'loading' ? (
           <div className="flex flex-col gap-3">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="h-[74px] rounded-2xl bg-black/5 animate-pulse" aria-hidden />
+              <div key={index} className="h-[74px] rounded-2xl bg-ink-900/10 animate-pulse" aria-hidden />
             ))}
           </div>
         ) : loadState === 'error' ? (
@@ -210,7 +210,7 @@ const MyUploads = () => {
           <Modal.Dialog className="sm:max-w-[360px]">
             <Modal.CloseTrigger />
             <Modal.Header>
-              <Modal.Icon className="bg-red-50 text-red-500">
+              <Modal.Icon className="bg-red-500/15 text-red-500">
                 <FiAlertTriangle className="size-5" />
               </Modal.Icon>
               <Modal.Heading>Delete {entryToDelete?.kind === 'folder' ? 'folder' : 'file'}</Modal.Heading>

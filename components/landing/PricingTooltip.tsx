@@ -19,9 +19,9 @@ const PricingTooltip = ({ className }: PricingTooltipProps) => {
       <Popover.Content 
         placement="bottom" 
         offset={10} 
-        className="max-w-xs bg-white border border-black/10 rounded-xl shadow-xl z-50"
+        className="max-w-xs bg-surface border border-line rounded-xl shadow-xl z-50"
       >
-        <Popover.Arrow className="fill-white" />
+        <Popover.Arrow className="fill-surface" />
         <Popover.Dialog className="px-4 py-3 text-xs text-[var(--ink-900)] font-sans whitespace-normal break-words text-center">
           Docuflash is completely free to use, make sure you don&apos;t fill up my free storage please :)
         </Popover.Dialog>

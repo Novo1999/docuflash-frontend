@@ -6,7 +6,7 @@ const TextPreview = ({ text }: { text: string }) => {
   }
 
   return (
-    <pre className="max-h-[600px] overflow-auto whitespace-pre-wrap break-words rounded-xl border border-black/[0.06] bg-white px-4 py-3 text-sm leading-6 text-[var(--ink-900)] font-sans scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">{text}</pre>
+    <pre className="max-h-[600px] overflow-auto whitespace-pre-wrap break-words rounded-xl border border-line bg-surface px-4 py-3 text-sm leading-6 text-[var(--ink-900)] font-sans scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">{text}</pre>
   )
 }
 

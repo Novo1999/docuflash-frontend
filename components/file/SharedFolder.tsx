@@ -65,7 +65,7 @@ const SharedFolder = ({ folder, folderPassword }: SharedFolderProps) => {
           folder.files.map((file) => {
             const fileTypeInfo = getFileTypeInfo(file.fileType)
             return (
-              <div key={file.id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-black/[0.02] transition-colors border border-black/[0.04]">
+              <div key={file.id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-ink-900/[0.04] transition-colors border border-line">
                 <div className={`w-10 h-10 ${fileTypeInfo.bg} rounded-lg flex items-center justify-center shrink-0`}>
                   <LuFile className={`${fileTypeInfo.color} w-5 h-5`} />
                 </div>
@@ -79,7 +79,7 @@ const SharedFolder = ({ folder, folderPassword }: SharedFolderProps) => {
                     variant="ghost"
                     onPress={() => handleDownloadFile(file)}
                     isPending={isDownloading === file.shareToken}
-                    className="w-8 h-8 rounded-lg min-w-0 hover:bg-black/[0.05] transition-colors"
+                    className="w-8 h-8 rounded-lg min-w-0 hover:bg-ink-900/[0.06] transition-colors"
                     aria-label="Download file"
                   >
                     {!isDownloading || isDownloading !== file.shareToken ? <LuDownload className="w-4 h-4 text-[var(--ink-600)]" /> : null}
@@ -88,7 +88,7 @@ const SharedFolder = ({ folder, folderPassword }: SharedFolderProps) => {
                     isIconOnly
                     variant="ghost"
                     onPress={() => copyToClipboard(getShareLink(file.shareToken), file.id)}
-                    className="w-8 h-8 rounded-lg min-w-0 hover:bg-black/[0.05] transition-colors"
+                    className="w-8 h-8 rounded-lg min-w-0 hover:bg-ink-900/[0.06] transition-colors"
                     aria-label="Copy share link"
                   >
                     {copiedId === file.id ? <LuCheck className="w-4 h-4 text-green-600" /> : <LuCopy className="w-4 h-4 text-[var(--ink-600)]" />}
@@ -97,14 +97,14 @@ const SharedFolder = ({ folder, folderPassword }: SharedFolderProps) => {
                     isIconOnly
                     variant="ghost"
                     onPress={() => handleDeleteFileClick(file)}
-                    className="w-8 h-8 rounded-lg min-w-0 text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    className="w-8 h-8 rounded-lg min-w-0 text-red-400 hover:text-red-600 hover:bg-red-500/10 transition-colors"
                     aria-label="Delete file"
                   >
                     <LuTrash2 className="w-4 h-4" />
                   </Button>
                   <Link
                     href={`/share/${file.shareToken}`}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.05] transition-colors text-[var(--ink-600)]"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-ink-900/[0.06] transition-colors text-[var(--ink-600)]"
                     aria-label="View file"
                   >
                     <LuExternalLink className="w-4 h-4" />

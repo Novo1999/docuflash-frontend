@@ -67,7 +67,7 @@ const DateTimeField = ({ value, onChange, isInvalid }: DateTimeFieldProps) => {
     >
       {({ state }) => (
         <>
-          <DateField.Group fullWidth className="bg-[var(--brand-alpha-4)] border-1 border-black/10 rounded-xl h-12 px-4 group-data-[focus=true]:border-[var(--brand-400)] transition-colors">
+          <DateField.Group fullWidth className="bg-[var(--brand-alpha-4)] border-1 border-line rounded-xl h-12 px-4 group-data-[focus=true]:border-[var(--brand-400)] transition-colors">
             <DateField.Input className="font-sans text-ink-900 flex-1">
               {(segment) => (
                 <DateField.Segment 
@@ -77,12 +77,12 @@ const DateTimeField = ({ value, onChange, isInvalid }: DateTimeFieldProps) => {
               )}
             </DateField.Input>
             <DateField.Suffix className="ml-2">
-              <DatePicker.Trigger className="p-1 hover:bg-black/5 rounded-md transition-colors">
+              <DatePicker.Trigger className="p-1 hover:bg-ink-900/[0.06] rounded-md transition-colors">
                 <DatePicker.TriggerIndicator className="text-ink-600" />
               </DatePicker.Trigger>
             </DateField.Suffix>
           </DateField.Group>
-          <DatePicker.Popover className="flex flex-col gap-3 p-4 bg-white border border-black/10 shadow-2xl rounded-2xl">
+          <DatePicker.Popover className="flex flex-col gap-3 p-4 bg-surface border border-line shadow-2xl rounded-2xl">
             <Calendar aria-label="Expiry date" className="border-none shadow-none">
               <Calendar.Header className="font-sans mb-2">
                 <Calendar.YearPickerTrigger>
@@ -90,8 +90,8 @@ const DateTimeField = ({ value, onChange, isInvalid }: DateTimeFieldProps) => {
                   <Calendar.YearPickerTriggerIndicator className="ml-1" />
                 </Calendar.YearPickerTrigger>
                 <div className="flex gap-1 ml-auto">
-                  <Calendar.NavButton slot="previous" className="p-1.5 hover:bg-black/5 rounded-lg transition-colors" />
-                  <Calendar.NavButton slot="next" className="p-1.5 hover:bg-black/5 rounded-lg transition-colors" />
+                  <Calendar.NavButton slot="previous" className="p-1.5 hover:bg-ink-900/[0.06] rounded-lg transition-colors" />
+                  <Calendar.NavButton slot="next" className="p-1.5 hover:bg-ink-900/[0.06] rounded-lg transition-colors" />
                 </div>
               </Calendar.Header>
               <Calendar.Grid className="font-sans">
@@ -107,8 +107,8 @@ const DateTimeField = ({ value, onChange, isInvalid }: DateTimeFieldProps) => {
                     <Calendar.Cell
                       date={date}
                       className="w-9 h-9 flex items-center justify-center text-sm rounded-lg transition-all
-                        hover:bg-black/5 cursor-pointer
-                        data-[selected=true]:bg-[var(--ink-900)] data-[selected=true]:text-white data-[selected=true]:font-medium
+                        hover:bg-ink-900/[0.06] cursor-pointer
+                        data-[selected=true]:bg-[var(--ink-900)] data-[selected=true]:text-[var(--brand-50)] data-[selected=true]:font-medium
                         data-[outside-month=true]:text-ink-300
                         data-[disabled=true]:text-ink-200 data-[disabled=true]:cursor-default"
                     />
@@ -120,13 +120,13 @@ const DateTimeField = ({ value, onChange, isInvalid }: DateTimeFieldProps) => {
                   {({ year }) => (
                     <Calendar.YearPickerCell 
                       year={year} 
-                      className="px-2 py-1 rounded-md hover:bg-black/5 data-[selected=true]:bg-[var(--ink-900)] data-[selected=true]:text-white"
+                      className="px-2 py-1 rounded-md hover:bg-ink-900/[0.06] data-[selected=true]:bg-[var(--ink-900)] data-[selected=true]:text-[var(--brand-50)]"
                     />
                   )}
                 </Calendar.YearPickerGridBody>
               </Calendar.YearPickerGrid>
             </Calendar>
-            <div className="flex items-center justify-between pt-4 border-t border-black/5 font-sans">
+            <div className="flex items-center justify-between pt-4 border-t border-line font-sans">
               <Label className="text-sm font-semibold text-ink-900">Time</Label>
               <TimeField
                 aria-label="Time"
@@ -136,7 +136,7 @@ const DateTimeField = ({ value, onChange, isInvalid }: DateTimeFieldProps) => {
                 value={state.timeValue}
                 onChange={(v) => state.setTimeValue(v as TimeValue)}
               >
-                <TimeField.Group variant="secondary" className="bg-black/5 rounded-xl px-3 py-2 flex gap-1 items-center border-none">
+                <TimeField.Group variant="secondary" className="bg-ink-900/[0.06] rounded-xl px-3 py-2 flex gap-1 items-center border-none">
                   <TimeField.Input className="text-sm font-medium text-ink-900">
                     {(segment) => (
                       <TimeField.Segment 

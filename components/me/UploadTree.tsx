@@ -54,8 +54,8 @@ const UploadTree = ({ groups, ungrouped, copiedToken, onCopy, onOpen, onDelete, 
                   return (
                     <div key={file.shareToken} className="relative pl-7">
                       {/* tree connectors: vertical spine + elbow into the card */}
-                      <span className={cn('absolute left-3.5 top-0 w-px bg-black/10', isLast ? 'h-1/2' : 'h-full')} aria-hidden />
-                      <span className="absolute left-3.5 top-1/2 h-px w-3.5 bg-black/10" aria-hidden />
+                      <span className={cn('absolute left-3.5 top-0 w-px bg-ink-900/15', isLast ? 'h-1/2' : 'h-full')} aria-hidden />
+                      <span className="absolute left-3.5 top-1/2 h-px w-3.5 bg-ink-900/15" aria-hidden />
                       <UploadItemCard {...cardProps(file)} />
                     </div>
                   )

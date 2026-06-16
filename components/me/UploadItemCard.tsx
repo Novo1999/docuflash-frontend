@@ -37,7 +37,7 @@ const UploadItemCard = ({ entry, isCopied, onCopy, onShowQr, onOpen, onDelete, i
   const isProtected = entry.accessType === FileAccessType.PROTECTED
 
   return (
-    <Card className="bg-white border border-black/[0.06] rounded-2xl p-4 shadow-[0_2px_20px_rgba(15,28,46,0.04)] font-sans">
+    <Card className="bg-surface border border-line rounded-2xl p-4 shadow-[0_2px_20px_rgba(15,28,46,0.04)] font-sans">
       <div className="flex items-center gap-4">
         {onToggle ? (
           <Button
@@ -85,7 +85,7 @@ const UploadItemCard = ({ entry, isCopied, onCopy, onShowQr, onOpen, onDelete, i
           <Button isIconOnly size="sm" variant="ghost" aria-label="Open share link" onPress={() => onOpen(entry)} className="text-ink-600">
             <LuExternalLink className="w-4 h-4" />
           </Button>
-          <Button isIconOnly size="sm" variant="ghost" aria-label="Delete" onPress={() => onDelete(entry)} className="text-red-400 hover:text-red-600 hover:bg-red-50">
+          <Button isIconOnly size="sm" variant="ghost" aria-label="Delete" onPress={() => onDelete(entry)} className="text-red-400 hover:text-red-600 hover:bg-red-500/10">
             <LuTrash2 className="w-4 h-4" />
           </Button>
         </div>

@@ -95,7 +95,7 @@ const ExpirySelector = ({ value, onChange, isInvalid, isDisabled }: ExpirySelect
                 'px-3 py-1.5 rounded-full text-xs font-medium tracking-tight transition-all font-sans border',
                 selected
                   ? 'bg-[var(--ink-900)] text-[var(--brand-50)] border-[var(--ink-900)] shadow-[0_1px_2px_rgba(15,28,46,0.18)]'
-                  : 'bg-white text-[var(--ink-700)] border-black/[0.08] hover:border-black/20 hover:bg-black/[0.02]',
+                  : 'bg-surface text-[var(--ink-700)] border-line hover:border-ink-900/20 hover:bg-ink-900/[0.04]',
                 isDisabled && 'opacity-50 cursor-not-allowed',
               )}
             >
@@ -109,7 +109,7 @@ const ExpirySelector = ({ value, onChange, isInvalid, isDisabled }: ExpirySelect
           disabled={isDisabled}
           className={cn(
             'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium tracking-tight transition-all font-sans border',
-            !activePreset && value ? 'bg-[var(--ink-900)] text-[var(--brand-50)] border-[var(--ink-900)]' : 'bg-white text-[var(--ink-700)] border-black/[0.08] hover:border-black/20',
+            !activePreset && value ? 'bg-[var(--ink-900)] text-[var(--brand-50)] border-[var(--ink-900)]' : 'bg-surface text-[var(--ink-700)] border-line hover:border-ink-900/20',
             isDisabled && 'opacity-50 cursor-not-allowed',
           )}
         >
@@ -122,17 +122,17 @@ const ExpirySelector = ({ value, onChange, isInvalid, isDisabled }: ExpirySelect
         <DatePicker className="w-full" value={parsedValue} onChange={handlePickerChange} granularity="minute" hideTimeZone shouldForceLeadingZeros isInvalid={isInvalid} isDisabled={isDisabled}>
           {({ state }) => (
             <>
-              <DateField.Group fullWidth className="bg-[var(--brand-alpha-4)] border border-black/10 rounded-xl h-12 px-4 group-data-[focus=true]:border-[var(--brand-400)] transition-colors">
+              <DateField.Group fullWidth className="bg-[var(--brand-alpha-4)] border border-line rounded-xl h-12 px-4 group-data-[focus=true]:border-[var(--brand-400)] transition-colors">
                 <DateField.Input className="font-sans text-[var(--ink-900)] flex-1">
                   {(segment) => <DateField.Segment segment={segment} className="px-0.5 focus:bg-[var(--brand-400)]/20 focus:text-[var(--ink-900)] rounded-sm outline-none" />}
                 </DateField.Input>
                 <DateField.Suffix className="ml-2">
-                  <DatePicker.Trigger className="p-1 hover:bg-black/5 rounded-md transition-colors">
+                  <DatePicker.Trigger className="p-1 hover:bg-ink-900/[0.06] rounded-md transition-colors">
                     <DatePicker.TriggerIndicator className="text-[var(--ink-600)]" />
                   </DatePicker.Trigger>
                 </DateField.Suffix>
               </DateField.Group>
-              <DatePicker.Popover className="flex flex-col gap-3 p-4 bg-white border border-black/10 shadow-2xl rounded-2xl">
+              <DatePicker.Popover className="flex flex-col gap-3 p-4 bg-surface border border-line shadow-2xl rounded-2xl">
                 <Calendar aria-label="Expiry date" className="border-none shadow-none">
                   <Calendar.Header className="font-sans mb-2">
                     <Calendar.YearPickerTrigger>
@@ -140,8 +140,8 @@ const ExpirySelector = ({ value, onChange, isInvalid, isDisabled }: ExpirySelect
                       <Calendar.YearPickerTriggerIndicator className="ml-1" />
                     </Calendar.YearPickerTrigger>
                     <div className="flex gap-1 ml-auto">
-                      <Calendar.NavButton slot="previous" className="p-1.5 hover:bg-black/5 rounded-lg transition-colors" />
-                      <Calendar.NavButton slot="next" className="p-1.5 hover:bg-black/5 rounded-lg transition-colors" />
+                      <Calendar.NavButton slot="previous" className="p-1.5 hover:bg-ink-900/[0.06] rounded-lg transition-colors" />
+                      <Calendar.NavButton slot="next" className="p-1.5 hover:bg-ink-900/[0.06] rounded-lg transition-colors" />
                     </div>
                   </Calendar.Header>
                   <Calendar.Grid className="font-sans">
@@ -151,8 +151,8 @@ const ExpirySelector = ({ value, onChange, isInvalid, isDisabled }: ExpirySelect
                         <Calendar.Cell
                           date={date}
                           className="w-9 h-9 flex items-center justify-center text-sm rounded-lg transition-all
-                            hover:bg-black/5 cursor-pointer
-                            data-[selected=true]:bg-[var(--ink-900)] data-[selected=true]:text-white data-[selected=true]:font-medium
+                            hover:bg-ink-900/[0.06] cursor-pointer
+                            data-[selected=true]:bg-[var(--ink-900)] data-[selected=true]:text-[var(--brand-50)] data-[selected=true]:font-medium
                             data-[outside-month=true]:text-[var(--ink-300)]
                             data-[disabled=true]:text-[var(--ink-200)] data-[disabled=true]:cursor-default"
                         />
@@ -161,14 +161,14 @@ const ExpirySelector = ({ value, onChange, isInvalid, isDisabled }: ExpirySelect
                   </Calendar.Grid>
                   <Calendar.YearPickerGrid>
                     <Calendar.YearPickerGridBody>
-                      {({ year }) => <Calendar.YearPickerCell year={year} className="px-2 py-1 rounded-md hover:bg-black/5 data-[selected=true]:bg-[var(--ink-900)] data-[selected=true]:text-white" />}
+                      {({ year }) => <Calendar.YearPickerCell year={year} className="px-2 py-1 rounded-md hover:bg-ink-900/[0.06] data-[selected=true]:bg-[var(--ink-900)] data-[selected=true]:text-[var(--brand-50)]" />}
                     </Calendar.YearPickerGridBody>
                   </Calendar.YearPickerGrid>
                 </Calendar>
-                <div className="flex items-center justify-between pt-4 border-t border-black/5 font-sans">
+                <div className="flex items-center justify-between pt-4 border-t border-line font-sans">
                   <Label className="text-sm font-semibold text-[var(--ink-900)]">Time</Label>
                   <TimeField aria-label="Time" granularity="minute" hideTimeZone shouldForceLeadingZeros value={state.timeValue} onChange={(v) => state.setTimeValue(v as TimeValue)}>
-                    <TimeField.Group variant="secondary" className="bg-black/5 rounded-xl px-3 py-2 flex gap-1 items-center border-none">
+                    <TimeField.Group variant="secondary" className="bg-ink-900/[0.06] rounded-xl px-3 py-2 flex gap-1 items-center border-none">
                       <TimeField.Input className="text-sm font-medium text-[var(--ink-900)]">
                         {(segment) => <TimeField.Segment segment={segment} className="focus:bg-[var(--brand-400)]/20 rounded-sm outline-none px-0.5" />}
                       </TimeField.Input>

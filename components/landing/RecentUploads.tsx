@@ -43,10 +43,28 @@ const storedToEntry = (item: StoredItem): UploadEntry =>
         downloadCount: null,
       }
 
+const SkeletonCard = () => (
+  <div className="bg-surface border border-line rounded-2xl p-4 font-sans" aria-hidden>
+    <div className="flex items-center gap-4">
+      <div className="w-10 h-10 rounded-xl bg-ink-900/10 animate-pulse shrink-0" />
+      <div className="flex flex-col gap-2 flex-1 min-w-0">
+        <div className="h-3.5 w-2/5 rounded bg-ink-900/10 animate-pulse" />
+        <div className="h-3 w-1/4 rounded bg-ink-900/10 animate-pulse" />
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <div className="w-8 h-8 rounded-lg bg-ink-900/10 animate-pulse" />
+        <div className="w-8 h-8 rounded-lg bg-ink-900/10 animate-pulse" />
+        <div className="w-8 h-8 rounded-lg bg-ink-900/10 animate-pulse" />
+      </div>
+    </div>
+  </div>
+)
+
 const RecentUploads = () => {
   const { status, isAuthenticated } = useAuth()
   const [groups, setGroups] = useState<UploadTreeGroup[]>([])
   const [ungrouped, setUngrouped] = useState<UploadEntry[]>([])
+  const [isLoading, setIsLoading] = useState(false)
   const [copiedToken, setCopiedToken] = useState<string | null>(null)
   const [itemToDelete, setItemToDelete] = useState<UploadEntry | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -62,7 +80,10 @@ const RecentUploads = () => {
     if (status === 'authenticated') {
       // Signed-in users get their persisted uploads from the backend, grouped folder → files.
       // The upload flow still dispatches the event, so refetch when a new upload lands.
+      let isInitialLoad = true
       const load = async () => {
+        // Only show the skeleton on first load; event-driven refetches update in place.
+        if (isInitialLoad) setIsLoading(true)
         try {
           const [myFiles, myFolders] = await Promise.all([getMyFiles(), getMyFolders()])
           const { groups: rawGroups, ungrouped: rawUngrouped } = groupUploadsByFolder(myFiles, myFolders)
@@ -76,6 +97,9 @@ const RecentUploads = () => {
         } catch {
           setGroups([])
           setUngrouped([])
+        } finally {
+          setIsLoading(false)
+          isInitialLoad = false
         }
       }
 
@@ -89,6 +113,7 @@ const RecentUploads = () => {
 
     // Anonymous users fall back to the sessionStorage list (no folder → file relationship).
     const syncSession = () => {
+      setIsLoading(false)
       setGroups([])
       setUngrouped(getRecentUploads().map(storedToEntry))
     }
@@ -160,6 +185,19 @@ const RecentUploads = () => {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4 mt-8 w-full">
+        <h2 className="text-xl font-serif text-foreground text-left px-1">Currently uploaded</h2>
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <SkeletonCard key={index} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   if (groups.length === 0 && ungrouped.length === 0) return null
 
   return (
@@ -208,7 +246,7 @@ const RecentUploads = () => {
           <Modal.Dialog className="sm:max-w-[360px]">
             <Modal.CloseTrigger />
             <Modal.Header>
-              <Modal.Icon className="bg-red-50 text-red-500">
+              <Modal.Icon className="bg-red-500/15 text-red-500">
                 <FiAlertTriangle className="size-5" />
               </Modal.Icon>
               <Modal.Heading>Delete {itemToDelete?.kind === 'folder' ? 'folder' : 'file'}</Modal.Heading>

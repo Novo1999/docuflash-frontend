@@ -11,7 +11,7 @@ const UploadSection = () => {
       <Suspense
         fallback={
           <div className="flex items-center gap-4 h-[120px] justify-center">
-            <Spinner className="text-black" />
+            <Spinner className="text-ink-900" />
           </div>
         }
       >
@@ -19,7 +19,7 @@ const UploadSection = () => {
           formatBadges={
             <>
               {SUPPORTED_UPLOAD_FORMATS.map((label) => (
-                <span key={label} className="text-[10px] font-medium tracking-[0.06em] uppercase px-2 py-1 rounded-md bg-black/[0.03] text-[var(--ink-600)] border border-black/[0.05] font-sans">
+                <span key={label} className="text-[10px] font-medium tracking-[0.06em] uppercase px-2 py-1 rounded-md bg-ink-900/[0.04] text-[var(--ink-600)] border border-line font-sans">
                   {label}
                 </span>
               ))}

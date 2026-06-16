@@ -1,6 +1,6 @@
 const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="w-full border-t border-black/5 pt-8 mt-2 scroll-mt-24">
+    <section id="how-it-works" className="w-full border-t border-line pt-8 mt-2 scroll-mt-24">
       <h2 className="text-xl font-serif text-foreground mb-5">How It Works</h2>
       <div className="flex justify-center w-full items-start">
         {[
@@ -21,7 +21,7 @@ const HowItWorks = () => {
               </span>
             </div>
             {i < 2 && (
-              <span className="text-black/20 text-lg mt-2">-&gt;</span>
+              <span className="text-ink-900/25 text-lg mt-2">-&gt;</span>
             )}
           </div>
         ))}
