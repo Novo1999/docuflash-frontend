@@ -21,6 +21,7 @@ export const loginAtom = atom(null, async (_get, set, payload: LoginPayload) => 
   set(sessionAtom, session)
   set(userAtom, user)
   set(authStatusAtom, 'authenticated')
+  await set(syncCurrentUserAtom)
 })
 
 export const registerAtom = atom(null, async (_get, set, payload: RegisterPayload): Promise<RegisterResult> => {
@@ -29,8 +30,16 @@ export const registerAtom = atom(null, async (_get, set, payload: RegisterPayloa
     set(sessionAtom, result.session)
     set(userAtom, result.user)
     set(authStatusAtom, 'authenticated')
+    await set(syncCurrentUserAtom)
   }
   return result
+})
+
+export const syncCurrentUserAtom = atom(null, async (_get, set) => {
+  try {
+    const profile = await getCurrentUser()
+    set(userAtom, profile)
+  } catch {}
 })
 
 export const refreshAtom = atom(null, async (get, set): Promise<AuthSession | null> => {
