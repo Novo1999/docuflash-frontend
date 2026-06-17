@@ -9,7 +9,7 @@ export enum FileType {
   TXT = 'txt',
 }
 
-export const PREVIEWABLE_FILE_TYPES = [FileType.PDF, FileType.DOCX, FileType.TXT] as const
+export const PREVIEWABLE_FILE_TYPES = [FileType.PDF, FileType.DOCX, FileType.TXT, FileType.ZIP] as const
 
 export const isPreviewableFileType = (fileType: FileType) => PREVIEWABLE_FILE_TYPES.includes(fileType as (typeof PREVIEWABLE_FILE_TYPES)[number])
 
@@ -108,7 +108,12 @@ export type DocxPreviewResponse = {
   url: string
 }
 
-export type FilePreviewResponse = PdfPreviewResponse | TextPreviewResponse | DocxPreviewResponse
+export type ZipPreviewResponse = {
+  kind: 'zip_url'
+  url: string
+}
+
+export type FilePreviewResponse = PdfPreviewResponse | TextPreviewResponse | DocxPreviewResponse | ZipPreviewResponse
 
 export type StoredUpload = {
   fileName: string

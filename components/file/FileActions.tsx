@@ -95,10 +95,11 @@ const FileActions = ({ shareToken, isProtected, fileName, fileType, children }: 
                     variant="secondary"
                     onPress={handlePreview}
                     isPending={isPreviewLoading}
+                    isDisabled={!!preview}
                     className="w-full rounded-xl text-md font-medium h-14 font-sans"
                   >
                     <LuEye className="w-5 h-5" />
-                    Preview File
+                    {preview ? 'Previewing' : 'Preview File'}
                   </Button>
                 )}
                 <Button className="w-full bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-md font-medium h-14 font-sans" onPress={handleDownload} isPending={!!isDownloading}>

@@ -17,6 +17,11 @@ const TextPreview = dynamic(() => import('@/components/file/TextPreview'), {
   loading: () => <PreviewLoader />,
 })
 
+const ZipPreview = dynamic(() => import('@/components/file/ZipPreview'), {
+  ssr: false,
+  loading: () => <PreviewLoader label="Reading archive" />,
+})
+
 
 interface FilePreviewProps {
   fileName: string
@@ -35,6 +40,7 @@ const FilePreview = ({ fileName, preview }: FilePreviewProps) => {
         {preview.kind === 'pdf' && <PdfPreview key={preview.url} url={preview.url} />}
         {preview.kind === 'text' && <TextPreview text={preview.text} />}
         {preview.kind === 'docx_url' && <DocxPreview url={preview.url} />}
+        {preview.kind === 'zip_url' && <ZipPreview url={preview.url} />}
       </CardContent>
     </Card>
   )
