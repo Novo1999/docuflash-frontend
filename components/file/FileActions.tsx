@@ -73,7 +73,7 @@ const FileActions = ({ shareToken, isProtected, fileName, fileType, children }: 
   return (
     <>
       <Card className="w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
-        <CardContent className="p-8 flex flex-col gap-6">
+        <CardContent className="p-5 sm:p-8 flex flex-col gap-6">
           {children}
 
           {isLocked ? (

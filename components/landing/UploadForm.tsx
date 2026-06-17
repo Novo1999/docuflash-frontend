@@ -169,7 +169,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             render={({ field }) => (
               <div className="flex flex-col gap-2">
                 <span className="text-left text-sm font-medium text-[var(--ink-900)] font-sans">Who can access {isBulkSelection ? 'this folder' : 'this file'}?</span>
-                <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-line">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-line">
                   {[
                     { val: 'public', label: 'Public', desc: 'Anyone with the link', Icon: LuGlobe },
                     { val: 'protected', label: 'Protected', desc: 'Password-locked', Icon: LuLock },

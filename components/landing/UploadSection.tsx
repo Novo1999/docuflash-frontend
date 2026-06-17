@@ -26,8 +26,8 @@ const UploadSection = () => {
             </>
           }
           footer={
-            <div className="flex items-center justify-center gap-1.5">
-              <LuShield className="w-3 h-3 text-[var(--ink-600)]" />
+            <div className="flex items-center justify-center gap-1.5 text-center">
+              <LuShield className="w-3 h-3 shrink-0 text-[var(--ink-600)]" />
               <span className="text-xs text-[var(--ink-600)] font-sans">End-to-end encrypted • Auto-deletes on expiry</span>
             </div>
           }

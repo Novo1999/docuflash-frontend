@@ -3,9 +3,11 @@
 import { getOAuthUrl } from '@/app/lib/api/auth'
 import { loginSchema, registerSchema, type LoginFormValues, type RegisterFormValues } from '@/app/zod/authSchema'
 import { useAuth } from '@/components/auth/useAuth'
+import { navDrawerOpenAtom } from '@/components/shared/atoms/navAtom'
 import type { OAuthProvider } from '@/types/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, cn, FieldError, Input, Label, Modal, Spinner, TextField } from '@heroui/react'
+import { useSetAtom } from 'jotai'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FaGithub } from 'react-icons/fa'
@@ -23,6 +25,7 @@ const inputClassName = (hasError: boolean) =>
 
 const AuthModal = () => {
   const { isAuthModalOpen, closeAuthModal, login, register } = useAuth()
+  const setNavDrawerOpen = useSetAtom(navDrawerOpenAtom)
 
   const [mode, setMode] = useState<AuthMode>('login')
   const [showPassword, setShowPassword] = useState(false)
@@ -67,6 +70,7 @@ const AuthModal = () => {
     try {
       await login(values)
       handleClose()
+      setNavDrawerOpen(false)
     } catch (error) {
       loginForm.setError('root', { message: error instanceof Error ? error.message : 'Login failed' })
     }
@@ -80,6 +84,7 @@ const AuthModal = () => {
         return
       }
       handleClose()
+      setNavDrawerOpen(false)
     } catch (error) {
       registerForm.setError('root', { message: error instanceof Error ? error.message : 'Registration failed' })
     }

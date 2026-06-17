@@ -76,7 +76,7 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
         <Link
           href="/me/uploads"
           onClick={onNavigate}
-          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-ink-900/[0.06] hover:text-[var(--ink-900)]"
+          className="flex items-center gap-2 w-full py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-ink-900/[0.06] hover:text-[var(--ink-900)]"
         >
           <LuFolderOpen className="w-4 h-4" />
           My Uploads
@@ -84,7 +84,7 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
         <button
           type="button"
           onClick={handleLogout}
-          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-500/10 text-left"
+          className="flex items-center gap-2 w-full py-2 rounded-lg text-sm text-red-600 hover:bg-red-500/10 text-left"
         >
           <LuLogOut className="w-4 h-4" />
           Sign out

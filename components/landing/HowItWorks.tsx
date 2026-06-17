@@ -1,3 +1,5 @@
+import { LuArrowRight } from 'react-icons/lu'
+
 const HowItWorks = () => {
   return (
     <section id="how-it-works" className="w-full border-t border-line pt-8 mt-2 scroll-mt-24">
@@ -21,7 +23,7 @@ const HowItWorks = () => {
               </span>
             </div>
             {i < 2 && (
-              <span className="text-ink-900/25 text-lg mt-2">-&gt;</span>
+              <LuArrowRight className="w-4 h-4 text-ink-900/25 mt-7 shrink-0" aria-hidden />
             )}
           </div>
         ))}
