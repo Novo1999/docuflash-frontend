@@ -82,6 +82,7 @@ const useFileUploadSubmit = <T extends FieldValues>({ clearErrors, reset, setErr
             accessType: fileAccessType,
             expireAt: data.expireAt,
             password: data.accessType === 'protected' ? data.password : undefined,
+            deleteAfterDownload: data.deleteAfterDownload,
             deviceInfo,
           })
 

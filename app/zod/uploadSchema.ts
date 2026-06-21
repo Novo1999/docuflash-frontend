@@ -13,6 +13,7 @@ const uploadSchema = z
     folderName: z.string().optional(),
     accessType: z.enum(['public', 'protected']),
     password: z.string().optional(),
+    deleteAfterDownload: z.boolean(),
     expireAt: z.string().min(1, 'Please select an expiration date'),
   })
   .superRefine((data, ctx) => {

@@ -1,7 +1,7 @@
 'use client'
 
 import { isEmailShareConfigured } from '@/app/constants/email'
-import { ACCEPTED_UPLOAD_FILE_TYPES, MAX_UPLOAD_FILES, MAX_UPLOAD_FILE_SIZE_MB } from '@/app/constants/upload'
+import { ACCEPTED_UPLOAD_FILE_TYPES, MAX_UPLOAD_FILE_SIZE_MB, MAX_UPLOAD_FILES } from '@/app/constants/upload'
 import useFileUploadForm from '@/app/hooks/useFileUploadForm'
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import useFileUploadState from '@/app/hooks/useFileUploadState'
@@ -11,13 +11,13 @@ import FileUploadDropzone from '@/components/file/FileUploadDropzone'
 import FileUploadList from '@/components/file/FileUploadList'
 import FileUploadRoot from '@/components/file/FileUploadRoot'
 import ShareToEmailModal, { type ShareEmailTarget } from '@/components/share/ShareToEmailModal'
-import { Button, cn, FieldError, Input, Label, Spinner, TextField } from '@heroui/react'
-import dynamic from 'next/dynamic'
-import { ReactNode, useState } from 'react'
-import { Controller } from 'react-hook-form'
-import { LuCheck, LuCopy, LuDownload, LuEye, LuEyeOff, LuFile, LuFolder, LuGlobe, LuLink, LuLock, LuMail, LuQrCode, LuShare2 } from 'react-icons/lu'
-import QRCode from 'react-qr-code'
 import { FileAccessType, type UploadedShareLink } from '@/types/file'
+import { Button, cn, FieldError, Input, Label, Spinner, Switch, TextField } from '@heroui/react'
+import dynamic from 'next/dynamic'
+import { type CSSProperties, ReactNode, useState } from 'react'
+import { Controller } from 'react-hook-form'
+import { LuCheck, LuCopy, LuDownload, LuEye, LuEyeOff, LuFile, LuFlame, LuFolder, LuGlobe, LuLink, LuLock, LuMail, LuQrCode, LuShare2 } from 'react-icons/lu'
+import QRCode from 'react-qr-code'
 
 const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector'), {
   ssr: false,
@@ -265,6 +265,43 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             )}
           />
 
+          {/* Delete after download */}
+          <Controller
+            name="deleteAfterDownload"
+            control={control}
+            render={({ field }) => (
+              <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-[var(--brand-alpha-4)] border border-line">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[var(--brand-alpha-12)] text-[var(--brand-400)] flex items-center justify-center shrink-0">
+                    <LuFlame className="w-4 h-4" />
+                  </div>
+                  <div className="flex flex-col items-start gap-0.5">
+                    <span className="text-sm font-medium text-[var(--ink-900)] font-sans">Delete after first download</span>
+                    <span className="text-[11px] text-[var(--ink-600)] font-sans leading-tight">
+                      {isBulkSelection ? 'Each file is removed once it has been downloaded once.' : 'The file is removed once it has been downloaded once.'}
+                    </span>
+                  </div>
+                </div>
+                <Switch
+                  isSelected={field.value}
+                  onChange={field.onChange}
+                  isDisabled={isSubmitting}
+                  aria-label="Delete after first download"
+                  style={
+                    {
+                      '--switch-control-bg-checked': 'var(--ink-900)',
+                      '--switch-control-bg-checked-hover': 'var(--ink-800)',
+                    } as CSSProperties
+                  }
+                >
+                  <Switch.Control>
+                    <Switch.Thumb />
+                  </Switch.Control>
+                </Switch>
+              </div>
+            )}
+          />
+
           {errors.root && <p className="text-sm text-red-500 font-sans text-center">{errors.root.message}</p>}
 
           <Button
@@ -285,11 +322,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
               <div className="w-14 h-14 bg-[var(--brand-alpha-12)] rounded-full flex items-center justify-center mx-auto">
-                {primaryShareLink?.kind === 'folder' ? (
-                  <LuFolder className="w-6 h-6 text-[var(--brand-400)]" />
-                ) : (
-                  <LuShare2 className="w-6 h-6 text-[var(--brand-400)]" />
-                )}
+                {primaryShareLink?.kind === 'folder' ? <LuFolder className="w-6 h-6 text-[var(--brand-400)]" /> : <LuShare2 className="w-6 h-6 text-[var(--brand-400)]" />}
               </div>
               <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-4 ring-surface">
                 <LuCheck className="w-3.5 h-3.5" />
@@ -299,15 +332,15 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
               {primaryShareLink?.kind === 'folder' ? 'Your folder is ready to share' : isBulkResult ? 'Your folder is ready to share' : 'Your file is ready to share'}
             </p>
             <p className="text-sm text-[var(--ink-600)] font-sans text-center">
-              {primaryShareLink?.kind === 'folder' 
+              {primaryShareLink?.kind === 'folder'
                 ? isProtectedResult
                   ? 'Share this link and password so others can unlock the folder.'
                   : 'Anyone with this link can view the files in the folder.'
-                : isBulkResult 
-                  ? `${shareLinkItems.length} files uploaded. Copy individual links or the full folder list.` 
+                : isBulkResult
+                  ? `${shareLinkItems.length} files uploaded. Copy individual links or the full folder list.`
                   : isProtectedResult
                     ? 'Share this link and password so others can unlock the file.'
-                    : 'Anyone with this link can download the file. We don\'t track who.'}
+                    : "Anyone with this link can download the file. We don't track who."}
             </p>
           </div>
 
@@ -336,7 +369,10 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
                         type="button"
                         aria-label={`Copy ${linkItem.fileName} link`}
                         onClick={() => handleCopy(linkItem)}
-                        className={cn('shrink-0 p-1.5 rounded-md transition-colors hover:bg-ink-900/[0.06]', copiedLinkId === linkItem.shareToken ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]')}
+                        className={cn(
+                          'shrink-0 p-1.5 rounded-md transition-colors hover:bg-ink-900/[0.06]',
+                          copiedLinkId === linkItem.shareToken ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]',
+                        )}
                       >
                         <LuCopy className="w-4 h-4" />
                       </button>
@@ -351,74 +387,75 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
             </div>
           ) : (
             <>
-          {/* Tab segmented control */}
-          <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-line">
-            {[
-              { val: 'link', label: 'Link', Icon: LuLink },
-              { val: 'qr', label: 'QR Code', Icon: LuQrCode },
-            ].map(({ val, label, Icon }) => {
-              const selected = activeTab === val
-              return (
-                <button
-                  key={val}
-                  type="button"
-                  onClick={() => setActiveTab(val as 'link' | 'qr')}
-                  className={cn(
-                    'flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium font-sans transition-all',
-                    selected ? 'bg-surface shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-line text-[var(--ink-900)]' : 'border border-transparent text-[var(--ink-600)] hover:bg-ink-900/[0.04]',
-                  )}
+              {/* Tab segmented control */}
+              <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-line">
+                {[
+                  { val: 'link', label: 'Link', Icon: LuLink },
+                  { val: 'qr', label: 'QR Code', Icon: LuQrCode },
+                ].map(({ val, label, Icon }) => {
+                  const selected = activeTab === val
+                  return (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setActiveTab(val as 'link' | 'qr')}
+                      className={cn(
+                        'flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium font-sans transition-all',
+                        selected
+                          ? 'bg-surface shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-line text-[var(--ink-900)]'
+                          : 'border border-transparent text-[var(--ink-600)] hover:bg-ink-900/[0.04]',
+                      )}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {label}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Link tab */}
+              <div className={cn(activeTab === 'link' ? 'flex flex-col gap-4' : 'hidden')}>
+                <div className="flex items-center justify-between gap-3 bg-[var(--brand-alpha-4)] border border-line rounded-xl px-4 py-3">
+                  <span className="text-sm text-[var(--ink-900)] font-sans overflow-hidden text-ellipsis whitespace-nowrap flex-1 text-left">{primaryShareLink?.link}</span>
+                  <button
+                    type="button"
+                    aria-label="Copy link"
+                    onClick={() => handleCopy(primaryShareLink)}
+                    className={cn('shrink-0 p-1.5 rounded-md transition-colors hover:bg-ink-900/[0.06]', copied ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]')}
+                  >
+                    <LuCopy className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <Button
+                  fullWidth
+                  onPress={() => handleCopy(primaryShareLink)}
+                  className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans"
                 >
-                  <Icon className="w-4 h-4" />
-                  {label}
-                </button>
-              )
-            })}
-          </div>
+                  {copied ? 'Link copied to clipboard' : 'Copy link'}
+                </Button>
+              </div>
 
-          {/* Link tab */}
-          <div className={cn(activeTab === 'link' ? 'flex flex-col gap-4' : 'hidden')}>
-            <div className="flex items-center justify-between gap-3 bg-[var(--brand-alpha-4)] border border-line rounded-xl px-4 py-3">
-              <span className="text-sm text-[var(--ink-900)] font-sans overflow-hidden text-ellipsis whitespace-nowrap flex-1 text-left">{primaryShareLink?.link}</span>
-              <button
-                type="button"
-                aria-label="Copy link"
-                onClick={() => handleCopy(primaryShareLink)}
-                className={cn('shrink-0 p-1.5 rounded-md transition-colors hover:bg-ink-900/[0.06]', copied ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]')}
-              >
-                <LuCopy className="w-4 h-4" />
-              </button>
-            </div>
+              {/* QR tab */}
+              <div className={activeTab === 'qr' ? 'flex flex-col items-center gap-4' : 'hidden'}>
+                <div className="p-4 bg-white rounded-2xl border border-black/[0.06] shadow-[0_2px_12px_rgba(15,28,46,0.06)]">
+                  <QRCode id="share-qr-code" value={primaryShareLink?.link ?? ''} size={240} level="M" bgColor="#ffffff" fgColor="#0f1c2e" />
+                </div>
 
-            <Button fullWidth onPress={() => handleCopy(primaryShareLink)} className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans">
-              {copied ? 'Link copied to clipboard' : 'Copy link'}
-            </Button>
-          </div>
-
-          {/* QR tab */}
-            <div className={activeTab === 'qr' ? 'flex flex-col items-center gap-4' : 'hidden'}>
-              <div className="p-4 bg-white rounded-2xl border border-black/[0.06] shadow-[0_2px_12px_rgba(15,28,46,0.06)]">
-              <QRCode id="share-qr-code" value={primaryShareLink?.link ?? ''} size={240} level="M" bgColor="#ffffff" fgColor="#0f1c2e" />
-            </div>
-
-            <Button
-              fullWidth
-              onPress={handleQrDownload}
-              className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans flex items-center justify-center gap-2"
-            >
-              <LuDownload className="w-4 h-4" />
-              Download QR
-            </Button>
-          </div>
+                <Button
+                  fullWidth
+                  onPress={handleQrDownload}
+                  className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans flex items-center justify-center gap-2"
+                >
+                  <LuDownload className="w-4 h-4" />
+                  Download QR
+                </Button>
+              </div>
             </>
           )}
 
           {isEmailShareConfigured && primaryShareLink ? (
-            <Button
-              fullWidth
-              variant="secondary"
-              onPress={() => setEmailOpen(true)}
-              className="rounded-xl text-base font-medium h-12 font-sans flex items-center justify-center gap-2"
-            >
+            <Button fullWidth variant="secondary" onPress={() => setEmailOpen(true)} className="rounded-xl text-base font-medium h-12 font-sans flex items-center justify-center gap-2">
               <LuMail className="w-4 h-4" />
               Share via email
             </Button>
