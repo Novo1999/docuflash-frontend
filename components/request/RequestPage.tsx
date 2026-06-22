@@ -3,22 +3,26 @@
 import { useFileDownload } from '@/app/hooks/useFileDownload'
 import { useRequestRealtime, type UploadingPayload } from '@/app/hooks/useRequestRealtime'
 import { fetchFolderByShareToken, uploadToRequest } from '@/app/lib/api/folder'
-import { deleteUploadedStorageFile } from '@/app/lib/api/files'
+import { deleteUploadedStorageFile, getFilePreview } from '@/app/lib/api/files'
 import { useUploadThing } from '@/app/utils/generateReactHelpers'
 import { formatFileSize, getFileTypeInfo } from '@/app/utils/shareFileUtil'
 import { getClientId, getDeviceInfo, resolveFileType } from '@/app/utils/upload'
 import { userAtom } from '@/components/auth/atoms/authAtom'
 import { ACCEPTED_UPLOAD_FILE_TYPES, MAX_UPLOAD_FILES, MAX_UPLOAD_FILE_SIZE_MB } from '@/app/constants/upload'
+import FilePreview from '@/components/file/FilePreview'
 import FileUploadDropzone from '@/components/file/FileUploadDropzone'
 import FileUploadList from '@/components/file/FileUploadList'
 import FileUploadRoot from '@/components/file/FileUploadRoot'
+import { isPreviewableFileType, type FilePreviewResponse } from '@/types/file'
 import type { RequestFileUpload } from '@/types/folder'
 import { FolderRecord } from '@/types/folder'
 import { Button, Card, CardContent, Chip, Spinner } from '@heroui/react'
 import { useAtom, useAtomValue } from 'jotai'
 import { atomWithQuery, queryClientAtom } from 'jotai-tanstack-query'
 import { useMemo, useState } from 'react'
-import { LuClock, LuDownload, LuFile, LuInbox, LuLoaderCircle } from 'react-icons/lu'
+import { LuClock, LuDownload, LuEye, LuFile, LuInbox, LuLoaderCircle } from 'react-icons/lu'
+
+type ActivePreview = { shareToken: string; fileName: string; preview: FilePreviewResponse }
 
 interface RequestPageProps {
   initialFolder: FolderRecord
@@ -49,6 +53,24 @@ const RequestPage = ({ initialFolder, shareToken }: RequestPageProps) => {
   const [incoming, setIncoming] = useState<UploadingPayload | null>(null)
 
   const { downloadFile, isDownloading, error: downloadError } = useFileDownload()
+
+  const [activePreview, setActivePreview] = useState<ActivePreview | null>(null)
+  const [previewLoadingToken, setPreviewLoadingToken] = useState<string | null>(null)
+  const [previewError, setPreviewError] = useState<string | null>(null)
+
+  const handlePreview = async (shareToken: string, fileName: string) => {
+    setPreviewError(null)
+    setPreviewLoadingToken(shareToken)
+    try {
+      const preview = await getFilePreview(shareToken)
+      setActivePreview({ shareToken, fileName, preview })
+    } catch {
+      setActivePreview(null)
+      setPreviewError('Preview is unavailable for this file. You can still download it.')
+    } finally {
+      setPreviewLoadingToken(null)
+    }
+  }
 
   const { broadcastUploading, broadcastComplete } = useRequestRealtime(shareToken, {
     onUploading: (payload) => {
@@ -193,6 +215,8 @@ const RequestPage = ({ initialFolder, shareToken }: RequestPageProps) => {
               ) : (
                 files.map((file) => {
                   const fileTypeInfo = getFileTypeInfo(file.fileType)
+                  const canPreview = isPreviewableFileType(file.fileType)
+                  const isActivePreview = activePreview?.shareToken === file.shareToken
                   return (
                     <div key={file.id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-ink-900/[0.04] transition-colors border border-line">
                       <div className={`w-10 h-10 ${fileTypeInfo.bg} rounded-lg flex items-center justify-center shrink-0`}>
@@ -202,20 +226,36 @@ const RequestPage = ({ initialFolder, shareToken }: RequestPageProps) => {
                         <span className="text-sm font-medium text-[var(--ink-900)] truncate">{file.fileName}</span>
                         <span className="text-xs text-[var(--ink-500)] font-sans">{formatFileSize(file.fileSize)}</span>
                       </div>
-                      <Button
-                        isIconOnly
-                        variant="ghost"
-                        onPress={() => downloadFile(file.shareToken, file.fileName)}
-                        isPending={isDownloading === file.shareToken}
-                        className="w-8 h-8 rounded-lg min-w-0 hover:bg-ink-900/[0.06] transition-colors"
-                        aria-label="Download file"
-                      >
-                        {isDownloading !== file.shareToken ? <LuDownload className="w-4 h-4 text-[var(--ink-600)]" /> : null}
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        {canPreview && (
+                          <Button
+                            isIconOnly
+                            variant="ghost"
+                            onPress={() => handlePreview(file.shareToken, file.fileName)}
+                            isPending={previewLoadingToken === file.shareToken}
+                            isDisabled={isActivePreview}
+                            className="w-8 h-8 rounded-lg min-w-0 hover:bg-ink-900/[0.06] transition-colors"
+                            aria-label="Preview file"
+                          >
+                            {previewLoadingToken !== file.shareToken ? <LuEye className={`w-4 h-4 ${isActivePreview ? 'text-[var(--brand-400)]' : 'text-[var(--ink-600)]'}`} /> : null}
+                          </Button>
+                        )}
+                        <Button
+                          isIconOnly
+                          variant="ghost"
+                          onPress={() => downloadFile(file.shareToken, file.fileName)}
+                          isPending={isDownloading === file.shareToken}
+                          className="w-8 h-8 rounded-lg min-w-0 hover:bg-ink-900/[0.06] transition-colors"
+                          aria-label="Download file"
+                        >
+                          {isDownloading !== file.shareToken ? <LuDownload className="w-4 h-4 text-[var(--ink-600)]" /> : null}
+                        </Button>
+                      </div>
                     </div>
                   )
                 })
               )}
+              {previewError && <p className="text-sm text-red-500 font-sans">{previewError}</p>}
               {downloadError && <p className="text-sm text-red-500 font-sans">{downloadError}</p>}
             </div>
             <div className="flex items-center gap-2 text-[var(--ink-500)]">
@@ -224,6 +264,8 @@ const RequestPage = ({ initialFolder, shareToken }: RequestPageProps) => {
             </div>
           </CardContent>
         </Card>
+
+        {activePreview && <FilePreview fileName={activePreview.fileName} preview={activePreview.preview} />}
       </div>
     </div>
   )
