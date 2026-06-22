@@ -123,4 +123,8 @@ function getFolderShareLink(shareToken: string): string {
   return `${SHARE_BASE_URL}/folder/${shareToken}`
 }
 
-export { getClientId, getDeviceInfo, getShareLink, getFolderShareLink, resolveFileType }
+function getRequestLink(shareToken: string): string {
+  return `${SHARE_BASE_URL}/request/${shareToken}`
+}
+
+export { getClientId, getDeviceInfo, getShareLink, getFolderShareLink, getRequestLink, resolveFileType }

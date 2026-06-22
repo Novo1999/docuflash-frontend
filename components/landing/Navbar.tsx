@@ -21,6 +21,9 @@ const Navbar = () => {
         <Link href="/#how-it-works" className="text-sm text-[var(--ink-600)] no-underline hover:text-[var(--ink-900)]">
           How it works
         </Link>
+        <Link href="/request/new" className="text-sm text-[var(--ink-600)] no-underline hover:text-[var(--ink-900)]">
+          Request files
+        </Link>
         <PricingTooltip />
       </div>
 

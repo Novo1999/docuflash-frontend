@@ -1,4 +1,4 @@
-import { FileAccessType, FileRecord } from './file'
+import { FileAccessType, FileRecord, FileType } from './file'
 
 export type SafeFileRecord = Omit<FileRecord, 'id' | 'password' | 'storageKey' | 'deviceInfo' | 'clientId'>
 
@@ -19,6 +19,23 @@ export type FolderRecord = {
   accessType: FileAccessType
   files: FileRecord[]
   id: string
+  acceptsUploads?: boolean
+}
+
+export type UploadRequestRecord = {
+  shareToken: string
+  folderName: string
+  acceptsUploads: boolean
+  expireAt: string
+}
+
+export type RequestFileUpload = {
+  fileName: string
+  fileType: FileType
+  fileSize: number
+  storageKey: string
+  clientId: string
+  deviceInfo: unknown
 }
 
 export type SafeFolderRecord = {
