@@ -8,6 +8,8 @@ export type AuthUser = {
   displayName: string | null
   avatarUrl: string | null
   provider: AuthProviderName
+  defaultExpiry?: string
+  defaultPrivacy?: 'public' | 'protected'
   createdAt: string
   updatedAt: string
 }
@@ -49,6 +51,8 @@ export type RefreshResult = {
 export type UpdateProfilePayload = {
   avatarUrl?: string
   displayName?: string
+  defaultExpiry?: string
+  defaultPrivacy?: 'public' | 'protected'
 }
 
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated'
