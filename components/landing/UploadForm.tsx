@@ -1,12 +1,14 @@
 'use client'
 
 import { isEmailShareConfigured } from '@/app/constants/email'
+import { PRESETS } from '@/app/constants/expiry'
 import { ACCEPTED_UPLOAD_FILE_TYPES, MAX_UPLOAD_FILE_SIZE_MB, MAX_UPLOAD_FILES } from '@/app/constants/upload'
 import useFileUploadForm from '@/app/hooks/useFileUploadForm'
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import useFileUploadState from '@/app/hooks/useFileUploadState'
 import useFileUploadSubmit from '@/app/hooks/useFileUploadSubmit'
 import { markAsCopied } from '@/app/utils/sessionStorage'
+import { useAuth } from '@/components/auth/useAuth'
 import FileUploadDropzone from '@/components/file/FileUploadDropzone'
 import FileUploadList from '@/components/file/FileUploadList'
 import FileUploadRoot from '@/components/file/FileUploadRoot'
@@ -14,7 +16,7 @@ import ShareToEmailModal, { type ShareEmailTarget } from '@/components/share/Sha
 import { FileAccessType, type UploadedShareLink } from '@/types/file'
 import { Button, cn, FieldError, Input, Label, Spinner, Switch, TextField } from '@heroui/react'
 import dynamic from 'next/dynamic'
-import { type CSSProperties, ReactNode, useState } from 'react'
+import { type CSSProperties, ReactNode, useEffect, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { LuCheck, LuCopy, LuDownload, LuEye, LuEyeOff, LuFile, LuFlame, LuFolder, LuGlobe, LuLink, LuLock, LuMail, LuQrCode, LuShare2 } from 'react-icons/lu'
 import QRCode from 'react-qr-code'
@@ -82,6 +84,37 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
     clearErrors('root')
     reset()
   }
+
+  // Sync form expiry default with logged-in user's preference
+  const { user } = useAuth()
+  useEffect(() => {
+    if (!user) return
+    const def = user.defaultExpiry
+    if (!def) return
+    // If it's already an ISO date, use it. Otherwise treat it as a preset key.
+    const parsed = Date.parse(def)
+    if (!Number.isNaN(parsed)) {
+      setValue('expireAt', new Date(parsed).toISOString())
+      return
+    }
+    const preset = PRESETS.find((p) => p.key === def)
+    if (preset) setValue('expireAt', new Date(Date.now() + preset.hours * 60 * 60 * 1000).toISOString())
+  }, [user?.defaultExpiry, setValue])
+
+  // Sync form privacy default with logged-in user's preference
+  useEffect(() => {
+    if (!user) return
+    const pref = user.defaultPrivacy
+    if (!pref) return
+    setValue('accessType', pref)
+    if (pref !== 'protected') {
+      setValue('password', '')
+      setShowPassword(false)
+    } else {
+      // focus password input when user preference is protected
+      setTimeout(() => setFocus('password'), 0)
+    }
+  }, [user?.defaultPrivacy, setValue, setShowPassword, setFocus])
 
   return (
     <>

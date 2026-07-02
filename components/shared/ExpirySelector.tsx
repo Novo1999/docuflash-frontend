@@ -21,6 +21,10 @@ const ExpirySelector = ({ value, onChange, isInvalid, isDisabled }: ExpirySelect
   const [pickerOpen, setPickerOpen] = useState(false)
 
   useEffect(() => {
+    setActivePreset(matchPreset(value || ''))
+  }, [value])
+
+  useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 30_000)
     return () => clearInterval(id)
   }, [])

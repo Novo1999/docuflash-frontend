@@ -3,7 +3,7 @@
 import AvatarUploader from '@/components/auth/AvatarUploader'
 import { useAuth } from '@/components/auth/useAuth'
 import ThemeToggle from '@/components/shared/ThemeToggle'
-import { Button, Spinner } from '@heroui/react'
+import { Button, Description, Label, ListBox, Select, Spinner } from '@heroui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -104,28 +104,58 @@ const ProfilePage = () => {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-2 text-[var(--ink-900)] text-sm">
+            <div className="flex flex-col gap-2 text-[var(--ink-900)] text-sm">
               <span>Default expiry</span>
-              <select value={expiryKey} onChange={(event) => setExpiryKey(event.target.value)} className="rounded-2xl border border-line bg-white px-3 py-3 text-sm text-[var(--ink-900)] outline-none">
-                <option value="1h">1 hour</option>
-                <option value="6h">6 hours</option>
-                <option value="24h">24 hours</option>
-                <option value="3d">3 days</option>
-                <option value="7d">7 days</option>
-              </select>
-            </label>
+              <Select selectedKey={expiryKey} onChange={(key) => setExpiryKey(key as string)}>
+                <Label className="sr-only">Default expiry</Label>
+                <Select.Trigger className="rounded-2xl border border-line bg-white px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Description className="sr-only">Choose default expiry for new shares</Description>
+                <Select.Popover>
+                  <ListBox>
+                    <ListBox.Item id="1h">
+                      <Label>1 hour</Label>
+                    </ListBox.Item>
+                    <ListBox.Item id="6h">
+                      <Label>6 hours</Label>
+                    </ListBox.Item>
+                    <ListBox.Item id="24h">
+                      <Label>24 hours</Label>
+                    </ListBox.Item>
+                    <ListBox.Item id="3d">
+                      <Label>3 days</Label>
+                    </ListBox.Item>
+                    <ListBox.Item id="7d">
+                      <Label>7 days</Label>
+                    </ListBox.Item>
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+            </div>
 
-            <label className="flex flex-col gap-2 text-[var(--ink-900)] text-sm">
+            <div className="flex flex-col gap-2 text-[var(--ink-900)] text-sm">
               <span>Default privacy</span>
-              <select
-                value={privacy}
-                onChange={(event) => setPrivacy(event.target.value as 'public' | 'protected')}
-                className="rounded-2xl border border-line bg-white px-3 py-3 text-sm text-[var(--ink-900)] outline-none"
-              >
-                <option value="protected">Protected</option>
-                <option value="public">Public</option>
-              </select>
-            </label>
+              <Select selectedKey={privacy} onChange={(key) => setPrivacy(key as 'public' | 'protected')}>
+                <Label className="sr-only">Default privacy</Label>
+                <Select.Trigger className="rounded-2xl border border-line bg-white px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Description className="sr-only">Who can access new shares by default</Description>
+                <Select.Popover>
+                  <ListBox>
+                    <ListBox.Item id="protected">
+                      <Label>Protected</Label>
+                    </ListBox.Item>
+                    <ListBox.Item id="public">
+                      <Label>Public</Label>
+                    </ListBox.Item>
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+            </div>
           </div>
 
           <div className="mt-6 flex justify-end">
