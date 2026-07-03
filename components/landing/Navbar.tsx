@@ -1,5 +1,6 @@
 import docuflashLogo from '@/assets/docuflash.png'
 import AuthButton from '@/components/auth/AuthButton'
+import NoSignUpRequired from '@/components/landing/NoSignUpRequired'
 import NavbarDrawer from '@/components/shared/NavbarDrawer'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 import Image from 'next/image'
@@ -10,7 +11,6 @@ import PricingTooltip from './PricingTooltip'
 const Navbar = () => {
   return (
     <nav className="sticky top-0 z-10 bg-surface border-b border-line px-6 md:px-10 h-16 flex items-center justify-between font-sans">
-
       {/* Logo — monochrome wordmark; inverted to white in dark mode */}
       <Link href="/" className="flex items-center no-underline">
         <Image src={docuflashLogo} alt="Docuflash" className="h-10 w-auto dark:brightness-0 dark:invert" priority />
@@ -29,16 +29,12 @@ const Navbar = () => {
 
       {/* Right side — desktop badge + auth */}
       <div className="hidden md:flex items-center gap-4">
-        <div className="flex items-center gap-1 bg-[var(--brand-alpha-12)] border border-[var(--brand-alpha-30)] px-3 py-1.5 rounded-full">
-          <LuShield className="text-[var(--brand-400)] w-3 h-3" />
-          <span className="text-xs font-medium text-[var(--brand-400)]">No sign-up required</span>
-        </div>
+        <NoSignUpRequired />
         <ThemeToggle />
         <AuthButton />
       </div>
 
       <NavbarDrawer />
-
     </nav>
   )
 }

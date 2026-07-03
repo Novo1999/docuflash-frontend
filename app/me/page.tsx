@@ -108,8 +108,8 @@ const ProfilePage = () => {
               <span>Default expiry</span>
               <Select selectedKey={expiryKey} onChange={(key) => setExpiryKey(key as string)}>
                 <Label className="sr-only">Default expiry</Label>
-                <Select.Trigger className="rounded-2xl border border-line bg-white px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
-                  <Select.Value />
+                <Select.Trigger className="rounded-2xl border border-line bg-[var(--brand-alpha-4)] px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
+                  <Select.Value className="text-[var(--ink-900)]" />
                   <Select.Indicator />
                 </Select.Trigger>
                 <Description className="sr-only">Choose default expiry for new shares</Description>
@@ -139,8 +139,8 @@ const ProfilePage = () => {
               <span>Default privacy</span>
               <Select selectedKey={privacy} onChange={(key) => setPrivacy(key as 'public' | 'protected')}>
                 <Label className="sr-only">Default privacy</Label>
-                <Select.Trigger className="rounded-2xl border border-line bg-white px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
-                  <Select.Value />
+                <Select.Trigger className="rounded-2xl border border-line bg-[var(--brand-alpha-4)] px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
+                  <Select.Value className="text-[var(--ink-900)]" />
                   <Select.Indicator />
                 </Select.Trigger>
                 <Description className="sr-only">Who can access new shares by default</Description>
