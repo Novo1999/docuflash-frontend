@@ -5,7 +5,6 @@ import NavbarDrawer from '@/components/shared/NavbarDrawer'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 import Image from 'next/image'
 import Link from 'next/link'
-import { LuShield } from 'react-icons/lu'
 import PricingTooltip from './PricingTooltip'
 
 const Navbar = () => {
