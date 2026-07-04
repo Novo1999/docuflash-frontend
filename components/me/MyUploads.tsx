@@ -152,47 +152,40 @@ const MyUploads = () => {
     : null
 
   return (
-    <main className="flex-1 px-6 py-12 md:py-16 font-sans">
-      <div className="max-w-3xl mx-auto flex flex-col gap-8">
-        <div>
-          <h1 className="text-2xl font-serif text-[var(--ink-900)]">My Uploads</h1>
-          <p className="text-sm text-[var(--ink-600)] mt-1">Files and folders you uploaded while signed in. Items auto-expire and disappear over time.</p>
+    <>
+      {loadState === 'loading' ? (
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="h-[74px] rounded-2xl bg-ink-900/10 animate-pulse" aria-hidden />
+          ))}
         </div>
-
-        {loadState === 'loading' ? (
-          <div className="flex flex-col gap-3">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="h-[74px] rounded-2xl bg-ink-900/10 animate-pulse" aria-hidden />
-            ))}
-          </div>
-        ) : loadState === 'error' ? (
-          <div className="flex flex-col items-center gap-3 py-16 text-center">
-            <p className="text-sm text-[var(--ink-600)]">We couldn&apos;t load your uploads. Please try again.</p>
-            <Button onPress={() => router.refresh()} variant="ghost" className="rounded-xl text-[var(--ink-700)]">
-              Retry
-            </Button>
-          </div>
-        ) : isEmpty ? (
-          <div className="flex flex-col items-center gap-3 py-16 text-center">
-            <p className="text-base text-[var(--ink-900)]">No uploads yet</p>
-            <p className="text-sm text-[var(--ink-600)] max-w-sm">Anything you upload while signed in will show up here so you can share or manage it later.</p>
-            <Link href="/" className="text-sm text-[var(--brand-500)] no-underline hover:underline">
-              Upload a file
-            </Link>
-          </div>
-        ) : (
-          <UploadTree
-            groups={treeGroups}
-            ungrouped={ungroupedEntries}
-            copiedToken={copiedToken}
-            onCopy={handleCopy}
-            onShowQr={handleShowQr}
-            onShareEmail={isEmailShareConfigured ? handleShareEmail : undefined}
-            onOpen={handleOpen}
-            onDelete={handleDeleteClick}
-          />
-        )}
-      </div>
+      ) : loadState === 'error' ? (
+        <div className="flex flex-col items-center gap-3 py-16 text-center">
+          <p className="text-sm text-[var(--ink-600)]">We couldn&apos;t load your uploads. Please try again.</p>
+          <Button onPress={() => router.refresh()} variant="ghost" className="rounded-xl text-[var(--ink-700)]">
+            Retry
+          </Button>
+        </div>
+      ) : isEmpty ? (
+        <div className="flex flex-col items-center gap-3 py-16 text-center">
+          <p className="text-base text-[var(--ink-900)]">No uploads yet</p>
+          <p className="text-sm text-[var(--ink-600)] max-w-sm">Anything you upload while signed in will show up here so you can share or manage it later.</p>
+          <Link href="/" className="text-sm text-[var(--brand-500)] no-underline hover:underline">
+            Upload a file
+          </Link>
+        </div>
+      ) : (
+        <UploadTree
+          groups={treeGroups}
+          ungrouped={ungroupedEntries}
+          copiedToken={copiedToken}
+          onCopy={handleCopy}
+          onShowQr={handleShowQr}
+          onShareEmail={isEmailShareConfigured ? handleShareEmail : undefined}
+          onOpen={handleOpen}
+          onDelete={handleDeleteClick}
+        />
+      )}
 
       <ShareToEmailModal isOpen={emailModal.isOpen} onOpenChange={emailModal.setOpen} target={emailTarget} />
 
@@ -249,7 +242,7 @@ const MyUploads = () => {
           </Modal.Dialog>
         </Modal.Container>
       </Modal.Backdrop>
-    </main>
+    </>
   )
 }
 

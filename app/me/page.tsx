@@ -1,18 +1,15 @@
 'use client'
 
+import { formatMemberSince } from '@/app/utils/timeUtil'
 import AvatarUploader from '@/components/auth/AvatarUploader'
 import { useAuth } from '@/components/auth/useAuth'
 import ThemeToggle from '@/components/shared/ThemeToggle'
-import { Button, Description, Label, ListBox, Select, Spinner } from '@heroui/react'
+import { Button, Description, Label, ListBox, Modal, Select, Spinner } from '@heroui/react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { FiAlertTriangle } from 'react-icons/fi'
 import { LuLogOut } from 'react-icons/lu'
-
-const formatDate = (value: string) => {
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-}
 
 const ProfilePage = () => {
   const { status, user, isAuthenticated, openAuthModal, logout, updateProfile } = useAuth()
@@ -20,6 +17,9 @@ const ProfilePage = () => {
   const [expiryKey, setExpiryKey] = useState('7d')
   const [privacy, setPrivacy] = useState<'public' | 'protected'>('protected')
   const [savingSettings, setSavingSettings] = useState(false)
+  const [isSignOutModalOpen, setSignOutModalOpen] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!user) return
@@ -39,9 +39,19 @@ const ProfilePage = () => {
     }
   }
 
-  const handleLogout = async () => {
-    await logout()
-    router.push('/')
+  const handleLogoutClick = () => {
+    setSignOutModalOpen(true)
+  }
+
+  const handleConfirmLogout = async () => {
+    setIsSigningOut(true)
+    try {
+      await logout()
+      router.push('/')
+    } finally {
+      setIsSigningOut(false)
+      setSignOutModalOpen(false)
+    }
   }
 
   if (status === 'loading') {
@@ -87,11 +97,11 @@ const ProfilePage = () => {
           </div>
           <div className="rounded-xl border border-line bg-[var(--brand-alpha-4)] px-4 py-3">
             <dt className="text-xs text-[var(--ink-600)] uppercase tracking-wide">Member since</dt>
-            <dd className="text-sm text-[var(--ink-900)] mt-1">{formatDate(user.createdAt)}</dd>
+            <dd className="text-sm text-[var(--ink-900)] mt-1">{formatMemberSince(user.createdAt)}</dd>
           </div>
         </dl>
 
-        <section className="rounded-3xl border border-line bg-[var(--brand-alpha-4)] p-6">
+        <section key={pathname} className="rounded-3xl border border-line bg-[var(--brand-alpha-4)] p-6">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-[var(--ink-900)]">Upload defaults</p>
@@ -106,7 +116,7 @@ const ProfilePage = () => {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2 text-[var(--ink-900)] text-sm">
               <span>Default expiry</span>
-              <Select selectedKey={expiryKey} onChange={(key) => setExpiryKey(key as string)}>
+              <Select value={expiryKey} onChange={(key) => setExpiryKey(key as string)}>
                 <Label className="sr-only">Default expiry</Label>
                 <Select.Trigger className="rounded-2xl border border-line bg-[var(--brand-alpha-4)] px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
                   <Select.Value className="text-[var(--ink-900)]" />
@@ -137,7 +147,7 @@ const ProfilePage = () => {
 
             <div className="flex flex-col gap-2 text-[var(--ink-900)] text-sm">
               <span>Default privacy</span>
-              <Select selectedKey={privacy} onChange={(key) => setPrivacy(key as 'public' | 'protected')}>
+              <Select value={privacy} onChange={(key) => setPrivacy(key as 'public' | 'protected')}>
                 <Label className="sr-only">Default privacy</Label>
                 <Select.Trigger className="rounded-2xl border border-line bg-[var(--brand-alpha-4)] px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
                   <Select.Value className="text-[var(--ink-900)]" />
@@ -166,12 +176,37 @@ const ProfilePage = () => {
         </section>
 
         <div>
-          <Button onPress={handleLogout} variant="ghost" className="rounded-xl h-11 px-5 flex items-center gap-2 text-red-600 border border-red-500/30 hover:bg-red-500/10">
+          <Button onPress={handleLogoutClick} variant="ghost" className="rounded-xl h-11 px-5 flex items-center gap-2 text-red-600 border border-red-500/30 hover:bg-red-500/10">
             <LuLogOut className="w-4 h-4" />
             Sign out
           </Button>
         </div>
       </div>
+
+      <Modal.Backdrop isOpen={isSignOutModalOpen} onOpenChange={setSignOutModalOpen}>
+        <Modal.Container>
+          <Modal.Dialog className="sm:max-w-[360px]">
+            <Modal.CloseTrigger />
+            <Modal.Header>
+              <Modal.Icon className="bg-red-500/15 text-red-500">
+                <FiAlertTriangle className="size-5" />
+              </Modal.Icon>
+              <Modal.Heading>Sign out</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body>
+              <p className="text-sm text-[var(--ink-600)] font-sans">Are you sure you want to sign out of your account? You can sign back in anytime.</p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="ghost" onPress={() => setSignOutModalOpen(false)} className="flex-1 text-[var(--ink-600)] font-sans" isDisabled={isSigningOut}>
+                Cancel
+              </Button>
+              <Button onPress={handleConfirmLogout} className="flex-1 bg-red-500 text-white hover:bg-red-600 font-sans font-medium" isPending={isSigningOut}>
+                Sign out
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </main>
   )
 }
