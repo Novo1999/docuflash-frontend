@@ -3,6 +3,7 @@
 import { createUploadRequest } from '@/app/lib/api/folder'
 import { getClientId, getRequestLink } from '@/app/utils/upload'
 import { Button, Card, CardContent, cn, Input, Label, Spinner, TextField } from '@heroui/react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { LuCheck, LuCopy, LuDownload, LuInbox, LuLink, LuQrCode } from 'react-icons/lu'
 import QRCode from 'react-qr-code'
@@ -14,6 +15,7 @@ const RequestNewPage = () => {
   const [link, setLink] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link')
   const [copied, setCopied] = useState(false)
+  const router = useRouter()
 
   const handleGenerate = async () => {
     setIsSubmitting(true)
@@ -151,9 +153,21 @@ const RequestNewPage = () => {
                       <LuCopy className="w-4 h-4" />
                     </button>
                   </div>
-                  <Button fullWidth onPress={handleCopy} className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans">
-                    {copied ? 'Link copied to clipboard' : 'Copy link'}
-                  </Button>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Button fullWidth onPress={handleCopy} className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans">
+                      {copied ? 'Link copied to clipboard' : 'Copy link'}
+                    </Button>
+                    <Button
+                      fullWidth
+                      onPress={() => {
+                        if (link) router.push(link)
+                      }}
+                      variant="ghost"
+                      className="text-[var(--ink-700)] border border-line rounded-xl text-base font-medium h-12 hover:bg-ink-900/[0.06] font-sans"
+                    >
+                      Go to dropzone
+                    </Button>
+                  </div>
                 </div>
 
                 <div className={activeTab === 'qr' ? 'flex flex-col items-center gap-4' : 'hidden'}>
