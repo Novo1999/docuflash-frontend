@@ -25,8 +25,9 @@ export async function uploadFile(payload: UploadFilePayload) {
   return response
 }
 
-export async function getMyFiles(): Promise<MyFileRecord[]> {
-  const response = await apiClient<MyFileRecord[]>('/api/files/mine')
+export async function getMyFiles(search?: string): Promise<MyFileRecord[]> {
+  const query = search?.trim() ? `?search=${encodeURIComponent(search.trim())}` : ''
+  const response = await apiClient<MyFileRecord[]>(`/api/files/mine${query}`)
   return requireApiData(response, 'Failed to load your files')
 }
 

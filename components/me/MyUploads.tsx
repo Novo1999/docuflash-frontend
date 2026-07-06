@@ -2,12 +2,14 @@
 
 import { isEmailShareConfigured } from '@/app/constants/email'
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
+import { useDebouncedValue } from '@/app/hooks/useDebouncedValue'
 import { deleteFileByShareToken, getMyFiles } from '@/app/lib/api/files'
 import { deleteFolderByShareToken, getMyFolders } from '@/app/lib/api/folder'
 import { groupUploadsByFolder } from '@/app/utils/groupUploads'
 import { fileCountLabel, fileToEntry, folderToEntry } from '@/app/utils/uploadEntries'
 import { useAuth } from '@/components/auth/useAuth'
 import { type UploadEntry } from '@/components/me/UploadItemCard'
+import UploadsSearchBar from '@/components/me/UploadsSearchBar'
 import UploadTree, { type UploadTreeGroup } from '@/components/me/UploadTree'
 import ShareToEmailModal, { type ShareEmailTarget } from '@/components/share/ShareToEmailModal'
 import { FileAccessType, type MyFileRecord } from '@/types/file'
@@ -15,7 +17,7 @@ import type { MyFolderRecord } from '@/types/folder'
 import { Button, Modal, Spinner, useOverlayState } from '@heroui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { LuDownload } from 'react-icons/lu'
 import QRCode from 'react-qr-code'
@@ -29,6 +31,12 @@ const MyUploads = () => {
   const [loadState, setLoadState] = useState<LoadState>('loading')
   const [files, setFiles] = useState<MyFileRecord[]>([])
   const [folders, setFolders] = useState<MyFolderRecord[]>([])
+
+  const [query, setQuery] = useState('')
+  const debouncedQuery = useDebouncedValue(query, 300)
+  const [isSearching, setIsSearching] = useState(false)
+  const [hasEverHadUploads, setHasEverHadUploads] = useState(false)
+  const hasLoadedOnceRef = useRef(false)
 
   const [copiedToken, setCopiedToken] = useState<string | null>(null)
   const [qrEntry, setQrEntry] = useState<UploadEntry | null>(null)
@@ -45,22 +53,32 @@ const MyUploads = () => {
     if (status !== 'authenticated') return
 
     let active = true
+    const isFirstLoad = !hasLoadedOnceRef.current
+    if (isFirstLoad) setLoadState('loading')
+    else setIsSearching(true)
 
-    Promise.all([getMyFiles(), getMyFolders()])
+    Promise.all([getMyFiles(debouncedQuery), getMyFolders(debouncedQuery)])
       .then(([myFiles, myFolders]) => {
         if (!active) return
         setFiles(myFiles)
         setFolders(myFolders)
         setLoadState('ready')
+        hasLoadedOnceRef.current = true
+        if (!debouncedQuery.trim() && (myFiles.length > 0 || myFolders.length > 0)) {
+          setHasEverHadUploads(true)
+        }
       })
       .catch(() => {
         if (active) setLoadState('error')
+      })
+      .finally(() => {
+        if (active) setIsSearching(false)
       })
 
     return () => {
       active = false
     }
-  }, [status])
+  }, [status, debouncedQuery])
 
   const handleCopy = useCallback((entry: UploadEntry) => {
     navigator.clipboard.writeText(entry.link)
@@ -147,6 +165,8 @@ const MyUploads = () => {
   }))
   const ungroupedEntries = ungrouped.map(fileToEntry)
   const isEmpty = loadState === 'ready' && treeGroups.length === 0 && ungroupedEntries.length === 0
+  const hasActiveQuery = debouncedQuery.trim().length > 0
+  const showSearchBar = hasEverHadUploads || query.length > 0
   const emailTarget: ShareEmailTarget | null = emailEntry
     ? { name: emailEntry.name, link: emailEntry.link, resourceType: emailEntry.kind, isProtected: emailEntry.accessType === FileAccessType.PROTECTED }
     : null
@@ -166,25 +186,43 @@ const MyUploads = () => {
             Retry
           </Button>
         </div>
-      ) : isEmpty ? (
-        <div className="flex flex-col items-center gap-3 py-16 text-center">
-          <p className="text-base text-[var(--ink-900)]">No uploads yet</p>
-          <p className="text-sm text-[var(--ink-600)] max-w-sm">Anything you upload while signed in will show up here so you can share or manage it later.</p>
-          <Link href="/" className="text-sm text-[var(--brand-500)] no-underline hover:underline">
-            Upload a file
-          </Link>
-        </div>
       ) : (
-        <UploadTree
-          groups={treeGroups}
-          ungrouped={ungroupedEntries}
-          copiedToken={copiedToken}
-          onCopy={handleCopy}
-          onShowQr={handleShowQr}
-          onShareEmail={isEmailShareConfigured ? handleShareEmail : undefined}
-          onOpen={handleOpen}
-          onDelete={handleDeleteClick}
-        />
+        <div className="flex flex-col gap-5">
+          {showSearchBar ? <UploadsSearchBar value={query} onChange={setQuery} isSearching={isSearching} /> : null}
+
+          {isEmpty ? (
+            hasActiveQuery ? (
+              <div className="flex flex-col items-center gap-3 py-16 text-center">
+                <p className="text-base text-[var(--ink-900)]">No matches found</p>
+                <p className="text-sm text-[var(--ink-600)] max-w-sm">
+                  No files or folders match &ldquo;{debouncedQuery.trim()}&rdquo;. Try a different search.
+                </p>
+                <button type="button" onClick={() => setQuery('')} className="text-sm text-[var(--brand-500)] hover:underline">
+                  Clear search
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-3 py-16 text-center">
+                <p className="text-base text-[var(--ink-900)]">No uploads yet</p>
+                <p className="text-sm text-[var(--ink-600)] max-w-sm">Anything you upload while signed in will show up here so you can share or manage it later.</p>
+                <Link href="/" className="text-sm text-[var(--brand-500)] no-underline hover:underline">
+                  Upload a file
+                </Link>
+              </div>
+            )
+          ) : (
+            <UploadTree
+              groups={treeGroups}
+              ungrouped={ungroupedEntries}
+              copiedToken={copiedToken}
+              onCopy={handleCopy}
+              onShowQr={handleShowQr}
+              onShareEmail={isEmailShareConfigured ? handleShareEmail : undefined}
+              onOpen={handleOpen}
+              onDelete={handleDeleteClick}
+            />
+          )}
+        </div>
       )}
 
       <ShareToEmailModal isOpen={emailModal.isOpen} onOpenChange={emailModal.setOpen} target={emailTarget} />

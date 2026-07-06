@@ -39,8 +39,9 @@ export async function uploadToRequest(token: string, files: RequestFileUpload[])
   return requireApiData(response, 'Failed to upload files')
 }
 
-export async function getMyFolders(): Promise<MyFolderRecord[]> {
-  const response = await apiClient<MyFolderRecord[]>('/api/folders/mine')
+export async function getMyFolders(search?: string): Promise<MyFolderRecord[]> {
+  const query = search?.trim() ? `?search=${encodeURIComponent(search.trim())}` : ''
+  const response = await apiClient<MyFolderRecord[]>(`/api/folders/mine${query}`)
   return requireApiData(response, 'Failed to load your folders')
 }
 
