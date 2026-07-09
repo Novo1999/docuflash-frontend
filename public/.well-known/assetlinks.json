@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "com.novodip.docuflashmobile",
       "sha256_cert_fingerprints": [
-        "REPLACE_WITH_ANDROID_SHA256_FINGERPRINT"
+        "FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C",
+        "57:F6:8B:5B:BA:5D:CE:5F:4C:39:30:09:D0:C3:A1:F7:BC:3C:EE:35:63:A1:27:CD:03:2D:F6:80:9C:F9:B2:17"
       ]
     }
   }
