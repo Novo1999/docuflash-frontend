@@ -8,12 +8,13 @@ import { useAuth } from '@/components/auth/useAuth'
 import FileUploadDropzone from '@/components/file/FileUploadDropzone'
 import FileUploadList from '@/components/file/FileUploadList'
 import FileUploadRoot from '@/components/file/FileUploadRoot'
+import AccessTypeField from '@/components/shared/AccessTypeField'
 import type { UploadedShareLink } from '@/types/file'
 import { Button, cn, FieldError, Input, Label, Spinner, Switch, TextField } from '@heroui/react'
 import dynamic from 'next/dynamic'
 import { type CSSProperties, type ReactNode, useEffect, useState } from 'react'
 import { Controller } from 'react-hook-form'
-import { LuEye, LuEyeOff, LuFile, LuFlame, LuFolder, LuGlobe, LuLock } from 'react-icons/lu'
+import { LuFile, LuFlame, LuFolder } from 'react-icons/lu'
 
 const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector'), {
   ssr: false,
@@ -30,11 +31,6 @@ const SWITCH_STYLE = {
   '--switch-control-bg-checked-hover': 'var(--ink-800)',
 } as CSSProperties
 
-const ACCESS_TYPE_OPTIONS = [
-  { val: 'public', label: 'Public', desc: 'Anyone with the link', Icon: LuGlobe },
-  { val: 'protected', label: 'Protected', desc: 'Password-locked', Icon: LuLock },
-] as const
-
 interface UploadFormFieldsProps {
   formatBadges: ReactNode
   footer: ReactNode
@@ -45,7 +41,7 @@ interface UploadFormFieldsProps {
 const UploadFormFields = ({ formatBadges, footer, onUploadSuccess }: UploadFormFieldsProps) => {
   const [showPassword, setShowPassword] = useState(false)
 
-  const { files, setError, clearErrors, reset, accessType, control, handleSubmit, setValue, setFocus, isSubmitting, errors } = useFileUploadForm()
+  const { files, setError, clearErrors, reset, control, handleSubmit, setValue, setFocus, isSubmitting, errors } = useFileUploadForm()
 
   // NOTE: setCopied/setLastShareToken here are passthroughs to keep useFileUploadSubmit's
   // existing signature intact. Now that copy-state lives inside ShareResult, double-check
@@ -174,93 +170,40 @@ const UploadFormFields = ({ formatBadges, footer, onUploadSuccess }: UploadFormF
         />
       )}
 
-      {/* Access Type — segmented control */}
+      {/* Access Type — segmented control + conditional password */}
       <Controller
         name="accessType"
         control={control}
-        render={({ field }) => (
-          <div className="flex flex-col gap-2">
-            <span className="text-left text-sm font-medium text-[var(--ink-900)] font-sans">Who can access {isBulkSelection ? 'this folder' : 'this file'}?</span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-line">
-              {ACCESS_TYPE_OPTIONS.map(({ val, label, desc, Icon }) => {
-                const selected = field.value === val
-                return (
-                  <button
-                    key={val}
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={() => {
-                      field.onChange(val)
-                      if (val !== 'protected') {
-                        setValue('password', '')
-                        setShowPassword(false)
-                      } else {
-                        setTimeout(() => setFocus('password'), 0)
-                      }
-                    }}
-                    className={cn(
-                      'flex items-start gap-2.5 px-3 py-3 rounded-lg text-left transition-all',
-                      selected ? 'bg-surface shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-line' : 'border border-transparent hover:bg-ink-900/[0.04]',
-                      isSubmitting && 'cursor-not-allowed',
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
-                        selected ? 'bg-[var(--brand-alpha-12)] text-[var(--brand-400)]' : 'bg-ink-900/[0.06] text-[var(--ink-600)]',
-                      )}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div className="flex flex-col gap-0.5">
-                      <span className={cn('text-sm font-medium font-sans', selected ? 'text-[var(--ink-900)]' : 'text-[var(--ink-800)]')}>{label}</span>
-                      <span className="text-[11px] text-[var(--ink-600)] font-sans leading-tight">{desc}</span>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
+        render={({ field: accessField }) => (
+          <Controller
+            name="password"
+            control={control}
+            render={({ field: passwordField }) => (
+              <AccessTypeField
+                value={accessField.value}
+                onChange={(val) => {
+                  accessField.onChange(val)
+                  if (val !== 'protected') {
+                    setValue('password', '')
+                    setShowPassword(false)
+                  } else {
+                    setTimeout(() => setFocus('password'), 0)
+                  }
+                }}
+                password={passwordField.value ?? ''}
+                onPasswordChange={passwordField.onChange}
+                passwordRef={passwordField.ref}
+                showPassword={showPassword}
+                onToggleShowPassword={() => setShowPassword((curr) => !curr)}
+                subject={isBulkSelection ? 'this folder' : 'this file'}
+                question={`Who can access ${isBulkSelection ? 'this folder' : 'this file'}?`}
+                isDisabled={isSubmitting}
+                passwordError={errors.password?.message}
+              />
+            )}
+          />
         )}
       />
-
-      {/* Password — only when protected */}
-      {accessType === 'protected' && (
-        <Controller
-          name="password"
-          control={control}
-          render={({ field }) => (
-            <TextField className="w-full" isInvalid={!!errors.password} validationBehavior="aria" isDisabled={isSubmitting}>
-              <Label className="text-left text-[var(--ink-900)] flex items-center gap-1.5 font-sans text-sm font-medium">
-                <LuLock className="w-4 h-4" />
-                <span>Password</span>
-              </Label>
-              <div className="relative w-full mt-1.5">
-                <Input
-                  {...field}
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder={`Set a password for ${isBulkSelection ? 'this folder' : 'this file'}`}
-                  className={cn(
-                    'w-full bg-[var(--brand-alpha-4)] border rounded-xl px-4 h-12 pr-12 text-[15px] text-[var(--ink-900)] font-sans',
-                    'placeholder:text-[var(--ink-600)]/60 focus-visible:border-[var(--brand-400)] focus-visible:ring-2 focus-visible:ring-[var(--brand-400)]/10 outline-none transition-colors',
-                    errors.password ? 'border-red-400' : 'border-line',
-                  )}
-                />
-                <button
-                  type="button"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  onClick={() => setShowPassword((curr) => !curr)}
-                  disabled={isSubmitting}
-                  className="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-md text-[var(--ink-600)] hover:bg-ink-900/[0.06] transition-colors disabled:cursor-not-allowed"
-                >
-                  {showPassword ? <LuEyeOff className="w-4 h-4" /> : <LuEye className="w-4 h-4" />}
-                </button>
-              </div>
-              {errors.password && <FieldError className="text-sm text-red-500 font-sans">{errors.password.message}</FieldError>}
-            </TextField>
-          )}
-        />
-      )}
 
       {/* Expiration */}
       <Controller

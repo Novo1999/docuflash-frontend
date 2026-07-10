@@ -2,6 +2,8 @@
 
 import { createUploadRequest } from '@/app/lib/api/folder'
 import { getClientId, getRequestLink } from '@/app/utils/upload'
+import AccessTypeField, { type AccessTypeValue } from '@/components/shared/AccessTypeField'
+import { FileAccessType } from '@/types/file'
 import { Button, Card, CardContent, cn, Input, Label, Spinner, TextField } from '@heroui/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -10,6 +12,9 @@ import QRCode from 'react-qr-code'
 
 const RequestNewPage = () => {
   const [folderName, setFolderName] = useState('')
+  const [accessType, setAccessType] = useState<AccessTypeValue>('public')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [link, setLink] = useState<string | null>(null)
@@ -17,11 +22,20 @@ const RequestNewPage = () => {
   const [copied, setCopied] = useState(false)
   const router = useRouter()
 
+  const isMissingPassword = accessType === 'protected' && !password.trim()
+
   const handleGenerate = async () => {
+    if (isMissingPassword) return
+
     setIsSubmitting(true)
     setError(null)
     try {
-      const request = await createUploadRequest({ folderName: folderName.trim() || undefined, clientId: getClientId() })
+      const request = await createUploadRequest({
+        folderName: folderName.trim() || undefined,
+        clientId: getClientId(),
+        accessType: accessType as FileAccessType,
+        password: accessType === 'protected' ? password.trim() : undefined,
+      })
       setLink(getRequestLink(request.shareToken))
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message || 'Failed to generate link' : 'Failed to generate link')
@@ -53,6 +67,9 @@ const RequestNewPage = () => {
   const handleReset = () => {
     setLink(null)
     setFolderName('')
+    setAccessType('public')
+    setPassword('')
+    setShowPassword(false)
     setActiveTab('link')
     setCopied(false)
     setError(null)
@@ -89,12 +106,30 @@ const RequestNewPage = () => {
                   </div>
                 </TextField>
 
+                <AccessTypeField
+                  value={accessType}
+                  onChange={(val) => {
+                    setAccessType(val)
+                    if (val !== 'protected') {
+                      setPassword('')
+                      setShowPassword(false)
+                    }
+                  }}
+                  password={password}
+                  onPasswordChange={setPassword}
+                  showPassword={showPassword}
+                  onToggleShowPassword={() => setShowPassword((curr) => !curr)}
+                  subject="this request"
+                  question="Who can access this request?"
+                  isDisabled={isSubmitting}
+                />
+
                 {error && <p className="text-sm text-red-500 font-sans text-center">{error}</p>}
 
                 <Button
                   fullWidth
                   onPress={handleGenerate}
-                  isDisabled={isSubmitting}
+                  isDisabled={isSubmitting || isMissingPassword}
                   isPending={isSubmitting}
                   className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans"
                 >

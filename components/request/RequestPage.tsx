@@ -2,7 +2,7 @@
 
 import { useFileDownload } from '@/app/hooks/useFileDownload'
 import { useRequestRealtime, type UploadingPayload } from '@/app/hooks/useRequestRealtime'
-import { fetchFolderByShareToken, uploadToRequest } from '@/app/lib/api/folder'
+import { fetchFolderByShareToken, unlockFolderByShareToken, uploadToRequest } from '@/app/lib/api/folder'
 import { deleteUploadedStorageFile, getFilePreview } from '@/app/lib/api/files'
 import { useUploadThing } from '@/app/utils/generateReactHelpers'
 import { formatFileSize, getFileTypeInfo } from '@/app/utils/shareFileUtil'
@@ -13,14 +13,15 @@ import FilePreview from '@/components/file/FilePreview'
 import FileUploadDropzone from '@/components/file/FileUploadDropzone'
 import FileUploadList from '@/components/file/FileUploadList'
 import FileUploadRoot from '@/components/file/FileUploadRoot'
-import { isPreviewableFileType, type FilePreviewResponse } from '@/types/file'
+import PasswordUnlockForm from '@/components/file/PasswordUnlockForm'
+import { FileAccessType, isPreviewableFileType, type FilePreviewResponse } from '@/types/file'
 import type { RequestFileUpload } from '@/types/folder'
 import { FolderRecord } from '@/types/folder'
 import { Button, Card, CardContent, Chip, Spinner } from '@heroui/react'
 import { useAtom, useAtomValue } from 'jotai'
 import { atomWithQuery, queryClientAtom } from 'jotai-tanstack-query'
 import { useMemo, useState } from 'react'
-import { LuClock, LuDownload, LuEye, LuFile, LuInbox, LuLoaderCircle } from 'react-icons/lu'
+import { LuClock, LuDownload, LuEye, LuFile, LuInbox, LuLoaderCircle, LuLock } from 'react-icons/lu'
 
 type ActivePreview = { shareToken: string; fileName: string; preview: FilePreviewResponse }
 
@@ -33,24 +34,66 @@ const RequestPage = ({ initialFolder, shareToken }: RequestPageProps) => {
   const user = useAtomValue(userAtom)
   const queryClient = useAtomValue(queryClientAtom)
 
+  const isProtected = initialFolder.accessType === FileAccessType.PROTECTED
+
+  // A protected request only exposes its files through /unlock, so the query stays disabled
+  // for it — otherwise a refetch would overwrite the unlocked folder with the empty payload.
   const folderQueryAtom = useMemo(
     () =>
       atomWithQuery(() => ({
         queryKey: ['request-folder', shareToken],
         queryFn: () => fetchFolderByShareToken(shareToken),
         initialData: initialFolder,
+        enabled: !isProtected,
       })),
-    [shareToken, initialFolder],
+    [shareToken, initialFolder, isProtected],
   )
   const [folderQuery] = useAtom(folderQueryAtom)
-  const folder = folderQuery.data ?? initialFolder
-  const files = folder.files ?? []
+
+  const [unlockedFolder, setUnlockedFolder] = useState<FolderRecord | null>(null)
+  const [folderPassword, setFolderPassword] = useState<string | null>(null)
+  const [password, setPassword] = useState('')
+  const [unlockError, setUnlockError] = useState<string | null>(null)
+  const [isUnlocking, setIsUnlocking] = useState(false)
+
+  const isUnlocked = !isProtected || unlockedFolder !== null
+  const folder = (isProtected ? unlockedFolder : folderQuery.data) ?? initialFolder
+  const files = isUnlocked ? (folder.files ?? []) : []
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [resetKey, setResetKey] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [incoming, setIncoming] = useState<UploadingPayload | null>(null)
+
+  const refreshFolder = async () => {
+    if (!isProtected) {
+      await queryClient.invalidateQueries({ queryKey: ['request-folder', shareToken] })
+      return
+    }
+    if (!folderPassword) return
+    const refreshed = await unlockFolderByShareToken(shareToken, folderPassword)
+    setUnlockedFolder({ ...refreshed, files: refreshed.files ?? [] })
+  }
+
+  const handleUnlock = async () => {
+    const trimmedPassword = password.trim()
+    if (!trimmedPassword) return
+
+    setIsUnlocking(true)
+    setUnlockError(null)
+
+    try {
+      const unlocked = await unlockFolderByShareToken(shareToken, trimmedPassword)
+      setUnlockedFolder({ ...unlocked, files: unlocked.files ?? [] })
+      setFolderPassword(trimmedPassword)
+      setPassword('')
+    } catch (err: unknown) {
+      setUnlockError(err instanceof Error ? err.message || 'Invalid password' : 'Invalid password')
+    } finally {
+      setIsUnlocking(false)
+    }
+  }
 
   const { downloadFile, isDownloading, error: downloadError } = useFileDownload()
 
@@ -79,7 +122,7 @@ const RequestPage = ({ initialFolder, shareToken }: RequestPageProps) => {
     },
     onComplete: () => {
       setIncoming(null)
-      void queryClient.invalidateQueries({ queryKey: ['request-folder', shareToken] })
+      if (isUnlocked) void refreshFolder()
     },
   })
 
@@ -127,13 +170,13 @@ const RequestPage = ({ initialFolder, shareToken }: RequestPageProps) => {
       })
 
       try {
-        await uploadToRequest(shareToken, payload)
+        await uploadToRequest(shareToken, payload, folderPassword ?? undefined)
       } catch (attachError) {
         await Promise.allSettled(uploaded.map((file) => deleteUploadedStorageFile(file.key)))
         throw attachError
       }
 
-      await queryClient.invalidateQueries({ queryKey: ['request-folder', shareToken] })
+      await refreshFolder()
       broadcastComplete()
 
       setSelectedFiles([])
@@ -159,43 +202,71 @@ const RequestPage = ({ initialFolder, shareToken }: RequestPageProps) => {
               <Chip size="sm" variant="secondary" className="font-medium px-2">
                 {files.length} {files.length === 1 ? 'File' : 'Files'} collected
               </Chip>
+              {isProtected && (
+                <div className="flex flex-row items-center gap-1">
+                  <LuLock className="w-3 h-3 text-orange-500" />
+                  <span className="text-xs text-orange-600 font-medium">Protected</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        <Card className="w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
-          <CardContent className="p-8 flex flex-col gap-5">
-            <FileUploadRoot
-              key={resetKey}
-              maxFiles={MAX_UPLOAD_FILES}
-              maxSizeMB={MAX_UPLOAD_FILE_SIZE_MB}
-              accept={ACCEPTED_UPLOAD_FILE_TYPES}
-              isDisabled={isUploading}
-              onFilesChange={(next) => {
-                setError(null)
-                setSelectedFiles(next)
-              }}
-            >
-              <FileUploadDropzone
-                label="Drop files to upload"
-                description={`PDF, DOCX, XLSX, ZIP, TXT - ${MAX_UPLOAD_FILE_SIZE_MB} MB each, ${MAX_UPLOAD_FILES} files max`}
+        {!isUnlocked && (
+          <Card className="w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
+            <CardContent className="p-8 flex flex-col gap-5">
+              <h2 className="text-xl font-serif text-[var(--ink-900)]">Unlock this request</h2>
+              <p className="text-sm text-[var(--ink-600)] font-sans">This dropzone is password protected. Enter the password you were given to upload files.</p>
+              <PasswordUnlockForm
+                password={password}
+                error={unlockError}
+                isVerifying={isUnlocking}
+                resourceLabel="folder"
+                onPasswordChange={(value) => {
+                  setPassword(value)
+                  setUnlockError(null)
+                }}
+                onUnlock={handleUnlock}
               />
-              <FileUploadList />
-            </FileUploadRoot>
+            </CardContent>
+          </Card>
+        )}
 
-            {error && <p className="text-sm text-red-500 font-sans">{error}</p>}
+        {isUnlocked && (
+          <Card className="w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
+            <CardContent className="p-8 flex flex-col gap-5">
+              <FileUploadRoot
+                key={resetKey}
+                maxFiles={MAX_UPLOAD_FILES}
+                maxSizeMB={MAX_UPLOAD_FILE_SIZE_MB}
+                accept={ACCEPTED_UPLOAD_FILE_TYPES}
+                isDisabled={isUploading}
+                onFilesChange={(next) => {
+                  setError(null)
+                  setSelectedFiles(next)
+                }}
+              >
+                <FileUploadDropzone
+                  label="Drop files to upload"
+                  description={`PDF, DOCX, XLSX, ZIP, TXT - ${MAX_UPLOAD_FILE_SIZE_MB} MB each, ${MAX_UPLOAD_FILES} files max`}
+                />
+                <FileUploadList />
+              </FileUploadRoot>
 
-            <Button
-              fullWidth
-              onPress={handleUpload}
-              isDisabled={isUploading || selectedFiles.length === 0}
-              isPending={isUploading}
-              className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] disabled:opacity-40 disabled:cursor-not-allowed font-sans"
-            >
-              {isUploading ? <Spinner className="text-[var(--brand-50)]" /> : 'Upload'}
-            </Button>
-          </CardContent>
-        </Card>
+              {error && <p className="text-sm text-red-500 font-sans">{error}</p>}
+
+              <Button
+                fullWidth
+                onPress={handleUpload}
+                isDisabled={isUploading || selectedFiles.length === 0}
+                isPending={isUploading}
+                className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] disabled:opacity-40 disabled:cursor-not-allowed font-sans"
+              >
+                {isUploading ? <Spinner className="text-[var(--brand-50)]" /> : 'Upload'}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {incoming && (
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[var(--brand-alpha-4)] border border-[var(--brand-alpha-30)]">
@@ -206,6 +277,7 @@ const RequestPage = ({ initialFolder, shareToken }: RequestPageProps) => {
           </div>
         )}
 
+        {isUnlocked && (
         <Card className="w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
           <CardContent className="p-8 flex flex-col gap-5">
             <h2 className="text-xl font-serif text-[var(--ink-900)]">Collected files</h2>
@@ -264,6 +336,7 @@ const RequestPage = ({ initialFolder, shareToken }: RequestPageProps) => {
             </div>
           </CardContent>
         </Card>
+        )}
 
         {activePreview && <FilePreview fileName={activePreview.fileName} preview={activePreview.preview} />}
       </div>
