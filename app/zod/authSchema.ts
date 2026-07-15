@@ -14,8 +14,24 @@ const registerSchema = z.object({
   password: passwordField,
 })
 
+const forgotPasswordSchema = z.object({
+  email: emailField,
+})
+
+const resetPasswordSchema = z
+  .object({
+    password: passwordField,
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((values) => values.password === values.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
+  })
+
 type LoginFormValues = z.infer<typeof loginSchema>
 type RegisterFormValues = z.infer<typeof registerSchema>
+type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
+type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
 
-export { loginSchema, registerSchema }
-export type { LoginFormValues, RegisterFormValues }
+export { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema }
+export type { ForgotPasswordFormValues, LoginFormValues, RegisterFormValues, ResetPasswordFormValues }

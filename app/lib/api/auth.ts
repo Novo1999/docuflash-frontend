@@ -1,4 +1,4 @@
-import type { AuthResult, AuthUser, LoginPayload, OAuthProvider, RefreshResult, RegisterPayload, RegisterResult, UpdateProfilePayload } from '@/types/auth'
+import type { AuthResult, AuthUser, ForgotPasswordPayload, LoginPayload, OAuthProvider, RefreshResult, RegisterPayload, RegisterResult, ResetPasswordPayload, UpdateProfilePayload } from '@/types/auth'
 import type { ApiResponse } from './client'
 import { ApiError, apiClient, buildApiUrl } from './client'
 
@@ -24,6 +24,24 @@ export async function loginUser(payload: LoginPayload): Promise<AuthResult> {
     body: payload,
   })
   return requireApiData(response, 'Invalid email or password')
+}
+
+export async function forgotPassword(payload: ForgotPasswordPayload): Promise<void> {
+  const response = await apiClient<null>('/api/auth/forgot-password', {
+    method: 'POST',
+    body: payload,
+  })
+  if (!response.success) {
+    throw new ApiError(response.msg || 'Could not send the reset email', response.status)
+  }
+}
+
+export async function resetPassword(payload: ResetPasswordPayload): Promise<AuthResult> {
+  const response = await apiClient<AuthResult>('/api/auth/reset-password', {
+    method: 'POST',
+    body: payload,
+  })
+  return requireApiData(response, 'Could not update your password')
 }
 
 export async function refreshAuthSession(refreshToken: string): Promise<RefreshResult> {

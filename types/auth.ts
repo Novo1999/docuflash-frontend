@@ -48,6 +48,16 @@ export type RefreshResult = {
   session: AuthSession
 }
 
+export type ForgotPasswordPayload = {
+  email: string
+}
+
+export type ResetPasswordPayload = {
+  accessToken: string
+  refreshToken: string
+  password: string
+}
+
 export type UpdateProfilePayload = {
   avatarUrl?: string
   displayName?: string
