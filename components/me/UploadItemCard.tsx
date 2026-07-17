@@ -2,6 +2,7 @@
 
 import { FileAccessType } from '@/types/file'
 import { Button, Card, cn } from '@heroui/react'
+import type { ReactNode } from 'react'
 import { LuChevronRight, LuClock, LuCopy, LuExternalLink, LuFile, LuFolder, LuLock, LuMail, LuQrCode, LuTrash2 } from 'react-icons/lu'
 
 export type UploadEntry = {
@@ -26,6 +27,7 @@ type UploadItemCardProps = {
   onShareEmail?: (entry: UploadEntry) => void
   isExpanded?: boolean
   onToggle?: (entry: UploadEntry) => void
+  dragHandle?: ReactNode
 }
 
 const formatExpiry = (value: string) => {
@@ -33,7 +35,7 @@ const formatExpiry = (value: string) => {
   return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString()
 }
 
-const UploadItemCard = ({ entry, isCopied, onCopy, onShowQr, onShareEmail, onOpen, onDelete, isExpanded, onToggle }: UploadItemCardProps) => {
+const UploadItemCard = ({ entry, isCopied, onCopy, onShowQr, onShareEmail, onOpen, onDelete, isExpanded, onToggle, dragHandle }: UploadItemCardProps) => {
   const isFolder = entry.kind === 'folder'
   const isProtected = entry.accessType === FileAccessType.PROTECTED
 
@@ -41,6 +43,7 @@ const UploadItemCard = ({ entry, isCopied, onCopy, onShowQr, onShareEmail, onOpe
     <Card className="bg-surface border border-line rounded-2xl p-4 shadow-[0_2px_20px_rgba(15,28,46,0.04)] font-sans">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <div className="flex items-center gap-4 min-w-0 sm:flex-1">
+          {dragHandle}
           {onToggle ? (
             <Button
               isIconOnly

@@ -4,7 +4,7 @@ import { isEmailShareConfigured } from '@/app/constants/email'
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import { useDebouncedValue } from '@/app/hooks/useDebouncedValue'
 import { deleteFileByShareToken, getMyFiles } from '@/app/lib/api/files'
-import { deleteFolderByShareToken, getMyFolders } from '@/app/lib/api/folder'
+import { deleteFolderByShareToken, getMyFolders, moveFileToFolder } from '@/app/lib/api/folder'
 import { groupUploadsByFolder } from '@/app/utils/groupUploads'
 import { fileCountLabel, fileToEntry, folderToEntry } from '@/app/utils/uploadEntries'
 import { useAuth } from '@/components/auth/useAuth'
@@ -110,6 +110,25 @@ const MyUploads = () => {
       deleteModal.open()
     },
     [deleteModal],
+  )
+
+  const handleMoveFile = useCallback(
+    async (fileEntry: UploadEntry, folderEntry: UploadEntry) => {
+      const file = files.find((current) => current.id === fileEntry.id)
+      if (!file || file.folders.some((ref) => ref.id === folderEntry.id)) return
+
+      const previousFiles = files
+      setFiles((current) =>
+        current.map((item) => (item.id === fileEntry.id ? { ...item, folders: [{ id: folderEntry.id, folderName: folderEntry.name }] } : item)),
+      )
+      try {
+        await moveFileToFolder(folderEntry.id, fileEntry.id)
+      } catch (error) {
+        console.error('Failed to move file:', error)
+        setFiles(previousFiles)
+      }
+    },
+    [files],
   )
 
   const handleConfirmDelete = async () => {
@@ -220,6 +239,7 @@ const MyUploads = () => {
               onShareEmail={isEmailShareConfigured ? handleShareEmail : undefined}
               onOpen={handleOpen}
               onDelete={handleDeleteClick}
+              onMoveFile={handleMoveFile}
             />
           )}
         </div>

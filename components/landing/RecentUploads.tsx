@@ -3,7 +3,7 @@
 import { isEmailShareConfigured } from '@/app/constants/email'
 import useFileUploadQR from '@/app/hooks/useFileUploadQR'
 import { deleteFileByShareToken, getMyFiles } from '@/app/lib/api/files'
-import { deleteFolderByShareToken, getMyFolders } from '@/app/lib/api/folder'
+import { deleteFolderByShareToken, getMyFolders, moveFileToFolder } from '@/app/lib/api/folder'
 import { groupUploadsByFolder } from '@/app/utils/groupUploads'
 import { RECENT_UPLOADS_UPDATED_EVENT, getRecentUploads, markAsCopied, removeRecentUpload } from '@/app/utils/sessionStorage'
 import { fileCountLabel, fileToEntry, folderToEntry, formatBytes } from '@/app/utils/uploadEntries'
@@ -162,6 +162,31 @@ const RecentUploads = () => {
     ? { name: emailEntry.name, link: emailEntry.link, resourceType: emailEntry.kind, isProtected: emailEntry.accessType === FileAccessType.PROTECTED }
     : null
 
+  const handleMoveFile = useCallback(
+    async (fileEntry: UploadEntry, folderEntry: UploadEntry) => {
+      const targetGroup = groups.find((group) => group.folder.id === folderEntry.id)
+      if (!targetGroup || targetGroup.files.some((file) => file.id === fileEntry.id)) return
+
+      setGroups((current) =>
+        current.map((group) => {
+          const files = group.files.filter((file) => file.id !== fileEntry.id)
+          const nextFiles = group.folder.id === folderEntry.id ? [fileEntry, ...files] : files
+          return { ...group, files: nextFiles, folder: { ...group.folder, meta: fileCountLabel(nextFiles.length) } }
+        }),
+      )
+      setUngrouped((current) => current.filter((file) => file.id !== fileEntry.id))
+
+      try {
+        await moveFileToFolder(folderEntry.id, fileEntry.id)
+      } catch (error) {
+        console.error('Failed to move file:', error)
+      } finally {
+        window.dispatchEvent(new Event(RECENT_UPLOADS_UPDATED_EVENT))
+      }
+    },
+    [groups],
+  )
+
   const handleDeleteClick = useCallback(
     (entry: UploadEntry) => {
       setItemToDelete(entry)
@@ -229,6 +254,7 @@ const RecentUploads = () => {
         onShareEmail={isEmailShareConfigured ? handleShareEmail : undefined}
         onOpen={handleOpen}
         onDelete={handleDeleteClick}
+        onMoveFile={isAuthenticated ? handleMoveFile : undefined}
       />
 
       <ShareToEmailModal isOpen={emailModal.isOpen} onOpenChange={emailModal.setOpen} target={emailTarget} />
