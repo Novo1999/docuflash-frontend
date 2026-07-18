@@ -5,7 +5,7 @@ import { Button, Popover, cn } from '@heroui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { LuFolderOpen, LuLogOut, LuUser } from 'react-icons/lu'
+import { LuFolderOpen, LuLogOut, LuStickyNote, LuUser } from 'react-icons/lu'
 
 const getInitials = (name: string | null, email: string) => {
   const source = name?.trim() || email
@@ -59,6 +59,10 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
         <LuFolderOpen className="w-4 h-4" />
         My Uploads
       </Link>
+      <Link onClick={() => setMenuOpen(false)} href="/notes" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-ink-900/[0.06] hover:text-[var(--ink-900)]">
+        <LuStickyNote className="w-4 h-4" />
+        Notes
+      </Link>
       <button
         type="button"
         onClick={handleLogout}
@@ -80,6 +84,14 @@ const AuthButton = ({ isMobile = false, onNavigate }: { isMobile?: boolean; onNa
         >
           <LuFolderOpen className="w-4 h-4" />
           My Uploads
+        </Link>
+        <Link
+          href="/notes"
+          onClick={onNavigate}
+          className="flex items-center gap-2 w-full py-2 rounded-lg text-sm text-[var(--ink-700)] no-underline hover:bg-ink-900/[0.06] hover:text-[var(--ink-900)]"
+        >
+          <LuStickyNote className="w-4 h-4" />
+          Notes
         </Link>
         <button
           type="button"
