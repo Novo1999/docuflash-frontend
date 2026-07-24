@@ -128,14 +128,14 @@ const RequestNewPage = () => {
               <div className="w-14 h-14 bg-[var(--brand-alpha-12)] rounded-full flex items-center justify-center">
                 <LuInbox className="w-6 h-6 text-[var(--brand-400)]" />
               </div>
-              <h1 className="text-2xl font-serif text-[var(--ink-900)]">Request files</h1>
-              <p className="text-sm text-[var(--ink-600)] font-sans">Generate an &quot;upload to me&quot; link and share it. Anyone can send you files &mdash; no account needed. Files are deleted automatically 2 hours after upload.</p>
+              <h1 className="text-2xl font-serif text-[var(--ink-900)]">Upload to me</h1>
+              <p className="text-sm text-[var(--ink-600)] font-sans">Generate a link and share it. Anyone can send you files &mdash; no account needed. Files are deleted automatically 2 hours after upload.</p>
             </div>
 
             {!link && activeRequests.length > 0 && (
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-medium text-[var(--ink-900)] font-sans">Ongoing requests</h2>
+                  <h2 className="text-sm font-medium text-[var(--ink-900)] font-sans">Ongoing links</h2>
                   <span className="text-xs text-[var(--ink-600)] font-sans">{activeRequests.length} of 2 active</span>
                 </div>
                 {activeRequests.map((request) => (
@@ -181,15 +181,15 @@ const RequestNewPage = () => {
                   onPasswordChange={setPassword}
                   showPassword={showPassword}
                   onToggleShowPassword={() => setShowPassword((curr) => !curr)}
-                  subject="this request"
-                  question="Who can access this request?"
+                  subject="this link"
+                  question="Who can access this link?"
                   isDisabled={isSubmitting}
                   disabledValues={disabledAccessValues}
                 />
 
                 {selectedTaken && (
                   <p className="text-sm text-[var(--ink-600)] font-sans text-center">
-                    You&apos;ve reached the maximum of 2 active requests &mdash; one public and one protected. Resume or end a session above to create a new one.
+                    You&apos;ve reached the maximum of 2 active links &mdash; one public and one protected. Resume or end one above to create a new one.
                   </p>
                 )}
 
@@ -285,7 +285,7 @@ const RequestNewPage = () => {
                 </div>
 
                 <Button fullWidth variant="ghost" onPress={handleReset} className="text-[var(--ink-600)] text-sm hover:text-[var(--ink-900)] hover:bg-ink-900/[0.06] font-sans">
-                  Create another request
+                  Create another link
                 </Button>
               </div>
             )}

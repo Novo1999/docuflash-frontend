@@ -21,7 +21,7 @@ const Navbar = () => {
           How it works
         </Link>
         <Link href="/request/new" className="text-sm text-[var(--ink-600)] no-underline hover:text-[var(--ink-900)]">
-          Request files
+          Upload to me
         </Link>
         <PricingTooltip />
       </div>

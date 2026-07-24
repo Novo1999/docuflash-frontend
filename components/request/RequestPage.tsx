@@ -215,7 +215,7 @@ const RequestPage = ({ initialFolder, shareToken }: RequestPageProps) => {
         {!isUnlocked && (
           <Card className="w-full border-none shadow-[0_4px_40px_rgba(15,28,46,0.07)]">
             <CardContent className="p-8 flex flex-col gap-5">
-              <h2 className="text-xl font-serif text-[var(--ink-900)]">Unlock this request</h2>
+              <h2 className="text-xl font-serif text-[var(--ink-900)]">Unlock this link</h2>
               <p className="text-sm text-[var(--ink-600)] font-sans">This dropzone is password protected. Enter the password you were given to upload files.</p>
               <PasswordUnlockForm
                 password={password}

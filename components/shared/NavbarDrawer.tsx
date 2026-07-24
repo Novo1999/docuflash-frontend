@@ -42,7 +42,7 @@ const NavbarDrawer = () => {
                     How it works
                   </Link>
                   <Link href="/request/new" onClick={close} className="text-base text-[var(--ink-700)] no-underline hover:text-[var(--ink-900)] py-3 border-b border-line font-sans">
-                    Request files
+                    Upload to me
                   </Link>
                   <PricingTooltip className="text-base text-[var(--ink-700)] py-3 font-sans cursor-pointer hover:text-[var(--ink-900)] select-none block" />
                   <div className="flex items-center justify-between py-3 border-b border-line">

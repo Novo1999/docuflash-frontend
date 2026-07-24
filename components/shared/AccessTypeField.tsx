@@ -18,7 +18,7 @@ interface AccessTypeFieldProps {
   onPasswordChange: (value: string) => void
   showPassword: boolean
   onToggleShowPassword: () => void
-  /** Noun the copy refers to, e.g. "this file", "this folder", "this request". */
+  /** Noun the copy refers to, e.g. "this file", "this folder", "this link". */
   subject: string
   question: string
   isDisabled?: boolean
