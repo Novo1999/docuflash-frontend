@@ -22,11 +22,13 @@ interface AccessTypeFieldProps {
   subject: string
   question: string
   isDisabled?: boolean
+  /** Access types that cannot be selected right now (e.g. a slot already taken by an active request). */
+  disabledValues?: AccessTypeValue[]
   passwordError?: string
   passwordRef?: Ref<HTMLInputElement>
 }
 
-const AccessTypeField = ({ value, onChange, password, onPasswordChange, showPassword, onToggleShowPassword, subject, question, isDisabled = false, passwordError, passwordRef }: AccessTypeFieldProps) => {
+const AccessTypeField = ({ value, onChange, password, onPasswordChange, showPassword, onToggleShowPassword, subject, question, isDisabled = false, disabledValues = [], passwordError, passwordRef }: AccessTypeFieldProps) => {
   return (
     <>
       <div className="flex flex-col gap-2">
@@ -34,16 +36,17 @@ const AccessTypeField = ({ value, onChange, password, onPasswordChange, showPass
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--brand-alpha-4)] border border-line">
           {ACCESS_TYPE_OPTIONS.map(({ val, label, desc, Icon }) => {
             const selected = value === val
+            const optionDisabled = isDisabled || disabledValues.includes(val)
             return (
               <button
                 key={val}
                 type="button"
-                disabled={isDisabled}
+                disabled={optionDisabled}
                 onClick={() => onChange(val)}
                 className={cn(
                   'flex items-start gap-2.5 px-3 py-3 rounded-lg text-left transition-all',
                   selected ? 'bg-surface shadow-[0_1px_3px_rgba(15,28,46,0.08)] border border-line' : 'border border-transparent hover:bg-ink-900/[0.04]',
-                  isDisabled && 'cursor-not-allowed',
+                  optionDisabled && 'cursor-not-allowed opacity-50',
                 )}
               >
                 <div

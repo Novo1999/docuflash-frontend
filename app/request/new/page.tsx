@@ -1,12 +1,16 @@
 'use client'
 
-import { createUploadRequest } from '@/app/lib/api/folder'
+import { createUploadRequest, deleteFolderByShareToken, getActiveRequests } from '@/app/lib/api/folder'
 import { getClientId, getRequestLink } from '@/app/utils/upload'
+import ActiveRequestCard from '@/components/request/ActiveRequestCard'
 import AccessTypeField, { type AccessTypeValue } from '@/components/shared/AccessTypeField'
 import { FileAccessType } from '@/types/file'
+import type { ActiveRequestRecord } from '@/types/folder'
 import { Button, Card, CardContent, cn, Input, Label, Spinner, TextField } from '@heroui/react'
+import { useAtom, useAtomValue } from 'jotai'
+import { atomWithQuery, queryClientAtom } from 'jotai-tanstack-query'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { LuCheck, LuCopy, LuDownload, LuInbox, LuLink, LuQrCode } from 'react-icons/lu'
 import QRCode from 'react-qr-code'
 
@@ -20,12 +24,49 @@ const RequestNewPage = () => {
   const [link, setLink] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link')
   const [copied, setCopied] = useState(false)
+  const [endingToken, setEndingToken] = useState<string | null>(null)
   const router = useRouter()
 
-  const isMissingPassword = accessType === 'protected' && !password.trim()
+  const queryClient = useAtomValue(queryClientAtom)
+  const activeRequestsAtom = useMemo(
+    () =>
+      atomWithQuery(() => ({
+        queryKey: ['active-requests'],
+        queryFn: () => getActiveRequests(getClientId()),
+      })),
+    [],
+  )
+  const [activeRequestsQuery] = useAtom(activeRequestsAtom)
+  const activeRequests: ActiveRequestRecord[] = activeRequestsQuery.data ?? []
+  const refreshActiveRequests = () => queryClient.invalidateQueries({ queryKey: ['active-requests'] })
+
+  const publicTaken = activeRequests.some((request) => request.accessType === FileAccessType.PUBLIC)
+  const protectedTaken = activeRequests.some((request) => request.accessType === FileAccessType.PROTECTED)
+  const disabledAccessValues = [...(publicTaken ? ['public'] : []), ...(protectedTaken ? ['protected'] : [])] as AccessTypeValue[]
+
+  // If the picked slot is already taken but the other is free, generate against the free one.
+  const effectiveAccessType: AccessTypeValue = disabledAccessValues.length === 1 && disabledAccessValues.includes(accessType) ? (accessType === 'public' ? 'protected' : 'public') : accessType
+  const selectedTaken = disabledAccessValues.includes(effectiveAccessType)
+
+  const handleResume = (shareToken: string) => router.push(`/request/${shareToken}`)
+
+  const handleEndSession = async (shareToken: string) => {
+    setEndingToken(shareToken)
+    setError(null)
+    try {
+      await deleteFolderByShareToken(shareToken)
+      await refreshActiveRequests()
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message || 'Failed to end session' : 'Failed to end session')
+    } finally {
+      setEndingToken(null)
+    }
+  }
+
+  const isMissingPassword = effectiveAccessType === 'protected' && !password.trim()
 
   const handleGenerate = async () => {
-    if (isMissingPassword) return
+    if (isMissingPassword || selectedTaken) return
 
     setIsSubmitting(true)
     setError(null)
@@ -33,12 +74,14 @@ const RequestNewPage = () => {
       const request = await createUploadRequest({
         folderName: folderName.trim() || undefined,
         clientId: getClientId(),
-        accessType: accessType as FileAccessType,
-        password: accessType === 'protected' ? password.trim() : undefined,
+        accessType: effectiveAccessType as FileAccessType,
+        password: effectiveAccessType === 'protected' ? password.trim() : undefined,
       })
       setLink(getRequestLink(request.shareToken))
+      void refreshActiveRequests()
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message || 'Failed to generate link' : 'Failed to generate link')
+      void refreshActiveRequests()
     } finally {
       setIsSubmitting(false)
     }
@@ -70,6 +113,7 @@ const RequestNewPage = () => {
     setAccessType('public')
     setPassword('')
     setShowPassword(false)
+    void refreshActiveRequests()
     setActiveTab('link')
     setCopied(false)
     setError(null)
@@ -87,6 +131,24 @@ const RequestNewPage = () => {
               <h1 className="text-2xl font-serif text-[var(--ink-900)]">Request files</h1>
               <p className="text-sm text-[var(--ink-600)] font-sans">Generate an &quot;upload to me&quot; link and share it. Anyone can send you files &mdash; no account needed. Files are deleted automatically 2 hours after upload.</p>
             </div>
+
+            {!link && activeRequests.length > 0 && (
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-medium text-[var(--ink-900)] font-sans">Ongoing requests</h2>
+                  <span className="text-xs text-[var(--ink-600)] font-sans">{activeRequests.length} of 2 active</span>
+                </div>
+                {activeRequests.map((request) => (
+                  <ActiveRequestCard
+                    key={request.shareToken}
+                    request={request}
+                    onResume={() => handleResume(request.shareToken)}
+                    onEnd={() => handleEndSession(request.shareToken)}
+                    isEnding={endingToken === request.shareToken}
+                  />
+                ))}
+              </div>
+            )}
 
             {!link ? (
               <div className="flex flex-col gap-5">
@@ -107,7 +169,7 @@ const RequestNewPage = () => {
                 </TextField>
 
                 <AccessTypeField
-                  value={accessType}
+                  value={effectiveAccessType}
                   onChange={(val) => {
                     setAccessType(val)
                     if (val !== 'protected') {
@@ -122,14 +184,21 @@ const RequestNewPage = () => {
                   subject="this request"
                   question="Who can access this request?"
                   isDisabled={isSubmitting}
+                  disabledValues={disabledAccessValues}
                 />
+
+                {selectedTaken && (
+                  <p className="text-sm text-[var(--ink-600)] font-sans text-center">
+                    You&apos;ve reached the maximum of 2 active requests &mdash; one public and one protected. Resume or end a session above to create a new one.
+                  </p>
+                )}
 
                 {error && <p className="text-sm text-red-500 font-sans text-center">{error}</p>}
 
                 <Button
                   fullWidth
                   onPress={handleGenerate}
-                  isDisabled={isSubmitting || isMissingPassword}
+                  isDisabled={isSubmitting || isMissingPassword || selectedTaken}
                   isPending={isSubmitting}
                   className="bg-[var(--ink-900)] text-[var(--brand-50)] rounded-xl text-base font-medium h-12 hover:bg-[var(--ink-800)] font-sans"
                 >
