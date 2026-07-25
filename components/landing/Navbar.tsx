@@ -28,7 +28,7 @@ const Navbar = () => {
 
       {/* Right side — desktop badge + auth */}
       <div className="hidden md:flex items-center gap-4">
-        <NoSignUpRequired />
+        {/* <NoSignUpRequired /> */}
         <ThemeToggle />
         <AuthButton />
       </div>
