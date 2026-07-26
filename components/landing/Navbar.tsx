@@ -1,6 +1,5 @@
 import docuflashLogo from '@/assets/docuflash.png'
 import AuthButton from '@/components/auth/AuthButton'
-import NoSignUpRequired from '@/components/landing/NoSignUpRequired'
 import NavbarDrawer from '@/components/shared/NavbarDrawer'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 import Image from 'next/image'
