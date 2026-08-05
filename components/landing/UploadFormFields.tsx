@@ -1,7 +1,7 @@
 'use client'
 
 import { PRESETS } from '@/app/constants/expiry'
-import { ACCEPTED_UPLOAD_FILE_TYPES, MAX_UPLOAD_FILE_SIZE_MB, MAX_UPLOAD_FILES } from '@/app/constants/upload'
+import { ACCEPTED_UPLOAD_FILE_TYPES, MAX_UPLOAD_FILE_SIZE_MB, MAX_UPLOAD_FILES, SUPPORTED_UPLOAD_FORMATS } from '@/app/constants/upload'
 import useFileUploadForm from '@/app/hooks/useFileUploadForm'
 import useFileUploadSubmit from '@/app/hooks/useFileUploadSubmit'
 import { useAuth } from '@/components/auth/useAuth'
@@ -12,9 +12,9 @@ import AccessTypeField from '@/components/shared/AccessTypeField'
 import type { UploadedShareLink } from '@/types/file'
 import { Button, cn, FieldError, Input, Label, Spinner, Switch, TextField } from '@heroui/react'
 import dynamic from 'next/dynamic'
-import { type CSSProperties, type ReactNode, useEffect, useState } from 'react'
+import { type CSSProperties, useEffect, useState } from 'react'
 import { Controller } from 'react-hook-form'
-import { LuFile, LuFlame, LuFolder } from 'react-icons/lu'
+import { LuFile, LuFlame, LuFolder, LuShield } from 'react-icons/lu'
 
 const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector'), {
   ssr: false,
@@ -25,20 +25,31 @@ const DynamicExpirySelector = dynamic(() => import('../shared/ExpirySelector'), 
   ),
 })
 
-// Static: hoisted so it isn't recreated every render
+// Static: hoisted so they aren't recreated every render
 const SWITCH_STYLE = {
   '--switch-control-bg-checked': 'var(--ink-900)',
   '--switch-control-bg-checked-hover': 'var(--ink-800)',
 } as CSSProperties
 
+const FORMAT_BADGES = SUPPORTED_UPLOAD_FORMATS.map((label) => (
+  <span key={label} className="text-[10px] font-medium tracking-[0.06em] uppercase px-2 py-1 rounded-md bg-ink-900/[0.04] text-[var(--ink-600)] border border-line font-sans">
+    {label}
+  </span>
+))
+
+const FOOTER = (
+  <div className="flex items-center justify-center gap-1.5 text-center">
+    <LuShield className="w-3 h-3 shrink-0 text-[var(--ink-600)]" />
+    <span className="text-xs text-[var(--ink-600)] font-sans">End-to-end encrypted • Auto-deletes on expiry</span>
+  </div>
+)
+
 interface UploadFormFieldsProps {
-  formatBadges: ReactNode
-  footer: ReactNode
   /** Called with the resulting share links once upload succeeds. */
   onUploadSuccess: (shareLinks: UploadedShareLink[], lastShareToken: string | null) => void
 }
 
-const UploadFormFields = ({ formatBadges, footer, onUploadSuccess }: UploadFormFieldsProps) => {
+const UploadFormFields = ({ onUploadSuccess }: UploadFormFieldsProps) => {
   const [showPassword, setShowPassword] = useState(false)
 
   const { files, setError, clearErrors, reset, control, handleSubmit, setValue, setFocus, isSubmitting, errors } = useFileUploadForm()
@@ -125,7 +136,7 @@ const UploadFormFields = ({ formatBadges, footer, onUploadSuccess }: UploadFormF
 
       {/* Format badges + file size */}
       <div className="flex flex-wrap gap-1.5 justify-center">
-        {formatBadges}
+        {FORMAT_BADGES}
         {isBulkSelection && totalFileSizeMB ? (
           <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--brand-alpha-12)] border border-[var(--brand-alpha-30)]">
             <LuFolder className="w-3 h-3 text-[var(--brand-400)]" />
@@ -255,7 +266,7 @@ const UploadFormFields = ({ formatBadges, footer, onUploadSuccess }: UploadFormF
         {isSubmitting ? <Spinner className="text-[var(--brand-50)]" /> : submitLabel}
       </Button>
 
-      {footer}
+      {FOOTER}
     </form>
   )
 }

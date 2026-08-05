@@ -1,16 +1,11 @@
 'use client'
 
 import type { UploadedShareLink } from '@/types/file'
-import { type ReactNode, useState } from 'react'
+import { useState } from 'react'
 import ShareResult from './ShareResult'
 import UploadFormFields from './UploadFormFields'
 
-interface UploadFormProps {
-  formatBadges: ReactNode
-  footer: ReactNode
-}
-
-const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
+const UploadForm = () => {
   const [shareLinks, setShareLinks] = useState<UploadedShareLink[] | null>(null)
 
   const handleReset = () => setShareLinks(null)
@@ -18,7 +13,7 @@ const UploadForm = ({ formatBadges, footer }: UploadFormProps) => {
   return shareLinks ? (
     <ShareResult shareLinks={shareLinks} onReset={handleReset} />
   ) : (
-    <UploadFormFields formatBadges={formatBadges} footer={footer} onUploadSuccess={(links) => links.length > 0 && setShareLinks(links)} />
+    <UploadFormFields onUploadSuccess={(links) => links.length > 0 && setShareLinks(links)} />
   )
 }
 
