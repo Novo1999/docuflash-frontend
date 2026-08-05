@@ -21,7 +21,7 @@ const UploadsSearchBar = ({ value, onChange, isSearching = false }: UploadsSearc
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cn(
-          'bg-[var(--brand-50)]',
+          'bg-surface',
           'border-1 border-line',
           'rounded-xl',
           'pl-11 pr-11',

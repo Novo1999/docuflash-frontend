@@ -118,7 +118,7 @@ const ProfilePage = () => {
               <span>Default expiry</span>
               <Select value={expiryKey} onChange={(key) => setExpiryKey(key as string)}>
                 <Label className="sr-only">Default expiry</Label>
-                <Select.Trigger className="rounded-2xl border border-line bg-[var(--brand-alpha-4)] px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
+                <Select.Trigger className="rounded-2xl border border-line bg-surface px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
                   <Select.Value className="text-[var(--ink-900)]" />
                   <Select.Indicator />
                 </Select.Trigger>
@@ -149,7 +149,7 @@ const ProfilePage = () => {
               <span>Default privacy</span>
               <Select value={privacy} onChange={(key) => setPrivacy(key as 'public' | 'protected')}>
                 <Label className="sr-only">Default privacy</Label>
-                <Select.Trigger className="rounded-2xl border border-line bg-[var(--brand-alpha-4)] px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
+                <Select.Trigger className="rounded-2xl border border-line bg-surface px-3 py-3 text-sm text-[var(--ink-900)] outline-none text-left">
                   <Select.Value className="text-[var(--ink-900)]" />
                   <Select.Indicator />
                 </Select.Trigger>
