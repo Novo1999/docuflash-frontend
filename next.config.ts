@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   experimental: {
     turbopackMemoryEviction: 'auto',
+    turbopackFileSystemCacheForDev: true,
+    turbopackFileSystemCacheForBuild: true,
   },
   async headers() {
     return [
@@ -32,7 +34,7 @@ export default withSentryConfig(nextConfig, {
 
   org: 'docuflash',
 
-  project: 'javascript-nextjs',
+  project: 'docuflash',
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
