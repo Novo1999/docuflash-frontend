@@ -1,6 +1,6 @@
 'use client'
 
-import { authModalOpenAtom, authStatusAtom, establishSessionAtom, loginAtom, logoutAtom, registerAtom, updateProfileAtom, userAtom } from '@/components/auth/atoms/authAtom'
+import { authModalOpenAtom, authStatusAtom, deleteAccountAtom, establishSessionAtom, loginAtom, logoutAtom, registerAtom, updateProfileAtom, userAtom } from '@/components/auth/atoms/authAtom'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback } from 'react'
 
@@ -12,6 +12,7 @@ export const useAuth = () => {
   const login = useSetAtom(loginAtom)
   const register = useSetAtom(registerAtom)
   const logout = useSetAtom(logoutAtom)
+  const deleteAccount = useSetAtom(deleteAccountAtom)
   const establishSession = useSetAtom(establishSessionAtom)
   const updateProfile = useSetAtom(updateProfileAtom)
 
@@ -25,6 +26,7 @@ export const useAuth = () => {
     login,
     register,
     logout,
+    deleteAccount,
     establishSession,
     updateProfile,
     isAuthModalOpen,

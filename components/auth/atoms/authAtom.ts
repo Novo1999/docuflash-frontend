@@ -1,5 +1,5 @@
 import { AUTH_SESSION_STORAGE_KEY } from '@/app/constants/auth'
-import { getCurrentUser, loginUser, logoutUser, refreshAuthSession, registerUser, updateProfile } from '@/app/lib/api/auth'
+import { deleteAccount, getCurrentUser, loginUser, logoutUser, refreshAuthSession, registerUser, updateProfile } from '@/app/lib/api/auth'
 import { isSessionExpired } from '@/app/utils/auth'
 import type { AuthSession, AuthStatus, AuthUser, LoginPayload, RegisterPayload, RegisterResult, UpdateProfilePayload } from '@/types/auth'
 import { atom } from 'jotai'
@@ -79,6 +79,11 @@ export const logoutAtom = atom(null, async (_get, set) => {
   } catch {
     // Revoke locally even if the server call fails.
   }
+  set(clearSessionAtom)
+})
+
+export const deleteAccountAtom = atom(null, async (_get, set) => {
+  await deleteAccount()
   set(clearSessionAtom)
 })
 

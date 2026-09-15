@@ -9,16 +9,19 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
-import { LuLogOut } from 'react-icons/lu'
+import { LuLogOut, LuTrash2 } from 'react-icons/lu'
 
 const ProfilePage = () => {
-  const { status, user, isAuthenticated, openAuthModal, logout, updateProfile } = useAuth()
+  const { status, user, isAuthenticated, openAuthModal, logout, deleteAccount, updateProfile } = useAuth()
   const router = useRouter()
   const [expiryKey, setExpiryKey] = useState('7d')
   const [privacy, setPrivacy] = useState<'public' | 'protected'>('protected')
   const [savingSettings, setSavingSettings] = useState(false)
   const [isSignOutModalOpen, setSignOutModalOpen] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -51,6 +54,25 @@ const ProfilePage = () => {
     } finally {
       setIsSigningOut(false)
       setSignOutModalOpen(false)
+    }
+  }
+
+  const handleDeleteClick = () => {
+    setDeleteError(null)
+    setDeleteModalOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    setIsDeletingAccount(true)
+    setDeleteError(null)
+    try {
+      await deleteAccount()
+      setDeleteModalOpen(false)
+      router.push('/')
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : 'Could not delete your account. Please try again.')
+    } finally {
+      setIsDeletingAccount(false)
     }
   }
 
@@ -175,13 +197,45 @@ const ProfilePage = () => {
           </div>
         </section>
 
-        <div>
+        <div className="flex flex-col items-start gap-3">
           <Button onPress={handleLogoutClick} variant="ghost" className="rounded-xl h-11 px-5 flex items-center gap-2 text-red-600 border border-red-500/30 hover:bg-red-500/10">
             <LuLogOut className="w-4 h-4" />
             Sign out
           </Button>
+          <Button onPress={handleDeleteClick} variant="ghost" className="rounded-xl h-11 px-5 flex items-center gap-2 text-red-600 border border-red-500/30 hover:bg-red-500/10">
+            <LuTrash2 className="w-4 h-4" />
+            Delete account
+          </Button>
         </div>
       </div>
+
+      <Modal.Backdrop isOpen={isDeleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <Modal.Container>
+          <Modal.Dialog className="sm:max-w-[400px]">
+            <Modal.CloseTrigger />
+            <Modal.Header>
+              <Modal.Icon className="bg-red-500/15 text-red-500">
+                <FiAlertTriangle className="size-5" />
+              </Modal.Icon>
+              <Modal.Heading>Delete account</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body>
+              <p className="text-sm text-[var(--ink-600)] font-sans">
+                This permanently deletes your account along with every file and folder you&apos;ve uploaded. This cannot be undone.
+              </p>
+              {deleteError ? <p className="mt-3 text-sm text-red-600 font-sans">{deleteError}</p> : null}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="ghost" onPress={() => setDeleteModalOpen(false)} className="flex-1 text-[var(--ink-600)] font-sans" isDisabled={isDeletingAccount}>
+                Cancel
+              </Button>
+              <Button onPress={handleConfirmDelete} className="flex-1 bg-red-500 text-white hover:bg-red-600 font-sans font-medium" isPending={isDeletingAccount}>
+                Delete account
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
 
       <Modal.Backdrop isOpen={isSignOutModalOpen} onOpenChange={setSignOutModalOpen}>
         <Modal.Container>
