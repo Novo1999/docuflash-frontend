@@ -18,6 +18,10 @@ const forgotPasswordSchema = z.object({
   email: emailField,
 })
 
+const accountDeletionRequestSchema = z.object({
+  email: emailField,
+})
+
 const resetPasswordSchema = z
   .object({
     password: passwordField,
@@ -31,7 +35,8 @@ const resetPasswordSchema = z
 type LoginFormValues = z.infer<typeof loginSchema>
 type RegisterFormValues = z.infer<typeof registerSchema>
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
+type AccountDeletionRequestFormValues = z.infer<typeof accountDeletionRequestSchema>
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
 
-export { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema }
-export type { ForgotPasswordFormValues, LoginFormValues, RegisterFormValues, ResetPasswordFormValues }
+export { accountDeletionRequestSchema, forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema }
+export type { AccountDeletionRequestFormValues, ForgotPasswordFormValues, LoginFormValues, RegisterFormValues, ResetPasswordFormValues }

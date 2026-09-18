@@ -1,4 +1,4 @@
-import type { AuthResult, AuthUser, ForgotPasswordPayload, LoginPayload, OAuthProvider, RefreshResult, RegisterPayload, RegisterResult, ResetPasswordPayload, UpdateProfilePayload } from '@/types/auth'
+import type { AccountDeletionRequestPayload, AuthResult, AuthUser, ForgotPasswordPayload, LoginPayload, OAuthProvider, RefreshResult, RegisterPayload, RegisterResult, ResetPasswordPayload, UpdateProfilePayload } from '@/types/auth'
 import type { ApiResponse } from './client'
 import { ApiError, apiClient, buildApiUrl } from './client'
 
@@ -33,6 +33,16 @@ export async function forgotPassword(payload: ForgotPasswordPayload): Promise<vo
   })
   if (!response.success) {
     throw new ApiError(response.msg || 'Could not send the reset email', response.status)
+  }
+}
+
+export async function requestAccountDeletion(payload: AccountDeletionRequestPayload): Promise<void> {
+  const response = await apiClient<null>('/api/auth/account-deletion/request', {
+    method: 'POST',
+    body: payload,
+  })
+  if (!response.success) {
+    throw new ApiError(response.msg || 'Could not send the verification email', response.status)
   }
 }
 
