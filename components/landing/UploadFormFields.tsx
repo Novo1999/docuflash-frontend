@@ -40,7 +40,7 @@ const FORMAT_BADGES = SUPPORTED_UPLOAD_FORMATS.map((label) => (
 const FOOTER = (
   <div className="flex items-center justify-center gap-1.5 text-center">
     <LuShield className="w-3 h-3 shrink-0 text-[var(--ink-600)]" />
-    <span className="text-xs text-[var(--ink-600)] font-sans">End-to-end encrypted • Auto-deletes on expiry</span>
+    <span className="text-xs text-[var(--ink-600)] font-sans">Encrypted storage • Auto-deletes on expiry</span>
   </div>
 )
 

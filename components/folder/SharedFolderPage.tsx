@@ -5,6 +5,7 @@ import { formatDate } from '@/app/utils/shareFileUtil'
 import PasswordUnlockForm from '@/components/file/PasswordUnlockForm'
 import SharedFolder from '@/components/file/SharedFolder'
 import ItemDeletion from '@/components/folder/ItemDeletion'
+import ReportContentButton from '@/components/moderation/ReportContentButton'
 import { FileAccessType } from '@/types/file'
 import { FolderRecord } from '@/types/folder'
 import { Card, CardContent, Chip } from '@heroui/react'
@@ -113,6 +114,10 @@ const SharedFolderPage = ({ initialFolder, shareToken }: SharedFolderPageProps) 
               )}
             </CardContent>
           </Card>
+
+          <div className="flex justify-center">
+            <ReportContentButton targetType="folder" shareToken={folderForActions.shareToken} targetName={folder.folderName} />
+          </div>
         </div>
       </div>
     </div>

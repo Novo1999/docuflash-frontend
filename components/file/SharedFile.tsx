@@ -1,5 +1,6 @@
 import { formatDate, formatFileSize, getFileTypeInfo, getRelativeTime } from '@/app/utils/shareFileUtil'
 import FileActions from '@/components/file/FileActions'
+import ReportContentButton from '@/components/moderation/ReportContentButton'
 import { FileAccessType, FileRecord } from '@/types/file'
 import { Card, CardContent, Chip } from '@heroui/react'
 import { LuCalendar, LuClock, LuDownload, LuFile, LuHardDrive, LuLock, LuShield } from 'react-icons/lu'
@@ -85,6 +86,10 @@ const SharedFile = ({ file }: SharedFileProps) => {
               </div>
             </CardContent>
           </Card>
+
+          <div className="flex justify-center">
+            <ReportContentButton targetType="file" shareToken={file.shareToken} targetName={file.fileName} />
+          </div>
         </div>
       </div>
     </div>

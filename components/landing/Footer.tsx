@@ -9,6 +9,9 @@ const Footer = async () => {
         <Link href="/privacy" className="hover:text-[var(--ink-900)] hover:underline">
           Privacy Policy
         </Link>
+        <Link href="/terms" className="hover:text-[var(--ink-900)] hover:underline">
+          Terms of Use
+        </Link>
         <Link href="/delete-account" className="hover:text-[var(--ink-900)] hover:underline">
           Delete account
         </Link>
